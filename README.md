@@ -1,19 +1,18 @@
 <p align="center">
   <img src="github/images/banner.png" alt="Axiowisp" />
 </p>
-
-<h1 align="center">Axiowisp</h1>
-
-<p align="center">
-  <strong>A modern, minimal desktop IDE built with Electron, React, and TypeScript.</strong>
-</p>
-
 <p align="center">
   <img src="https://img.shields.io/badge/Electron-29+-47848F?logo=electron&logoColor=white" alt="Electron" />
   <img src="https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white" alt="React" />
   <img src="https://img.shields.io/badge/TypeScript-5.7-3178C6?logo=typescript&logoColor=white" alt="TypeScript" />
   <img src="https://img.shields.io/badge/Vite-6-646CFF?logo=vite&logoColor=white" alt="Vite" />
   <img src="https://img.shields.io/badge/Monaco_Editor-✓-0078D4" alt="Monaco" />
+</p>
+
+---
+
+<p align="center">
+  <strong>A modern, minimal desktop IDE built with Electron, React, and TypeScript.</strong>
 </p>
 
 ---
