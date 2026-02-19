@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useChatStore } from '../stores/chat-store';
 import { useUiStore } from '../stores/ui-store';
+import { renderMarkdown } from '../utils/markdown';
 import { Send, Sparkles, X, Trash2, Loader } from 'lucide-react';
 import './ChatPanel.css';
 
@@ -65,7 +66,9 @@ export const ChatPanel: React.FC = () => {
                                 {msg.role === 'user' ? 'You' : 'Axiowisp'}
                             </span>
                         </div>
-                        <div className="chat-panel__msg-body">{msg.content}</div>
+                        <div className="chat-panel__msg-body">
+                            {msg.role === 'assistant' ? renderMarkdown(msg.content) : msg.content}
+                        </div>
                     </div>
                 ))}
                 {isLoading && (

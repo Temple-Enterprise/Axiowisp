@@ -34,7 +34,7 @@ export const StatusBar: React.FC = () => {
                         <span className="statusbar__item">UTF-8</span>
                     </>
                 )}
-                <span className="statusbar__item statusbar__version">Axiowisp v0.1</span>
+                <span className="statusbar__item statusbar__version">Axiowisp v0.2</span>
             </div>
         </div>
     );

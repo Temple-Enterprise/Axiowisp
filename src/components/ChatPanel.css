@@ -138,8 +138,76 @@
 
 .chat-panel__msg-body {
     color: var(--fg-primary);
-    white-space: pre-wrap;
     word-break: break-word;
+    font-size: var(--font-size-sm);
+    line-height: 1.6;
+}
+
+/* ── Markdown rendering ──────────────────────────────────── */
+.md-paragraph {
+    margin: 0 0 4px 0;
+}
+
+.md-paragraph:empty {
+    height: 8px;
+}
+
+.md-code-block {
+    position: relative;
+    margin: 8px 0;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: #0d1117;
+    border: 1px solid var(--border-muted);
+}
+
+.md-code-lang {
+    display: block;
+    padding: 4px 12px;
+    font-size: 10px;
+    color: var(--fg-muted);
+    background: rgba(255, 255, 255, 0.04);
+    border-bottom: 1px solid var(--border-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: var(--font-sans);
+}
+
+.md-pre {
+    margin: 0;
+    padding: 12px;
+    overflow-x: auto;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 1.5;
+    color: #e6edf3;
+}
+
+.md-pre::-webkit-scrollbar {
+    height: 4px;
+}
+
+.md-pre::-webkit-scrollbar-thumb {
+    background: var(--border-default);
+    border-radius: 2px;
+}
+
+.md-inline-code {
+    padding: 1px 5px;
+    border-radius: var(--radius-xs);
+    background: rgba(110, 118, 129, 0.2);
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+    color: #79c0ff;
+}
+
+.md-link {
+    color: var(--accent);
+    text-decoration: none;
+}
+
+.md-link:hover {
+    text-decoration: underline;
 }
 
 /* Input area */

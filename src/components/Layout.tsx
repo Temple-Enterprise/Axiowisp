@@ -24,10 +24,12 @@ export const Layout: React.FC = () => {
 
     const sidebarWidth = useSettingsStore((s) => s.sidebarWidth);
     const bottomPanelHeight = useSettingsStore((s) => s.bottomPanelHeight);
+    const chatPanelWidth = useSettingsStore((s) => s.chatPanelWidth);
     const setSidebarWidth = useSettingsStore((s) => s.setSidebarWidth);
     const setBottomPanelHeight = useSettingsStore((s) => s.setBottomPanelHeight);
+    const setChatPanelWidth = useSettingsStore((s) => s.setChatPanelWidth);
 
-    const draggingRef = useRef<'sidebar' | 'bottom' | null>(null);
+    const draggingRef = useRef<'sidebar' | 'bottom' | 'chat' | null>(null);
 
     const handleSidebarDragStart = useCallback((e: React.MouseEvent) => {
         e.preventDefault();
@@ -77,10 +79,35 @@ export const Layout: React.FC = () => {
         document.addEventListener('mouseup', onUp);
     }, [bottomPanelHeight, setBottomPanelHeight]);
 
+    const handleChatDragStart = useCallback((e: React.MouseEvent) => {
+        e.preventDefault();
+        draggingRef.current = 'chat';
+        const startX = e.clientX;
+        const startWidth = chatPanelWidth;
+
+        const onMove = (ev: MouseEvent) => {
+            const delta = startX - ev.clientX; // dragging left = wider
+            const newWidth = Math.max(280, Math.min(700, startWidth + delta));
+            setChatPanelWidth(newWidth);
+        };
+        const onUp = () => {
+            draggingRef.current = null;
+            document.removeEventListener('mousemove', onMove);
+            document.removeEventListener('mouseup', onUp);
+            document.body.style.cursor = '';
+            document.body.style.userSelect = '';
+        };
+        document.body.style.cursor = 'col-resize';
+        document.body.style.userSelect = 'none';
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onUp);
+    }, [chatPanelWidth, setChatPanelWidth]);
+
     // Build CSS custom properties for dynamic sizes
     const layoutStyle: React.CSSProperties = {
         '--dynamic-sidebar-width': `${sidebarWidth}px`,
         '--dynamic-bottom-height': `${bottomPanelHeight}px`,
+        '--dynamic-chat-width': `${chatPanelWidth}px`,
     } as React.CSSProperties;
 
     return (
@@ -122,9 +149,12 @@ export const Layout: React.FC = () => {
             </div>
 
             {chatPanelVisible && (
-                <aside className="layout__chat">
-                    <ChatPanel />
-                </aside>
+                <>
+                    <div className="layout__chat-resize" onMouseDown={handleChatDragStart} />
+                    <aside className="layout__chat" style={{ width: chatPanelWidth }}>
+                        <ChatPanel />
+                    </aside>
+                </>
             )}
 
             <div className="layout__statusbar">

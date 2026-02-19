@@ -4,6 +4,7 @@ export const IpcChannels = {
     READ_DIRECTORY: 'fs:readDirectory',
     READ_FILE: 'fs:readFile',
     WRITE_FILE: 'fs:writeFile',
+    LIST_FILES: 'fs:listFiles',
     // Terminal
     TERMINAL_CREATE: 'terminal:create',
     TERMINAL_WRITE: 'terminal:write',
@@ -46,7 +47,7 @@ export interface Tab {
 // ─── Chat ────────────────────────────────────────────────────────
 export interface ChatMessage {
     id: string;
-    role: 'user' | 'assistant';
+    role: 'user' | 'assistant' | 'system';
     content: string;
     timestamp: number;
 }
@@ -57,13 +58,14 @@ export interface ElectronAPI {
     readDirectory: (dirPath: string) => Promise<IpcResult<FileEntry[]>>;
     readFile: (filePath: string) => Promise<IpcResult<string>>;
     writeFile: (filePath: string, content: string) => Promise<IpcResult<void>>;
+    listFiles: (dirPath: string) => Promise<IpcResult<string[]>>;
     // Terminal
     createTerminal: (cwd?: string) => Promise<IpcResult<number>>;
-    writeTerminal: (pid: number, data: string) => void;
-    resizeTerminal: (pid: number, cols: number, rows: number) => void;
-    disposeTerminal: (pid: number) => void;
-    onTerminalData: (callback: (pid: number, data: string) => void) => void;
-    onTerminalExit: (callback: (pid: number, code: number) => void) => void;
+    writeTerminal: (id: number, data: string) => void;
+    resizeTerminal: (id: number, cols: number, rows: number) => void;
+    disposeTerminal: (id: number) => void;
+    onTerminalData: (callback: (id: number, data: string) => void) => void;
+    onTerminalExit: (callback: (id: number, code: number) => void) => void;
     // Runner
     runCommand: (cmd: string, cwd?: string) => Promise<IpcResult<number>>;
     killRunner: (pid: number) => void;

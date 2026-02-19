@@ -18,14 +18,11 @@ export const BottomPanel: React.FC = () => {
     const termRef = useRef<HTMLDivElement>(null);
     const xtermRef = useRef<XTerm | null>(null);
     const fitRef = useRef<FitAddon | null>(null);
-    const pidRef = useRef<number | null>(null);
+    const termIdRef = useRef<number | null>(null);
     const initRef = useRef(false);
 
-    // Focus terminal when switching to terminal tab
     const focusTerminal = useCallback(() => {
-        if (xtermRef.current) {
-            xtermRef.current.focus();
-        }
+        xtermRef.current?.focus();
     }, []);
 
     // Initialize terminal
@@ -61,18 +58,17 @@ export const BottomPanel: React.FC = () => {
             lineHeight: 1.4,
             cursorBlink: true,
             cursorStyle: 'bar',
-            allowProposedApi: true,
+            convertEol: true,
         });
 
         const fitAddon = new FitAddon();
         xterm.loadAddon(fitAddon);
         xterm.open(termRef.current);
 
-        // Fit after a short delay to let DOM render
         setTimeout(() => {
-            fitAddon.fit();
+            try { fitAddon.fit(); } catch { /* skip */ }
             xterm.focus();
-        }, 100);
+        }, 150);
 
         xtermRef.current = xterm;
         fitRef.current = fitAddon;
@@ -80,50 +76,53 @@ export const BottomPanel: React.FC = () => {
         // Create a real terminal process via IPC
         if (window.electronAPI?.createTerminal) {
             window.electronAPI.createTerminal(rootPath || undefined).then((result) => {
-                if (result.success && result.data) {
-                    pidRef.current = result.data;
-                    const dims = fitAddon.proposeDimensions();
-                    if (dims) {
-                        window.electronAPI.resizeTerminal(result.data, dims.cols, dims.rows);
-                    }
+                if (result.success && result.data !== undefined) {
+                    termIdRef.current = result.data;
+                    xterm.writeln('\x1b[32m● Terminal connected\x1b[0m\r\n');
+                } else {
+                    xterm.writeln(`\x1b[31m✗ Failed to create terminal: ${result.error || 'Unknown error'}\x1b[0m`);
                 }
+            }).catch((err: any) => {
+                xterm.writeln(`\x1b[31m✗ Terminal error: ${err.message}\x1b[0m`);
             });
 
-            // Receive data from pty
-            window.electronAPI.onTerminalData((_pid, data) => {
+            // Receive data from the shell process
+            window.electronAPI.onTerminalData((_id: number, data: string) => {
                 xterm.write(data);
             });
 
-            // Send user input to pty
-            xterm.onData((data) => {
-                if (pidRef.current !== null) {
-                    window.electronAPI.writeTerminal(pidRef.current, data);
+            window.electronAPI.onTerminalExit((_id: number, code: number) => {
+                xterm.writeln(`\r\n\x1b[33m● Process exited with code ${code}\x1b[0m`);
+                termIdRef.current = null;
+            });
+
+            // Send keystrokes to the shell
+            xterm.onData((data: string) => {
+                if (termIdRef.current !== null) {
+                    window.electronAPI.writeTerminal(termIdRef.current, data);
                 }
             });
         } else {
-            // Fallback when not in Electron
             xterm.writeln('\x1b[33mTerminal requires Electron environment.\x1b[0m');
-            xterm.writeln('Run with: npm run dev');
+            xterm.writeln('Run the app with: npx tsc -p tsconfig.electron.json && npx electron .');
         }
 
         // Handle container resize
         const observer = new ResizeObserver(() => {
-            try {
-                fitAddon.fit();
-            } catch { /* ignore fit errors during transitions */ }
-            if (pidRef.current !== null) {
+            try { fitAddon.fit(); } catch { /* ignore */ }
+            if (termIdRef.current !== null && window.electronAPI?.resizeTerminal) {
                 const dims = fitAddon.proposeDimensions();
-                if (dims && window.electronAPI?.resizeTerminal) {
-                    window.electronAPI.resizeTerminal(pidRef.current, dims.cols, dims.rows);
+                if (dims) {
+                    window.electronAPI.resizeTerminal(termIdRef.current, dims.cols, dims.rows);
                 }
             }
         });
-        observer.observe(termRef.current);
+        if (termRef.current) observer.observe(termRef.current);
 
         return () => {
             observer.disconnect();
-            if (pidRef.current !== null) {
-                window.electronAPI?.disposeTerminal(pidRef.current);
+            if (termIdRef.current !== null) {
+                window.electronAPI?.disposeTerminal(termIdRef.current);
             }
             xterm.dispose();
         };

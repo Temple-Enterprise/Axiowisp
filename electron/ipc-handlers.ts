@@ -1,7 +1,6 @@
 import { ipcMain, dialog, BrowserWindow } from 'electron';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as pty from 'node-pty';
 import { spawn, ChildProcess } from 'child_process';
 import { IpcChannels, FileEntry, IpcResult } from '../shared/types';
 
@@ -13,8 +12,9 @@ const IGNORE_PATTERNS = new Set([
 ]);
 
 // Track active terminals and runners
-const terminals = new Map<number, pty.IPty>();
+const terminals = new Map<number, ChildProcess>();
 const runners = new Map<number, ChildProcess>();
+let termIdCounter = 1;
 
 /** Register all IPC handlers on the main process. */
 export function registerIpcHandlers(): void {
@@ -68,6 +68,11 @@ export function registerIpcHandlers(): void {
         IpcChannels.WRITE_FILE,
         async (_event, filePath: string, content: string): Promise<IpcResult<void>> => {
             try {
+                // Ensure directory exists
+                const dir = path.dirname(filePath);
+                if (!fs.existsSync(dir)) {
+                    fs.mkdirSync(dir, { recursive: true });
+                }
                 fs.writeFileSync(filePath, content, 'utf-8');
                 return { success: true };
             } catch (err: any) {
@@ -76,57 +81,87 @@ export function registerIpcHandlers(): void {
         },
     );
 
-    // ── Terminal: Create ────────────────────────────────────────
+    // ── List Files (flat, for AI context) ───────────────────────
     ipcMain.handle(
-        IpcChannels.TERMINAL_CREATE,
-        async (_event, cwd?: string): Promise<IpcResult<number>> => {
+        IpcChannels.LIST_FILES,
+        async (_event, dirPath: string): Promise<IpcResult<string[]>> => {
             try {
-                const shell = process.platform === 'win32' ? 'powershell.exe' : (process.env.SHELL || 'bash');
-                const term = pty.spawn(shell, [], {
-                    name: 'xterm-256color',
-                    cols: 80,
-                    rows: 24,
-                    cwd: cwd || process.env.HOME || process.cwd(),
-                    env: process.env as Record<string, string>,
-                });
-
-                const pid = term.pid;
-                terminals.set(pid, term);
-
-                const win = getWindow();
-                term.onData((data: string) => {
-                    win?.webContents.send(IpcChannels.TERMINAL_DATA, pid, data);
-                });
-                term.onExit(({ exitCode }) => {
-                    terminals.delete(pid);
-                    win?.webContents.send(IpcChannels.TERMINAL_EXIT, pid, exitCode);
-                });
-
-                return { success: true, data: pid };
+                const files = listFilesRecursive(dirPath);
+                return { success: true, data: files };
             } catch (err: any) {
                 return { success: false, error: err.message ?? String(err) };
             }
         },
     );
 
+    // ── Terminal: Create (using child_process for reliability) ──
+    ipcMain.handle(
+        IpcChannels.TERMINAL_CREATE,
+        async (_event, cwd?: string): Promise<IpcResult<number>> => {
+            try {
+                const isWin = process.platform === 'win32';
+                const shell = isWin ? 'powershell.exe' : (process.env.SHELL || '/bin/bash');
+                const args = isWin ? ['-NoLogo', '-NoExit'] : ['--login'];
+
+                const term = spawn(shell, args, {
+                    cwd: cwd || process.env.HOME || process.cwd(),
+                    env: { ...process.env, TERM: 'xterm-256color' } as Record<string, string>,
+                    stdio: ['pipe', 'pipe', 'pipe'],
+                    windowsHide: false,
+                });
+
+                if (!term.pid) {
+                    return { success: false, error: 'Failed to spawn terminal process' };
+                }
+
+                const id = termIdCounter++;
+                terminals.set(id, term);
+
+                const win = getWindow();
+
+                term.stdout?.on('data', (data: Buffer) => {
+                    win?.webContents.send(IpcChannels.TERMINAL_DATA, id, data.toString());
+                });
+                term.stderr?.on('data', (data: Buffer) => {
+                    win?.webContents.send(IpcChannels.TERMINAL_DATA, id, data.toString());
+                });
+                term.on('exit', (code) => {
+                    terminals.delete(id);
+                    win?.webContents.send(IpcChannels.TERMINAL_EXIT, id, code ?? 0);
+                });
+                term.on('error', (err) => {
+                    console.error('Terminal process error:', err);
+                    terminals.delete(id);
+                });
+
+                return { success: true, data: id };
+            } catch (err: any) {
+                console.error('Terminal creation error:', err);
+                return { success: false, error: err.message ?? String(err) };
+            }
+        },
+    );
+
     // ── Terminal: Write ─────────────────────────────────────────
-    ipcMain.on(IpcChannels.TERMINAL_WRITE, (_event, pid: number, data: string) => {
-        const term = terminals.get(pid);
-        if (term) term.write(data);
+    ipcMain.on(IpcChannels.TERMINAL_WRITE, (_event, id: number, data: string) => {
+        const term = terminals.get(id);
+        if (term?.stdin?.writable) {
+            term.stdin.write(data);
+        }
     });
 
-    // ── Terminal: Resize ────────────────────────────────────────
-    ipcMain.on(IpcChannels.TERMINAL_RESIZE, (_event, pid: number, cols: number, rows: number) => {
-        const term = terminals.get(pid);
-        if (term) term.resize(cols, rows);
+    // ── Terminal: Resize (no-op for child_process, only pty supports resize)
+    ipcMain.on(IpcChannels.TERMINAL_RESIZE, (_event, _id: number, _cols: number, _rows: number) => {
+        // Resize is only supported by node-pty. child_process doesn't have resize.
+        // The terminal still works, just without dynamic resizing.
     });
 
     // ── Terminal: Dispose ───────────────────────────────────────
-    ipcMain.on(IpcChannels.TERMINAL_DISPOSE, (_event, pid: number) => {
-        const term = terminals.get(pid);
+    ipcMain.on(IpcChannels.TERMINAL_DISPOSE, (_event, id: number) => {
+        const term = terminals.get(id);
         if (term) {
             term.kill();
-            terminals.delete(pid);
+            terminals.delete(id);
         }
     });
 
@@ -206,4 +241,28 @@ function readDirectorySync(dirPath: string, depth = 0): FileEntry[] {
     });
 
     return result;
+}
+
+/** Recursively list all file paths in a directory (for AI context building). */
+function listFilesRecursive(dirPath: string, depth = 0, maxFiles = 500): string[] {
+    if (depth > 8) return [];
+    const files: string[] = [];
+
+    try {
+        const entries = fs.readdirSync(dirPath, { withFileTypes: true });
+        for (const entry of entries) {
+            if (files.length >= maxFiles) break;
+            if (IGNORE_PATTERNS.has(entry.name)) continue;
+            if (entry.name.startsWith('.')) continue;
+
+            const fullPath = path.join(dirPath, entry.name);
+            if (entry.isDirectory()) {
+                files.push(...listFilesRecursive(fullPath, depth + 1, maxFiles - files.length));
+            } else {
+                files.push(fullPath);
+            }
+        }
+    } catch { /* skip inaccessible dirs */ }
+
+    return files;
 }

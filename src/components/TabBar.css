@@ -101,3 +101,45 @@
     background: var(--bg-active);
     color: var(--fg-primary);
 }
+
+/* ── Context Menu ─────────────────────────────────────────── */
+.tabbar__context-menu {
+    position: fixed;
+    z-index: 999;
+    min-width: 160px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-overlay);
+    padding: var(--space-1) 0;
+    animation: ctx-in 100ms ease;
+}
+
+@keyframes ctx-in {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.tabbar__context-item {
+    display: block;
+    width: 100%;
+    padding: var(--space-2) var(--space-3);
+    border: none;
+    background: transparent;
+    color: var(--fg-primary);
+    font-size: var(--font-size-sm);
+    text-align: left;
+    cursor: pointer;
+    transition: background var(--transition-fast);
+}
+
+.tabbar__context-item:hover {
+    background: var(--bg-hover);
+}

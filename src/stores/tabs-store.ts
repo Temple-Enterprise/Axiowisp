@@ -22,6 +22,8 @@ interface TabsState {
     activeTabId: string | null;
     openTab: (filePath: string) => Promise<void>;
     closeTab: (tabId: string) => void;
+    closeAllTabs: () => void;
+    closeOtherTabs: (keepTabId: string) => void;
     setActiveTab: (tabId: string) => void;
     markDirty: (tabId: string) => void;
     markClean: (tabId: string) => void;
@@ -82,6 +84,14 @@ export const useTabsStore = create<TabsState>((set, get) => ({
             return { tabs: newTabs, activeTabId: newActive };
         });
     },
+
+    closeAllTabs: () => set({ tabs: [], activeTabId: null }),
+
+    closeOtherTabs: (keepTabId: string) =>
+        set((state) => ({
+            tabs: state.tabs.filter((t) => t.id === keepTabId),
+            activeTabId: keepTabId,
+        })),
 
     setActiveTab: (tabId: string) => set({ activeTabId: tabId }),
 

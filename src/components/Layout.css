@@ -28,18 +28,18 @@
 
 /* ── With chat ─────────────────────────────────────────────── */
 .layout[data-chat="true"] {
-    grid-template-columns: var(--activitybar-width) 1fr var(--chat-panel-width);
+    grid-template-columns: var(--activitybar-width) 1fr 4px var(--dynamic-chat-width, var(--chat-panel-width));
     grid-template-areas:
-        "activitybar main chat"
-        "statusbar statusbar statusbar";
+        "activitybar main chatresize chat"
+        "statusbar statusbar statusbar statusbar";
 }
 
 /* ── With sidebar + chat ───────────────────────────────────── */
 .layout[data-sidebar="true"][data-chat="true"] {
-    grid-template-columns: var(--activitybar-width) var(--dynamic-sidebar-width, var(--sidebar-width)) 4px 1fr var(--chat-panel-width);
+    grid-template-columns: var(--activitybar-width) var(--dynamic-sidebar-width, var(--sidebar-width)) 4px 1fr 4px var(--dynamic-chat-width, var(--chat-panel-width));
     grid-template-areas:
-        "activitybar sidebar resize main chat"
-        "statusbar statusbar statusbar statusbar statusbar";
+        "activitybar sidebar resize main chatresize chat"
+        "statusbar statusbar statusbar statusbar statusbar statusbar";
 }
 
 /* ── Regions ───────────────────────────────────────────────── */
@@ -108,6 +108,20 @@
     border-top: 1px solid var(--border-default);
     background: var(--bg-surface);
     overflow: hidden;
+}
+
+.layout__chat-resize {
+    grid-area: chatresize;
+    width: 4px;
+    cursor: col-resize;
+    background: transparent;
+    transition: background var(--transition-fast);
+    z-index: 10;
+}
+
+.layout__chat-resize:hover,
+.layout__chat-resize:active {
+    background: var(--accent);
 }
 
 .layout__chat {

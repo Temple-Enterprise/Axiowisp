@@ -14,6 +14,7 @@ export interface SettingsState {
     // Layout (resizable widths/heights)
     sidebarWidth: number;
     bottomPanelHeight: number;
+    chatPanelWidth: number;
 
     setEditorFontSize: (size: number) => void;
     setWordWrap: (wrap: 'off' | 'on' | 'wordWrapColumn') => void;
@@ -24,6 +25,7 @@ export interface SettingsState {
     setOpenaiModel: (model: string) => void;
     setSidebarWidth: (width: number) => void;
     setBottomPanelHeight: (height: number) => void;
+    setChatPanelWidth: (width: number) => void;
 }
 
 const STORAGE_KEY = 'axiowisp-settings';
@@ -48,6 +50,7 @@ function saveSettings(state: Partial<SettingsState>) {
             openaiModel: state.openaiModel,
             sidebarWidth: state.sidebarWidth,
             bottomPanelHeight: state.bottomPanelHeight,
+            chatPanelWidth: state.chatPanelWidth,
         };
         localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
     } catch { /* ignore */ }
@@ -65,6 +68,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
     openaiModel: saved.openaiModel ?? 'gpt-4o-mini',
     sidebarWidth: saved.sidebarWidth ?? 240,
     bottomPanelHeight: saved.bottomPanelHeight ?? 220,
+    chatPanelWidth: saved.chatPanelWidth ?? 360,
 
     setEditorFontSize: (size) => set((s) => { const n = { ...s, editorFontSize: size }; saveSettings(n); return n; }),
     setWordWrap: (wrap) => set((s) => { const n = { ...s, wordWrap: wrap }; saveSettings(n); return n; }),
@@ -75,4 +79,5 @@ export const useSettingsStore = create<SettingsState>((set) => ({
     setOpenaiModel: (model) => set((s) => { const n = { ...s, openaiModel: model }; saveSettings(n); return n; }),
     setSidebarWidth: (width) => set((s) => { const n = { ...s, sidebarWidth: width }; saveSettings(n); return n; }),
     setBottomPanelHeight: (height) => set((s) => { const n = { ...s, bottomPanelHeight: height }; saveSettings(n); return n; }),
+    setChatPanelWidth: (width) => set((s) => { const n = { ...s, chatPanelWidth: width }; saveSettings(n); return n; }),
 }));

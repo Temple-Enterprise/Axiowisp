@@ -8,19 +8,20 @@ const electronAPI: ElectronAPI = {
     readFile: (filePath: string) => ipcRenderer.invoke(IpcChannels.READ_FILE, filePath),
     writeFile: (filePath: string, content: string) =>
         ipcRenderer.invoke(IpcChannels.WRITE_FILE, filePath, content),
+    listFiles: (dirPath: string) => ipcRenderer.invoke(IpcChannels.LIST_FILES, dirPath),
 
     // Terminal
     createTerminal: (cwd?: string) => ipcRenderer.invoke(IpcChannels.TERMINAL_CREATE, cwd),
-    writeTerminal: (pid: number, data: string) =>
-        ipcRenderer.send(IpcChannels.TERMINAL_WRITE, pid, data),
-    resizeTerminal: (pid: number, cols: number, rows: number) =>
-        ipcRenderer.send(IpcChannels.TERMINAL_RESIZE, pid, cols, rows),
-    disposeTerminal: (pid: number) => ipcRenderer.send(IpcChannels.TERMINAL_DISPOSE, pid),
-    onTerminalData: (callback: (pid: number, data: string) => void) => {
-        ipcRenderer.on(IpcChannels.TERMINAL_DATA, (_event, pid, data) => callback(pid, data));
+    writeTerminal: (id: number, data: string) =>
+        ipcRenderer.send(IpcChannels.TERMINAL_WRITE, id, data),
+    resizeTerminal: (id: number, cols: number, rows: number) =>
+        ipcRenderer.send(IpcChannels.TERMINAL_RESIZE, id, cols, rows),
+    disposeTerminal: (id: number) => ipcRenderer.send(IpcChannels.TERMINAL_DISPOSE, id),
+    onTerminalData: (callback: (id: number, data: string) => void) => {
+        ipcRenderer.on(IpcChannels.TERMINAL_DATA, (_event, id, data) => callback(id, data));
     },
-    onTerminalExit: (callback: (pid: number, code: number) => void) => {
-        ipcRenderer.on(IpcChannels.TERMINAL_EXIT, (_event, pid, code) => callback(pid, code));
+    onTerminalExit: (callback: (id: number, code: number) => void) => {
+        ipcRenderer.on(IpcChannels.TERMINAL_EXIT, (_event, id, code) => callback(id, code));
     },
 
     // Runner
