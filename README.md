@@ -1,12 +1,13 @@
 <p align="center">
   <img src="github/images/banner.png" alt="Axiowisp" />
 </p>
+
 <p align="center">
-  <img src="https://img.shields.io/badge/Electron-29+-00FFFF?style=for-the-badge&logo=electron&logoColor=white&labelColor=FF1493" />
-  <img src="https://img.shields.io/badge/React-19-00FFFF?style=for-the-badge&logo=react&logoColor=white&labelColor=FF1493" />
-  <img src="https://img.shields.io/badge/TypeScript-5.7-00FFFF?style=for-the-badge&logo=typescript&logoColor=white&labelColor=FF1493" />
-  <img src="https://img.shields.io/badge/Vite-6-00FFFF?style=for-the-badge&logo=vite&logoColor=white&labelColor=FF1493" />
-  <img src="https://img.shields.io/badge/Monaco_Editor-✓-00FFFF?style=for-the-badge&logo=visualstudiocode&logoColor=white&labelColor=FF1493" />
+  <img src="https://img.shields.io/badge/Electron-29+-1E293B?style=for-the-badge&logo=electron&logoColor=white&labelColor=C08497" />
+  <img src="https://img.shields.io/badge/React-19-1E293B?style=for-the-badge&logo=react&logoColor=white&labelColor=C08497" />
+  <img src="https://img.shields.io/badge/TypeScript-5.7-1E293B?style=for-the-badge&logo=typescript&logoColor=white&labelColor=C08497" />
+  <img src="https://img.shields.io/badge/Vite-6-1E293B?style=for-the-badge&logo=vite&logoColor=white&labelColor=C08497" />
+  <img src="https://img.shields.io/badge/Monaco_Editor-✓-1E293B?style=for-the-badge&logo=visualstudiocode&logoColor=white&labelColor=C08497" />
 </p>
 
 ---
