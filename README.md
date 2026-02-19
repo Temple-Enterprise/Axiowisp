@@ -29,7 +29,7 @@
 - **Settings** — Persistent configuration for editor, terminal, appearance, and API keys
 - **Dark Theme** — Carefully crafted dark navy theme with blue/purple accents
 
-## 📸 Screenshots
+## 📸 Showcase
 
 <p align="center">
   <img src="github/images/showcase.png" alt="Axiowisp IDE Screenshot" width="900" />
@@ -165,18 +165,6 @@ Axiowisp follows Electron security best practices:
 - **Preload Script**: All IPC communication goes through a typed `contextBridge` API
 - **No Remote Content**: No external scripts or remote URLs loaded
 
-## 🛣️ Roadmap
-
-- [ ] Full-text search across project files
-- [ ] Git integration (status, diff, commit)
-- [ ] LSP support for richer IntelliSense
-- [ ] Extension/plugin system
-- [ ] Multiple terminal instances
-- [ ] Light theme
-- [ ] Settings persistence to disk
-- [ ] Electron Builder packaging (`.exe`, `.dmg`, `.AppImage`)
-- [ ] AI code actions (inline suggestions, refactoring)
-
 ## 📄 License
 
 MIT © Axiowisp
@@ -184,5 +172,5 @@ MIT © Axiowisp
 ---
 
 <p align="center">
-  <sub>Built with ❤️ using Electron, React, and TypeScript</sub>
+  <sub>Built by Temple Enterprise LLC with ❤️ using Electron, React, and TypeScript</sub>
 </p>
