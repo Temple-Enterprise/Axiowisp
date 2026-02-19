@@ -17,6 +17,8 @@ export const IpcChannels = {
     RUNNER_DATA: 'runner:data',         // main → renderer
     RUNNER_EXIT: 'runner:exit',         // main → renderer
     RUNNER_KILL: 'runner:kill',
+    // Menu
+    MENU_ABOUT: 'menu:about',
 } as const;
 
 // ─── File Tree ───────────────────────────────────────────────────
@@ -71,6 +73,8 @@ export interface ElectronAPI {
     killRunner: (pid: number) => void;
     onRunnerData: (callback: (pid: number, data: string) => void) => void;
     onRunnerExit: (callback: (pid: number, code: number) => void) => void;
+    // Menu
+    onAbout: (callback: (data: any) => void) => void;
 }
 
 // ─── Window augmentation ────────────────────────────────────────

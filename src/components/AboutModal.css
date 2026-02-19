@@ -1,0 +1,117 @@
+.about-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.about-modal {
+    background: #1e1e1e;
+    border: 1px solid #333;
+    border-radius: 8px;
+    width: 500px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    position: relative;
+    padding: 24px;
+    color: #cccccc;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.about-modal__close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: none;
+    border: none;
+    color: #888;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.about-modal__close:hover {
+    color: #fff;
+}
+
+.about-modal__content {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.about-modal__icon {
+    display: flex;
+    align-items: flex-start;
+    padding-top: 8px;
+}
+
+.about-modal__info {
+    flex: 1;
+}
+
+.about-modal__title {
+    margin: 0 0 16px 0;
+    font-size: 18px;
+    font-weight: 500;
+    color: #ffffff;
+}
+
+.about-modal__details p {
+    margin: 6px 0;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #bbbbbb;
+}
+
+.about-modal__details strong {
+    color: #dddddd;
+    margin-right: 4px;
+}
+
+.about-modal__footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding-top: 16px;
+}
+
+.about-modal__copy-btn,
+.about-modal__ok-btn {
+    padding: 6px 16px;
+    border-radius: 4px;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid transparent;
+}
+
+.about-modal__copy-btn {
+    background: #2d2d2d;
+    color: #fff;
+    border-color: #444;
+}
+
+.about-modal__copy-btn:hover {
+    background: #3d3d3d;
+}
+
+.about-modal__ok-btn {
+    background: #3b3d41;
+    /* Darker grey typical of windows/vscode dialogs */
+    color: #fff;
+    border: 1px solid #444;
+}
+
+.about-modal__ok-btn:hover {
+    background: #4b4d51;
+}

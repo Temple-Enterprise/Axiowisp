@@ -34,6 +34,10 @@ const electronAPI: ElectronAPI = {
     onRunnerExit: (callback: (pid: number, code: number) => void) => {
         ipcRenderer.on(IpcChannels.RUNNER_EXIT, (_event, pid, code) => callback(pid, code));
     },
+    // Menu
+    onAbout: (callback: (data: any) => void) => {
+        ipcRenderer.on(IpcChannels.MENU_ABOUT, (_event, data) => callback(data));
+    },
 };
 
 contextBridge.exposeInMainWorld('electronAPI', electronAPI);

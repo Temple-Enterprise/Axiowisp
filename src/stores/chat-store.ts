@@ -72,6 +72,75 @@ async function callOpenAI(
     return data.choices?.[0]?.message?.content ?? 'No response';
 }
 
+async function callAnthropic(
+    messages: { role: string; content: string }[],
+    apiKey: string,
+    model: string,
+): Promise<string> {
+    // Anthropic expects system prompt to be separate
+    const systemMessage = messages.find(m => m.role === 'system');
+    const userMessages = messages.filter(m => m.role !== 'system');
+
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+            'x-api-key': apiKey,
+            'anthropic-version': '2023-06-01',
+            'content-type': 'application/json',
+            'dangerously-allow-browser': 'true', // Needed for local dev if not proxied
+        },
+        body: JSON.stringify({
+            model,
+            max_tokens: 4096,
+            system: systemMessage?.content,
+            messages: userMessages.map(m => ({
+                role: m.role,
+                content: m.content
+            })),
+        }),
+    });
+
+    if (!res.ok) {
+        const err = await res.text();
+        throw new Error(`Anthropic API error (${res.status}): ${err}`);
+    }
+
+    const data = await res.json();
+    return data.content?.[0]?.text ?? 'No response';
+}
+
+async function callGemini(
+    messages: { role: string; content: string }[],
+    apiKey: string,
+    model: string,
+): Promise<string> {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            contents: messages.map(m => ({
+                role: m.role === 'assistant' ? 'model' : 'user',
+                parts: [{ text: m.content }]
+            })).filter(m => m.role !== 'system'), // Gemini often handles system instructions differently, but basic chat can ignore or merge.
+            // For better system prompt handling in Gemini, we can put it in 'systemInstruction' if supported or prepend to first user message.
+            // Here we'll map system prompt to systemInstruction if using a model that supports it, or just prepend.
+            systemInstruction: messages.find(m => m.role === 'system') ? {
+                parts: [{ text: messages.find(m => m.role === 'system')?.content || '' }]
+            } : undefined,
+        }),
+    });
+
+    if (!res.ok) {
+        const err = await res.text();
+        throw new Error(`Gemini API error (${res.status}): ${err}`);
+    }
+
+    const data = await res.json();
+    return data.candidates?.[0]?.content?.parts?.[0]?.text ?? 'No response';
+}
+
 /** Try to apply AI-generated file edits. Format: FILE:path\n```\ncontent\n``` */
 async function applyFileEdits(response: string): Promise<string[]> {
     const applied: string[] = [];
@@ -114,47 +183,58 @@ export const useChatStore = create<ChatState>((set, get) => ({
         }));
 
         const { useSettingsStore } = await import('./settings-store');
-        const { openaiApiKey, openaiModel } = useSettingsStore.getState();
+        const settings = useSettingsStore.getState();
+        const { activeProvider } = settings;
 
-        let aiContent: string;
+        let aiContent: string = '';
 
-        if (!openaiApiKey) {
-            aiContent = '⚠️ **API key not set.** Please open Settings (gear icon) and enter your OpenAI API key to use AI Chat.';
-        } else {
-            try {
-                // Build workspace context
-                const workspaceCtx = await buildWorkspaceContext();
+        try {
+            // Validation
+            if (activeProvider === 'openai' && !settings.openaiApiKey) throw new Error('OpenAI API key missing.');
+            if (activeProvider === 'anthropic' && !settings.anthropicApiKey) throw new Error('Anthropic API key missing.');
+            if (activeProvider === 'gemini' && !settings.geminiApiKey) throw new Error('Gemini API key missing.');
 
-                // Build message history
-                const history = get().messages.map((m) => ({
-                    role: m.role,
-                    content: m.content,
-                }));
+            // Build workspace context
+            const workspaceCtx = await buildWorkspaceContext();
 
-                const systemPrompt =
-                    'You are Axiowisp AI, a powerful coding assistant built into the Axiowisp IDE. ' +
-                    'You have full access to the user\'s project files and can view their code. ' +
-                    'Help users with coding questions, debugging, code generation, and refactoring. ' +
-                    'Use markdown formatting for code blocks. ' +
-                    'When the user asks you to modify a file, output the full new file content in this format:\n' +
-                    '**FILE: absolute/path/to/file**\n```language\nfull file content here\n```\n' +
-                    'Always be concise and helpful.' +
-                    workspaceCtx;
+            // Build message history
+            const history = get().messages.map((m) => ({
+                role: m.role,
+                content: m.content,
+            }));
 
-                const apiMessages = [
-                    { role: 'system', content: systemPrompt },
-                    ...history,
-                ];
+            const systemPrompt =
+                'You are Axiowisp AI, a powerful coding assistant built into the Axiowisp IDE. ' +
+                'You have full access to the user\'s project files and can view their code. ' +
+                'Help users with coding questions, debugging, code generation, and refactoring. ' +
+                'Use markdown formatting for code blocks. ' +
+                'When the user asks you to modify a file, output the full new file content in this format:\n' +
+                '**FILE: absolute/path/to/file**\n```language\nfull file content here\n```\n' +
+                'Always be concise and helpful.' +
+                workspaceCtx;
 
-                aiContent = await callOpenAI(apiMessages, openaiApiKey, openaiModel);
+            const apiMessages = [
+                { role: 'system', content: systemPrompt },
+                ...history,
+            ];
 
-                // Check if the AI response contains file edits and apply them
-                const applied = await applyFileEdits(aiContent);
-                if (applied.length > 0) {
-                    aiContent += `\n\n✅ Applied changes to: ${applied.map(f => `\`${f}\``).join(', ')}`;
-                }
-            } catch (err: any) {
-                aiContent = `❌ **Error:** ${err.message}`;
+            if (activeProvider === 'openai') {
+                aiContent = await callOpenAI(apiMessages, settings.openaiApiKey, settings.openaiModel);
+            } else if (activeProvider === 'anthropic') {
+                aiContent = await callAnthropic(apiMessages, settings.anthropicApiKey, settings.anthropicModel);
+            } else if (activeProvider === 'gemini') {
+                aiContent = await callGemini(apiMessages, settings.geminiApiKey, settings.geminiModel);
+            }
+
+            // Check if the AI response contains file edits and apply them
+            const applied = await applyFileEdits(aiContent);
+            if (applied.length > 0) {
+                aiContent += `\n\n✅ Applied changes to: ${applied.map(f => `\`${f}\``).join(', ')}`;
+            }
+        } catch (err: any) {
+            aiContent = `❌ **Error:** ${err.message}`;
+            if (err.message.includes('key missing')) {
+                aiContent += ' Please check your Settings.';
             }
         }
 

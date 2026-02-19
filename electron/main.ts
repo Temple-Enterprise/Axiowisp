@@ -1,6 +1,8 @@
 import { app, BrowserWindow, Menu, MenuItemConstructorOptions } from 'electron';
 import * as path from 'path';
 import { registerIpcHandlers } from './ipc-handlers';
+import { IpcChannels } from '../shared/types';
+import * as os from 'os';
 
 const isDev = !app.isPackaged;
 
@@ -115,7 +117,16 @@ function createMenu(): void {
                 {
                     label: 'About Axiowisp',
                     click: () => {
-                        // placeholder
+                        mainWindow?.webContents.send(IpcChannels.MENU_ABOUT, {
+                            appVersion: app.getVersion(),
+                            electronVersion: process.versions.electron,
+                            chromeVersion: process.versions.chrome,
+                            nodeVersion: process.versions.node,
+                            v8Version: process.versions.v8,
+                            osType: os.type(),
+                            osRelease: os.release(),
+                            arch: os.arch(),
+                        });
                     },
                 },
             ],

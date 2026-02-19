@@ -1,6 +1,6 @@
 {
   "name": "axiowisp",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "description": "Axiowisp — a modern desktop IDE built with Electron, React & Monaco",
   "main": "dist-electron/electron/main.js",

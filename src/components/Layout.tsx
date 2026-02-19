@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useRef, useEffect } from 'react';
 import { ActivityBar } from './ActivityBar';
 import { Sidebar } from './Sidebar';
 import { TabBar } from './TabBar';
@@ -8,6 +8,7 @@ import { ChatPanel } from './ChatPanel';
 import { StatusBar } from './StatusBar';
 import { CommandPalette } from './CommandPalette';
 import { SettingsModal } from './SettingsModal';
+import { AboutModal } from './AboutModal';
 import { WelcomeTab } from './WelcomeTab';
 import { useUiStore } from '../stores/ui-store';
 import { useTabsStore } from '../stores/tabs-store';
@@ -20,6 +21,7 @@ export const Layout: React.FC = () => {
     const chatPanelVisible = useUiStore((s) => s.chatPanelVisible);
     const commandPaletteOpen = useUiStore((s) => s.commandPaletteOpen);
     const settingsOpen = useUiStore((s) => s.settingsOpen);
+    const aboutModalOpen = useUiStore((s) => s.aboutModalOpen);
     const activeTabId = useTabsStore((s) => s.activeTabId);
 
     const sidebarWidth = useSettingsStore((s) => s.sidebarWidth);
@@ -28,6 +30,13 @@ export const Layout: React.FC = () => {
     const setSidebarWidth = useSettingsStore((s) => s.setSidebarWidth);
     const setBottomPanelHeight = useSettingsStore((s) => s.setBottomPanelHeight);
     const setChatPanelWidth = useSettingsStore((s) => s.setChatPanelWidth);
+    const toggleAboutModal = useUiStore((s) => s.toggleAboutModal);
+
+    useEffect(() => {
+        window.electronAPI.onAbout((data) => {
+            toggleAboutModal(true, data);
+        });
+    }, [toggleAboutModal]);
 
     const draggingRef = useRef<'sidebar' | 'bottom' | 'chat' | null>(null);
 
@@ -163,6 +172,7 @@ export const Layout: React.FC = () => {
 
             {commandPaletteOpen && <CommandPalette />}
             {settingsOpen && <SettingsModal />}
+            {aboutModalOpen && <AboutModal />}
         </div>
     );
 };

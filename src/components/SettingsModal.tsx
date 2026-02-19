@@ -114,17 +114,45 @@ export const SettingsModal: React.FC = () => {
                     <section className="settings-modal__section">
                         <div className="settings-modal__section-header">
                             <Key size={15} />
-                            <span>AI / OpenAI</span>
+                            <span>AI / LLM Provider</span>
+                        </div>
+                        <div className="settings-modal__option">
+                            <label>Provider</label>
+                            <select
+                                className="settings-modal__select"
+                                value={settings.activeProvider}
+                                onChange={(e) => settings.setActiveProvider(e.target.value as any)}
+                            >
+                                <option value="openai">OpenAI</option>
+                                <option value="anthropic">Anthropic</option>
+                                <option value="gemini">Google Gemini</option>
+                            </select>
                         </div>
                         <div className="settings-modal__option settings-modal__option--col">
-                            <label>API Key</label>
+                            <label>
+                                {settings.activeProvider === 'openai' && 'OpenAI API Key'}
+                                {settings.activeProvider === 'anthropic' && 'Anthropic API Key'}
+                                {settings.activeProvider === 'gemini' && 'Gemini API Key'}
+                            </label>
                             <div className="settings-modal__key-row">
                                 <input
                                     className="settings-modal__input"
                                     type={apiKeyVisible ? 'text' : 'password'}
-                                    placeholder="sk-…"
-                                    value={settings.openaiApiKey}
-                                    onChange={(e) => settings.setOpenaiApiKey(e.target.value)}
+                                    placeholder={
+                                        settings.activeProvider === 'openai' ? 'sk-…' :
+                                            settings.activeProvider === 'anthropic' ? 'sk-ant-…' :
+                                                'AIza…'
+                                    }
+                                    value={
+                                        settings.activeProvider === 'openai' ? settings.openaiApiKey :
+                                            settings.activeProvider === 'anthropic' ? settings.anthropicApiKey :
+                                                settings.geminiApiKey
+                                    }
+                                    onChange={(e) => {
+                                        if (settings.activeProvider === 'openai') settings.setOpenaiApiKey(e.target.value);
+                                        if (settings.activeProvider === 'anthropic') settings.setAnthropicApiKey(e.target.value);
+                                        if (settings.activeProvider === 'gemini') settings.setGeminiApiKey(e.target.value);
+                                    }}
                                 />
                                 <button
                                     className="settings-modal__toggle-key"
@@ -138,13 +166,41 @@ export const SettingsModal: React.FC = () => {
                             <label>Model</label>
                             <select
                                 className="settings-modal__select"
-                                value={settings.openaiModel}
-                                onChange={(e) => settings.setOpenaiModel(e.target.value)}
+                                value={
+                                    settings.activeProvider === 'openai' ? settings.openaiModel :
+                                        settings.activeProvider === 'anthropic' ? settings.anthropicModel :
+                                            settings.geminiModel
+                                }
+                                onChange={(e) => {
+                                    if (settings.activeProvider === 'openai') settings.setOpenaiModel(e.target.value);
+                                    if (settings.activeProvider === 'anthropic') settings.setAnthropicModel(e.target.value);
+                                    if (settings.activeProvider === 'gemini') settings.setGeminiModel(e.target.value);
+                                }}
                             >
-                                <option value="gpt-4o-mini">GPT-4o Mini</option>
-                                <option value="gpt-4o">GPT-4o</option>
-                                <option value="gpt-4-turbo">GPT-4 Turbo</option>
-                                <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                                {settings.activeProvider === 'openai' && (
+                                    <>
+                                        <option value="gpt-4o-mini">GPT-4o Mini</option>
+                                        <option value="gpt-4o">GPT-4o</option>
+                                        <option value="gpt-4-turbo">GPT-4 Turbo</option>
+                                        <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                                    </>
+                                )}
+                                {settings.activeProvider === 'anthropic' && (
+                                    <>
+                                        <option value="claude-3-5-sonnet-20241022">Claude 3.5 Sonnet (New)</option>
+                                        <option value="claude-3-5-sonnet-20240620">Claude 3.5 Sonnet</option>
+                                        <option value="claude-3-opus-20240229">Claude 3 Opus</option>
+                                        <option value="claude-3-sonnet-20240229">Claude 3 Sonnet</option>
+                                        <option value="claude-3-haiku-20240307">Claude 3 Haiku</option>
+                                    </>
+                                )}
+                                {settings.activeProvider === 'gemini' && (
+                                    <>
+                                        <option value="gemini-1.5-pro">Gemini 1.5 Pro</option>
+                                        <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
+                                        <option value="gemini-pro">Gemini 1.0 Pro</option>
+                                    </>
+                                )}
                             </select>
                         </div>
                     </section>

@@ -8,6 +8,8 @@ interface UiState {
     chatPanelVisible: boolean;
     commandPaletteOpen: boolean;
     settingsOpen: boolean;
+    aboutModalOpen: boolean;
+    aboutData: any;
     bottomPanelTab: 'terminal' | 'output';
     activeActivity: Activity;
     toggleSidebar: () => void;
@@ -18,6 +20,7 @@ interface UiState {
     setBottomPanelTab: (tab: 'terminal' | 'output') => void;
     setActiveActivity: (activity: Activity) => void;
     toggleSettings: () => void;
+    toggleAboutModal: (isOpen: boolean, data?: any) => void;
 }
 
 export const useUiStore = create<UiState>((set) => ({
@@ -26,6 +29,8 @@ export const useUiStore = create<UiState>((set) => ({
     chatPanelVisible: false,
     commandPaletteOpen: false,
     settingsOpen: false,
+    aboutModalOpen: false,
+    aboutData: null,
     bottomPanelTab: 'terminal',
     activeActivity: 'explorer',
 
@@ -37,4 +42,5 @@ export const useUiStore = create<UiState>((set) => ({
     setBottomPanelTab: (tab) => set({ bottomPanelTab: tab }),
     setActiveActivity: (activity) => set({ activeActivity: activity, sidebarVisible: true }),
     toggleSettings: () => set((s) => ({ settingsOpen: !s.settingsOpen })),
+    toggleAboutModal: (isOpen, data) => set({ aboutModalOpen: isOpen, aboutData: data || null }),
 }));
