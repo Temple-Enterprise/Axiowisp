@@ -19,6 +19,14 @@ export const StatusBar: React.FC = () => {
                     </span>
                 )}
             </div>
+            <div className="statusbar__center">
+                <span className="statusbar__item statusbar__branding">
+                    Built by{' '}
+                    <a href="https://templeenterprise.com" target="_blank" rel="noopener noreferrer" className="statusbar__link">
+                        Temple Enterprise LLC
+                    </a>
+                </span>
+            </div>
             <div className="statusbar__right">
                 {activeTab && (
                     <>

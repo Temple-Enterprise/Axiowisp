@@ -17,6 +17,16 @@
     display: flex;
     align-items: center;
     gap: var(--space-3);
+    flex: 1;
+}
+
+.statusbar__right {
+    justify-content: flex-end;
+}
+
+.statusbar__center {
+    flex-shrink: 0;
+    text-align: center;
 }
 
 .statusbar__item {
@@ -29,4 +39,20 @@
 
 .statusbar__version {
     color: var(--fg-muted);
+}
+
+.statusbar__branding {
+    color: var(--fg-muted);
+    font-size: 10px;
+}
+
+.statusbar__link {
+    color: var(--fg-secondary);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+
+.statusbar__link:hover {
+    color: var(--accent);
+    text-decoration: underline;
 }
