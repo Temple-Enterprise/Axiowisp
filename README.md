@@ -1,12 +1,13 @@
 <p align="center">
   <img src="github/images/banner.png" alt="Axiowisp" />
 </p>
+
 <p align="center">
-  <img src="https://img.shields.io/badge/Electron-29+-47848F?logo=electron&logoColor=white" alt="Electron" />
-  <img src="https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white" alt="React" />
-  <img src="https://img.shields.io/badge/TypeScript-5.7-3178C6?logo=typescript&logoColor=white" alt="TypeScript" />
-  <img src="https://img.shields.io/badge/Vite-6-646CFF?logo=vite&logoColor=white" alt="Vite" />
-  <img src="https://img.shields.io/badge/Monaco_Editor-✓-0078D4" alt="Monaco" />
+  <img src="https://img.shields.io/badge/Electron-29+-1E293B?style=for-the-badge&logo=electron&logoColor=white&labelColor=C08497" />
+  <img src="https://img.shields.io/badge/React-19-1E293B?style=for-the-badge&logo=react&logoColor=white&labelColor=C08497" />
+  <img src="https://img.shields.io/badge/TypeScript-5.7-1E293B?style=for-the-badge&logo=typescript&logoColor=white&labelColor=C08497" />
+  <img src="https://img.shields.io/badge/Vite-6-1E293B?style=for-the-badge&logo=vite&logoColor=white&labelColor=C08497" />
+  <img src="https://img.shields.io/badge/Monaco_Editor-✓-1E293B?style=for-the-badge&logo=visualstudiocode&logoColor=white&labelColor=C08497" />
 </p>
 
 ---
@@ -29,7 +30,7 @@
 - **Settings** — Persistent configuration for editor, terminal, appearance, and API keys
 - **Dark Theme** — Carefully crafted dark navy theme with blue/purple accents
 
-## 📸 Screenshots
+## 📸 Showcase
 
 <p align="center">
   <img src="github/images/showcase.png" alt="Axiowisp IDE Screenshot" width="900" />
@@ -165,24 +166,8 @@ Axiowisp follows Electron security best practices:
 - **Preload Script**: All IPC communication goes through a typed `contextBridge` API
 - **No Remote Content**: No external scripts or remote URLs loaded
 
-## 🛣️ Roadmap
-
-- [ ] Full-text search across project files
-- [ ] Git integration (status, diff, commit)
-- [ ] LSP support for richer IntelliSense
-- [ ] Extension/plugin system
-- [ ] Multiple terminal instances
-- [ ] Light theme
-- [ ] Settings persistence to disk
-- [ ] Electron Builder packaging (`.exe`, `.dmg`, `.AppImage`)
-- [ ] AI code actions (inline suggestions, refactoring)
-
-## 📄 License
-
-MIT © Axiowisp
-
 ---
 
 <p align="center">
-  <sub>Built with ❤️ using Electron, React, and TypeScript</sub>
+  Built by <a href="https://templeenterprise.com"><b>Temple Enterprise LLC</b></a>
 </p>
