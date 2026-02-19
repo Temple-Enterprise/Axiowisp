@@ -10,7 +10,7 @@ export const AboutModal: React.FC = () => {
 
     const copyToClipboard = () => {
         const text = `
-Antigravity Version: ${aboutData.appVersion}
+Axiowisp Version: ${aboutData.appVersion}
 Electron: ${aboutData.electronVersion}
 Chrome: ${aboutData.chromeVersion}
 Node.js: ${aboutData.nodeVersion}
@@ -31,9 +31,9 @@ OS: ${aboutData.osType} ${aboutData.osRelease} ${aboutData.arch}
                         <Info size={48} color="#3b82f6" />
                     </div>
                     <div className="about-modal__info">
-                        <h2 className="about-modal__title">Antigravity</h2>
+                        <h2 className="about-modal__title">Axiowisp</h2>
                         <div className="about-modal__details">
-                            <p><strong>Antigravity Version:</strong> {aboutData.appVersion}</p>
+                            <p><strong>Version:</strong> {aboutData.appVersion}</p>
                             <p><strong>Electron:</strong> {aboutData.electronVersion}</p>
                             <p><strong>Chrome:</strong> {aboutData.chromeVersion}</p>
                             <p><strong>Node.js:</strong> {aboutData.nodeVersion}</p>
