@@ -73,52 +73,6 @@ npx vite build
 npx electron .
 ```
 
-## 🏗️ Architecture
-
-```
-Axiowisp/
-├── electron/               # Electron main process
-│   ├── main.ts             # Window creation, app lifecycle
-│   ├── preload.ts          # Context bridge (IPC API)
-│   └── ipc-handlers.ts     # File system, terminal, runner handlers
-├── shared/
-│   └── types.ts            # Shared TypeScript interfaces & IPC channels
-├── src/                    # Renderer (React + Vite)
-│   ├── main.tsx            # Entry point + Monaco worker config
-│   ├── App.tsx             # Root component + keyboard shortcuts
-│   ├── components/
-│   │   ├── Layout.tsx      # CSS Grid layout with resizable panels
-│   │   ├── ActivityBar.tsx # VS Code-style icon sidebar
-│   │   ├── Sidebar.tsx     # Explorer / Search / Run panels
-│   │   ├── FileTree.tsx    # Recursive file tree component
-│   │   ├── TabBar.tsx      # Open file tabs
-│   │   ├── Editor.tsx      # Monaco Editor integration
-│   │   ├── BottomPanel.tsx # Terminal (xterm.js) + Output
-│   │   ├── ChatPanel.tsx   # AI Chat with OpenAI
-│   │   ├── RunPanel.tsx    # Command runner with streaming output
-│   │   ├── CommandPalette.tsx # Ctrl+P quick search
-│   │   ├── SettingsModal.tsx  # Settings UI
-│   │   ├── StatusBar.tsx   # Bottom status bar
-│   │   └── WelcomeTab.tsx  # Welcome screen
-│   ├── stores/
-│   │   ├── ui-store.ts     # UI state (panels, modals)
-│   │   ├── tabs-store.ts   # Open file tabs
-│   │   ├── workspace-store.ts # Workspace/folder state
-│   │   ├── chat-store.ts   # AI chat messages + OpenAI API
-│   │   └── settings-store.ts # Persistent settings (localStorage)
-│   └── theme/
-│       └── tokens.css      # CSS custom properties (design tokens)
-├── assets/
-│   ├── icon.png            # App icon
-│   └── icon-bg.png         # App icon (with background)
-├── public/                 # Static assets served by Vite
-├── index.html              # HTML entry point
-├── vite.config.ts          # Vite configuration
-├── tsconfig.json           # TypeScript config (renderer)
-├── tsconfig.electron.json  # TypeScript config (main process)
-└── package.json
-```
-
 ## ⚙️ Tech Stack
 
 | Layer | Technology |
