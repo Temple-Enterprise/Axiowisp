@@ -165,10 +165,6 @@ Axiowisp follows Electron security best practices:
 - **Preload Script**: All IPC communication goes through a typed `contextBridge` API
 - **No Remote Content**: No external scripts or remote URLs loaded
 
-## 📄 License
-
-MIT © Axiowisp
-
 ---
 
 <p align="center">
