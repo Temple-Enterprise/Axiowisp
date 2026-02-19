@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="github/images/logo.png" alt="Axiowisp" width="256" height="256" />
+  <img src="github/images/banner.png" alt="Axiowisp" />
 </p>
 
 <h1 align="center">Axiowisp</h1>
