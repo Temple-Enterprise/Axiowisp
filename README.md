@@ -2,11 +2,11 @@
   <img src="github/images/banner.png" alt="Axiowisp" />
 </p>
 <p align="center">
-  <img src="https://img.shields.io/badge/Electron-29+-47848F?logo=electron&logoColor=white" alt="Electron" />
-  <img src="https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white" alt="React" />
-  <img src="https://img.shields.io/badge/TypeScript-5.7-3178C6?logo=typescript&logoColor=white" alt="TypeScript" />
-  <img src="https://img.shields.io/badge/Vite-6-646CFF?logo=vite&logoColor=white" alt="Vite" />
-  <img src="https://img.shields.io/badge/Monaco_Editor-✓-0078D4" alt="Monaco" />
+  <img src="https://img.shields.io/badge/Electron-29+-00FFFF?style=for-the-badge&logo=electron&logoColor=white&labelColor=FF1493" />
+  <img src="https://img.shields.io/badge/React-19-00FFFF?style=for-the-badge&logo=react&logoColor=white&labelColor=FF1493" />
+  <img src="https://img.shields.io/badge/TypeScript-5.7-00FFFF?style=for-the-badge&logo=typescript&logoColor=white&labelColor=FF1493" />
+  <img src="https://img.shields.io/badge/Vite-6-00FFFF?style=for-the-badge&logo=vite&logoColor=white&labelColor=FF1493" />
+  <img src="https://img.shields.io/badge/Monaco_Editor-✓-00FFFF?style=for-the-badge&logo=visualstudiocode&logoColor=white&labelColor=FF1493" />
 </p>
 
 ---
