@@ -1,0 +1,32 @@
+/* ─── Status Bar ───────────────────────────────────────────────── */
+
+.statusbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 100%;
+    padding: 0 var(--space-3);
+    background: linear-gradient(90deg, rgba(56, 139, 253, 0.12) 0%, rgba(139, 92, 246, 0.08) 100%);
+    font-size: var(--font-size-xs);
+    color: var(--fg-secondary);
+    user-select: none;
+}
+
+.statusbar__left,
+.statusbar__right {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.statusbar__item {
+    white-space: nowrap;
+}
+
+.statusbar__branch {
+    color: var(--fg-accent);
+}
+
+.statusbar__version {
+    color: var(--fg-muted);
+}

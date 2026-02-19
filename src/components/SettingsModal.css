@@ -1,0 +1,192 @@
+/* ─── Settings Modal ───────────────────────────────────────────── */
+
+.settings-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: var(--bg-overlay);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: settings-overlay-in 150ms ease;
+}
+
+@keyframes settings-overlay-in {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.settings-modal {
+    width: 520px;
+    max-height: 80vh;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-overlay);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: settings-in 200ms ease;
+}
+
+@keyframes settings-in {
+    from {
+        opacity: 0;
+        transform: scale(0.96);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.settings-modal__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-4) var(--space-5);
+    border-bottom: 1px solid var(--border-muted);
+}
+
+.settings-modal__title {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
+    color: var(--fg-primary);
+    margin: 0;
+}
+
+.settings-modal__close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--fg-muted);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.settings-modal__close:hover {
+    background: var(--bg-hover);
+    color: var(--fg-primary);
+}
+
+.settings-modal__body {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--space-4) var(--space-5);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+}
+
+.settings-modal__section-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--fg-primary);
+    margin-bottom: var(--space-3);
+    padding-bottom: var(--space-2);
+    border-bottom: 1px solid var(--border-muted);
+}
+
+.settings-modal__option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-2) 0;
+}
+
+.settings-modal__option--col {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-2);
+}
+
+.settings-modal__option label {
+    font-size: var(--font-size-sm);
+    color: var(--fg-secondary);
+}
+
+.settings-modal__select {
+    padding: var(--space-1) var(--space-2);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-sm);
+    background: var(--bg-input);
+    color: var(--fg-primary);
+    font-size: var(--font-size-xs);
+    outline: none;
+    cursor: pointer;
+    transition: border-color var(--transition-fast);
+    min-width: 140px;
+}
+
+.settings-modal__select:focus {
+    border-color: var(--accent);
+}
+
+.settings-modal__input {
+    flex: 1;
+    padding: var(--space-2);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-sm);
+    background: var(--bg-input);
+    color: var(--fg-primary);
+    font-family: var(--font-mono);
+    font-size: var(--font-size-xs);
+    outline: none;
+    transition: border-color var(--transition-fast);
+}
+
+.settings-modal__input:focus {
+    border-color: var(--accent);
+}
+
+.settings-modal__input::placeholder {
+    color: var(--fg-muted);
+}
+
+.settings-modal__key-row {
+    display: flex;
+    gap: var(--space-2);
+}
+
+.settings-modal__toggle-key {
+    padding: var(--space-1) var(--space-3);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-sm);
+    background: var(--bg-elevated);
+    color: var(--fg-secondary);
+    font-size: var(--font-size-xs);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all var(--transition-fast);
+}
+
+.settings-modal__toggle-key:hover {
+    background: var(--bg-hover);
+    color: var(--fg-primary);
+}
+
+.settings-modal__footer {
+    padding: var(--space-3) var(--space-5);
+    border-top: 1px solid var(--border-muted);
+}
+
+.settings-modal__note {
+    font-size: var(--font-size-xs);
+    color: var(--fg-muted);
+    margin: 0;
+    text-align: center;
+}

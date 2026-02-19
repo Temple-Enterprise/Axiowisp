@@ -1,0 +1,124 @@
+/* ─── IDE Layout Grid ──────────────────────────────────────────── */
+
+.layout {
+    display: grid;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background: var(--bg-base);
+    color: var(--fg-primary);
+    font-family: var(--font-sans);
+    font-size: var(--font-size-md);
+
+    /* Default: activitybar + main only */
+    grid-template-rows: 1fr var(--status-bar-height);
+    grid-template-columns: var(--activitybar-width) 1fr;
+    grid-template-areas:
+        "activitybar main"
+        "statusbar statusbar";
+}
+
+/* ── With sidebar ──────────────────────────────────────────── */
+.layout[data-sidebar="true"] {
+    grid-template-columns: var(--activitybar-width) var(--dynamic-sidebar-width, var(--sidebar-width)) 4px 1fr;
+    grid-template-areas:
+        "activitybar sidebar resize main"
+        "statusbar statusbar statusbar statusbar";
+}
+
+/* ── With chat ─────────────────────────────────────────────── */
+.layout[data-chat="true"] {
+    grid-template-columns: var(--activitybar-width) 1fr var(--chat-panel-width);
+    grid-template-areas:
+        "activitybar main chat"
+        "statusbar statusbar statusbar";
+}
+
+/* ── With sidebar + chat ───────────────────────────────────── */
+.layout[data-sidebar="true"][data-chat="true"] {
+    grid-template-columns: var(--activitybar-width) var(--dynamic-sidebar-width, var(--sidebar-width)) 4px 1fr var(--chat-panel-width);
+    grid-template-areas:
+        "activitybar sidebar resize main chat"
+        "statusbar statusbar statusbar statusbar statusbar";
+}
+
+/* ── Regions ───────────────────────────────────────────────── */
+.layout__activitybar {
+    grid-area: activitybar;
+    overflow: hidden;
+}
+
+.layout__sidebar {
+    grid-area: sidebar;
+    overflow: hidden;
+    border-right: 1px solid var(--border-default);
+    background: var(--bg-surface);
+}
+
+.layout__sidebar-resize {
+    grid-area: resize;
+    width: 4px;
+    cursor: col-resize;
+    background: transparent;
+    transition: background var(--transition-fast);
+    z-index: 10;
+}
+
+.layout__sidebar-resize:hover,
+.layout__sidebar-resize:active {
+    background: var(--accent);
+}
+
+.layout__main {
+    grid-area: main;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-width: 0;
+}
+
+.layout__tabbar {
+    flex-shrink: 0;
+    height: var(--tab-bar-height);
+    border-bottom: 1px solid var(--border-default);
+    background: var(--bg-surface);
+}
+
+.layout__editor {
+    flex: 1;
+    overflow: hidden;
+    min-height: 0;
+}
+
+.layout__bottom-resize {
+    flex-shrink: 0;
+    height: 4px;
+    cursor: row-resize;
+    background: transparent;
+    transition: background var(--transition-fast);
+}
+
+.layout__bottom-resize:hover,
+.layout__bottom-resize:active {
+    background: var(--accent);
+}
+
+.layout__bottom {
+    flex-shrink: 0;
+    border-top: 1px solid var(--border-default);
+    background: var(--bg-surface);
+    overflow: hidden;
+}
+
+.layout__chat {
+    grid-area: chat;
+    overflow: hidden;
+    border-left: 1px solid var(--border-default);
+    background: var(--bg-surface);
+}
+
+.layout__statusbar {
+    grid-area: statusbar;
+    height: var(--status-bar-height);
+    border-top: 1px solid var(--border-muted);
+}

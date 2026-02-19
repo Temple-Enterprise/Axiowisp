@@ -1,0 +1,63 @@
+/* ─── File Tree ────────────────────────────────────────────────── */
+
+.file-tree {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.file-tree__item {
+    user-select: none;
+}
+
+.file-tree__row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: 3px var(--space-2);
+    padding-right: var(--space-3);
+    cursor: pointer;
+    border-radius: 0;
+    transition: background var(--transition-fast);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.file-tree__row:hover {
+    background: var(--bg-hover);
+}
+
+.file-tree__row--active {
+    background: var(--accent-muted);
+}
+
+.file-tree__row--active:hover {
+    background: var(--accent-muted);
+}
+
+.file-tree__chevron {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    color: var(--fg-muted);
+}
+
+.file-tree__chevron-spacer {
+    flex-shrink: 0;
+    width: 16px;
+}
+
+.file-tree__icon {
+    flex-shrink: 0;
+}
+
+.file-tree__name {
+    font-size: var(--font-size-sm);
+    color: var(--fg-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

@@ -1,0 +1,103 @@
+/* ─── Tab Bar ──────────────────────────────────────────────────── */
+
+.tabbar {
+    height: 100%;
+    display: flex;
+    align-items: stretch;
+    background: var(--bg-surface);
+}
+
+.tabbar__tabs {
+    display: flex;
+    align-items: stretch;
+    overflow-x: auto;
+    overflow-y: hidden;
+    flex: 1;
+}
+
+.tabbar__tabs::-webkit-scrollbar {
+    height: 2px;
+}
+
+.tabbar__tabs::-webkit-scrollbar-thumb {
+    background: var(--border-default);
+}
+
+/* ── Individual Tab ────────────────────────────────────────── */
+.tabbar__tab {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: 0 var(--space-3);
+    min-width: 0;
+    max-width: 180px;
+    cursor: pointer;
+    border-right: 1px solid var(--border-muted);
+    font-size: var(--font-size-sm);
+    color: var(--fg-secondary);
+    position: relative;
+    transition: background var(--transition-fast), color var(--transition-fast);
+    user-select: none;
+    flex-shrink: 0;
+}
+
+.tabbar__tab:hover {
+    background: var(--bg-hover);
+    color: var(--fg-primary);
+}
+
+.tabbar__tab--active {
+    background: var(--bg-base);
+    color: var(--fg-primary);
+    border-bottom: 2px solid var(--accent);
+}
+
+.tabbar__tab--active:hover {
+    background: var(--bg-base);
+}
+
+.tabbar__tab-icon {
+    flex-shrink: 0;
+}
+
+.tabbar__tab-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Unsaved indicator dot */
+.tabbar__tab-dot {
+    flex-shrink: 0;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--fg-warning);
+}
+
+/* Close button */
+.tabbar__tab-close {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border: none;
+    border-radius: var(--radius-xs);
+    background: transparent;
+    color: var(--fg-muted);
+    cursor: pointer;
+    opacity: 0;
+    transition: all var(--transition-fast);
+    margin-left: var(--space-1);
+}
+
+.tabbar__tab:hover .tabbar__tab-close {
+    opacity: 1;
+}
+
+.tabbar__tab-close:hover {
+    background: var(--bg-active);
+    color: var(--fg-primary);
+}

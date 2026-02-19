@@ -1,0 +1,55 @@
+/* ─── Activity Bar ─────────────────────────────────────────────── */
+
+.activitybar {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: var(--activitybar-width);
+    height: 100%;
+    background: var(--bg-base);
+    border-right: 1px solid var(--border-muted);
+    padding: var(--space-1) 0;
+}
+
+.activitybar__top,
+.activitybar__bottom {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+.activitybar__btn {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--fg-muted);
+    cursor: pointer;
+    transition: color var(--transition-fast), background var(--transition-fast);
+}
+
+.activitybar__btn:hover {
+    color: var(--fg-primary);
+    background: var(--bg-hover);
+}
+
+.activitybar__btn--active {
+    color: var(--fg-primary);
+}
+
+.activitybar__btn--active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 8px;
+    bottom: 8px;
+    width: 2px;
+    background: var(--accent);
+    border-radius: 0 2px 2px 0;
+}

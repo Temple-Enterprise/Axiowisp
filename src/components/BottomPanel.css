@@ -1,0 +1,106 @@
+/* ─── Bottom Panel ─────────────────────────────────────────────── */
+
+.bottom-panel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+}
+
+.bottom-panel__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 var(--space-2);
+    height: 32px;
+    flex-shrink: 0;
+    border-bottom: 1px solid var(--border-muted);
+    background: var(--bg-surface);
+}
+
+.bottom-panel__tabs {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+}
+
+.bottom-panel__tab {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: var(--space-1) var(--space-2);
+    border: none;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--fg-secondary);
+    font-size: var(--font-size-xs);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.bottom-panel__tab:hover {
+    background: var(--bg-hover);
+    color: var(--fg-primary);
+}
+
+.bottom-panel__tab--active {
+    color: var(--fg-primary);
+    background: var(--bg-active);
+}
+
+.bottom-panel__close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border: none;
+    border-radius: var(--radius-xs);
+    background: transparent;
+    color: var(--fg-muted);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.bottom-panel__close:hover {
+    background: var(--bg-hover);
+    color: var(--fg-primary);
+}
+
+.bottom-panel__content {
+    flex: 1;
+    overflow: hidden;
+    min-height: 0;
+}
+
+/* xterm container */
+.bottom-panel__xterm {
+    width: 100%;
+    height: 100%;
+    padding: var(--space-1) var(--space-2);
+}
+
+.bottom-panel__xterm .xterm {
+    height: 100%;
+}
+
+/* Output */
+.bottom-panel__output {
+    font-family: var(--font-mono);
+    font-size: var(--font-size-xs);
+    line-height: 1.6;
+    padding: var(--space-2) var(--space-3);
+    overflow-y: auto;
+    height: 100%;
+}
+
+.bottom-panel__output-line {
+    display: flex;
+    gap: var(--space-2);
+    color: var(--fg-secondary);
+}
+
+.bottom-panel__timestamp {
+    color: var(--fg-muted);
+    flex-shrink: 0;
+}
