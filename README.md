@@ -169,5 +169,5 @@ Axiowisp follows Electron security best practices:
 ---
 
 <p align="center">
-  <sub>Built by Temple Enterprise LLC with ❤️ using Electron, React, and TypeScript</sub>
+  Built by <a href="https://templeenterprise.com"><b>Temple Enterprise LLC</b></a>
 </p>
