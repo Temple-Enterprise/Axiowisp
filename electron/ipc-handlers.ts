@@ -2,6 +2,7 @@ import { ipcMain, dialog, BrowserWindow } from 'electron';
 import * as fs from 'fs';
 import * as path from 'path';
 import { spawn, ChildProcess } from 'child_process';
+import * as pty from 'node-pty';
 import { IpcChannels, FileEntry, IpcResult } from '../shared/types';
 
 // Directories/files to skip when scanning a project tree
@@ -12,7 +13,7 @@ const IGNORE_PATTERNS = new Set([
 ]);
 
 // Track active terminals and runners
-const terminals = new Map<number, ChildProcess>();
+const terminals = new Map<number, pty.IPty>();
 const runners = new Map<number, ChildProcess>();
 let termIdCounter = 1;
 
@@ -94,24 +95,25 @@ export function registerIpcHandlers(): void {
         },
     );
 
-    // ── Terminal: Create (using child_process for reliability) ──
+    // ── Terminal: Create (using node-pty for interactive shell) ──
     ipcMain.handle(
         IpcChannels.TERMINAL_CREATE,
         async (_event, cwd?: string): Promise<IpcResult<number>> => {
             try {
                 const isWin = process.platform === 'win32';
                 const shell = isWin ? 'powershell.exe' : (process.env.SHELL || '/bin/bash');
-                const args = isWin ? ['-NoLogo', '-NoExit'] : ['--login'];
+                const args = isWin ? [] : ['--login'];
 
-                const term = spawn(shell, args, {
+                const term = pty.spawn(shell, args, {
+                    name: 'xterm-256color',
+                    cols: 80,
+                    rows: 24,
                     cwd: cwd || process.env.HOME || process.cwd(),
-                    env: { ...process.env, TERM: 'xterm-256color' } as Record<string, string>,
-                    stdio: ['pipe', 'pipe', 'pipe'],
-                    windowsHide: false,
+                    env: process.env as Record<string, string>,
                 });
 
                 if (!term.pid) {
-                    return { success: false, error: 'Failed to spawn terminal process' };
+                    return { success: false, error: 'Failed to spawn pty process' };
                 }
 
                 const id = termIdCounter++;
@@ -119,19 +121,13 @@ export function registerIpcHandlers(): void {
 
                 const win = getWindow();
 
-                term.stdout?.on('data', (data: Buffer) => {
-                    win?.webContents.send(IpcChannels.TERMINAL_DATA, id, data.toString());
+                term.onData((data: string) => {
+                    win?.webContents.send(IpcChannels.TERMINAL_DATA, id, data);
                 });
-                term.stderr?.on('data', (data: Buffer) => {
-                    win?.webContents.send(IpcChannels.TERMINAL_DATA, id, data.toString());
-                });
-                term.on('exit', (code) => {
+
+                term.onExit(({ exitCode }) => {
                     terminals.delete(id);
-                    win?.webContents.send(IpcChannels.TERMINAL_EXIT, id, code ?? 0);
-                });
-                term.on('error', (err) => {
-                    console.error('Terminal process error:', err);
-                    terminals.delete(id);
+                    win?.webContents.send(IpcChannels.TERMINAL_EXIT, id, exitCode ?? 0);
                 });
 
                 return { success: true, data: id };
@@ -145,15 +141,22 @@ export function registerIpcHandlers(): void {
     // ── Terminal: Write ─────────────────────────────────────────
     ipcMain.on(IpcChannels.TERMINAL_WRITE, (_event, id: number, data: string) => {
         const term = terminals.get(id);
-        if (term?.stdin?.writable) {
-            term.stdin.write(data);
+        if (term) {
+            term.write(data);
         }
     });
 
     // ── Terminal: Resize (no-op for child_process, only pty supports resize)
-    ipcMain.on(IpcChannels.TERMINAL_RESIZE, (_event, _id: number, _cols: number, _rows: number) => {
-        // Resize is only supported by node-pty. child_process doesn't have resize.
-        // The terminal still works, just without dynamic resizing.
+    // ── Terminal: Resize ────────────────────────────────────────
+    ipcMain.on(IpcChannels.TERMINAL_RESIZE, (_event, id: number, cols: number, rows: number) => {
+        const term = terminals.get(id);
+        if (term) {
+            try {
+                term.resize(cols, rows);
+            } catch (err) {
+                console.warn('Terminal resize failed:', err);
+            }
+        }
     });
 
     // ── Terminal: Dispose ───────────────────────────────────────

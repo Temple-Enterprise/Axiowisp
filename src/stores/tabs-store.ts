@@ -4,13 +4,21 @@ import { Tab } from '../../shared/types';
 // Map file extension → Monaco language id
 function detectLanguage(fileName: string): string {
     const ext = fileName.split('.').pop()?.toLowerCase() ?? '';
+
+    const mediaMap: Record<string, string> = {
+        png: 'image', jpg: 'image', jpeg: 'image', gif: 'image',
+        webp: 'image', ico: 'image', svg: 'image',
+        mp4: 'video', webm: 'video', ogg: 'video'
+    };
+    if (mediaMap[ext]) return mediaMap[ext];
+
     const map: Record<string, string> = {
         ts: 'typescript', tsx: 'typescript', js: 'javascript', jsx: 'javascript',
         json: 'json', html: 'html', css: 'css', scss: 'scss', less: 'less',
         md: 'markdown', py: 'python', rs: 'rust', go: 'go', java: 'java',
         c: 'c', cpp: 'cpp', h: 'c', hpp: 'cpp', cs: 'csharp',
         rb: 'ruby', php: 'php', sh: 'shell', bash: 'shell', zsh: 'shell',
-        yml: 'yaml', yaml: 'yaml', toml: 'ini', xml: 'xml', svg: 'xml',
+        yml: 'yaml', yaml: 'yaml', toml: 'ini', xml: 'xml',
         sql: 'sql', graphql: 'graphql', dockerfile: 'dockerfile',
         makefile: 'makefile', lua: 'lua', swift: 'swift', kt: 'kotlin',
     };

@@ -19,6 +19,13 @@ export const IpcChannels = {
     RUNNER_KILL: 'runner:kill',
     // Menu
     MENU_ABOUT: 'menu:about',
+    MENU_OPEN_FOLDER: 'menu:openFolder',
+    MENU_SAVE: 'menu:save',
+    MENU_TOGGLE_SIDEBAR: 'menu:toggleSidebar',
+    MENU_TOGGLE_BOTTOM_PANEL: 'menu:toggleBottomPanel',
+    MENU_TOGGLE_CHAT: 'menu:toggleChat',
+    MENU_COMMAND_PALETTE: 'menu:commandPalette',
+    MENU_WELCOME: 'menu:welcome',
 } as const;
 
 // ─── File Tree ───────────────────────────────────────────────────
@@ -74,12 +81,20 @@ export interface ElectronAPI {
     onRunnerData: (callback: (pid: number, data: string) => void) => void;
     onRunnerExit: (callback: (pid: number, code: number) => void) => void;
     // Menu
-    onAbout: (callback: (data: any) => void) => void;
+    onAbout: (callback: (data: any) => void) => () => void;
+    onMenuOpenFolder: (callback: () => void) => () => void;
+    onMenuSave: (callback: () => void) => () => void;
+    onMenuToggleSidebar: (callback: () => void) => () => void;
+    onMenuToggleBottomPanel: (callback: () => void) => () => void;
+    onMenuToggleChat: (callback: () => void) => () => void;
+    onMenuCommandPalette: (callback: () => void) => () => void;
+    onMenuWelcome: (callback: () => void) => () => void;
 }
 
 // ─── Window augmentation ────────────────────────────────────────
 declare global {
     interface Window {
         electronAPI: ElectronAPI;
+        monaco?: any;
     }
 }

@@ -36,7 +36,44 @@ const electronAPI: ElectronAPI = {
     },
     // Menu
     onAbout: (callback: (data: any) => void) => {
-        ipcRenderer.on(IpcChannels.MENU_ABOUT, (_event, data) => callback(data));
+        const handler = (_event: any, data: any) => callback(data);
+        ipcRenderer.on(IpcChannels.MENU_ABOUT, handler);
+        return () => ipcRenderer.removeListener(IpcChannels.MENU_ABOUT, handler);
+    },
+    onMenuOpenFolder: (callback: () => void) => {
+        const handler = () => callback();
+        ipcRenderer.on(IpcChannels.MENU_OPEN_FOLDER, handler);
+        return () => ipcRenderer.removeListener(IpcChannels.MENU_OPEN_FOLDER, handler);
+    },
+    onMenuSave: (callback: () => void) => {
+        const handler = () => callback();
+        ipcRenderer.on(IpcChannels.MENU_SAVE, handler);
+        return () => ipcRenderer.removeListener(IpcChannels.MENU_SAVE, handler);
+    },
+    onMenuToggleSidebar: (callback: () => void) => {
+        const handler = () => callback();
+        ipcRenderer.on(IpcChannels.MENU_TOGGLE_SIDEBAR, handler);
+        return () => ipcRenderer.removeListener(IpcChannels.MENU_TOGGLE_SIDEBAR, handler);
+    },
+    onMenuToggleBottomPanel: (callback: () => void) => {
+        const handler = () => callback();
+        ipcRenderer.on(IpcChannels.MENU_TOGGLE_BOTTOM_PANEL, handler);
+        return () => ipcRenderer.removeListener(IpcChannels.MENU_TOGGLE_BOTTOM_PANEL, handler);
+    },
+    onMenuToggleChat: (callback: () => void) => {
+        const handler = () => callback();
+        ipcRenderer.on(IpcChannels.MENU_TOGGLE_CHAT, handler);
+        return () => ipcRenderer.removeListener(IpcChannels.MENU_TOGGLE_CHAT, handler);
+    },
+    onMenuCommandPalette: (callback: () => void) => {
+        const handler = () => callback();
+        ipcRenderer.on(IpcChannels.MENU_COMMAND_PALETTE, handler);
+        return () => ipcRenderer.removeListener(IpcChannels.MENU_COMMAND_PALETTE, handler);
+    },
+    onMenuWelcome: (callback: () => void) => {
+        const handler = () => callback();
+        ipcRenderer.on(IpcChannels.MENU_WELCOME, handler);
+        return () => ipcRenderer.removeListener(IpcChannels.MENU_WELCOME, handler);
     },
 };
 

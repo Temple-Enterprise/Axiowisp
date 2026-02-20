@@ -24,6 +24,7 @@ export const Layout: React.FC = () => {
     const aboutModalOpen = useUiStore((s) => s.aboutModalOpen);
     const activeTabId = useTabsStore((s) => s.activeTabId);
 
+    const theme = useSettingsStore((s) => s.theme);
     const sidebarWidth = useSettingsStore((s) => s.sidebarWidth);
     const bottomPanelHeight = useSettingsStore((s) => s.bottomPanelHeight);
     const chatPanelWidth = useSettingsStore((s) => s.chatPanelWidth);
@@ -37,6 +38,12 @@ export const Layout: React.FC = () => {
             toggleAboutModal(true, data);
         });
     }, [toggleAboutModal]);
+
+    // Sync theme class to the global body element so scrollbars and overlays inherit it.
+    useEffect(() => {
+        document.body.classList.remove('theme-light', 'theme-dark');
+        document.body.classList.add(`theme-${theme}`);
+    }, [theme]);
 
     const draggingRef = useRef<'sidebar' | 'bottom' | 'chat' | null>(null);
 

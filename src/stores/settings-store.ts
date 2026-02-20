@@ -16,6 +16,8 @@ export interface SettingsState {
     anthropicModel: string;
     geminiApiKey: string;
     geminiModel: string;
+    // UI
+    theme: 'light' | 'dark';
     // Layout (resizable widths/heights)
     sidebarWidth: number;
     bottomPanelHeight: number;
@@ -33,6 +35,7 @@ export interface SettingsState {
     setGeminiApiKey: (key: string) => void;
     setGeminiModel: (model: string) => void;
     setActiveProvider: (provider: 'openai' | 'anthropic' | 'gemini') => void;
+    setTheme: (theme: 'light' | 'dark') => void;
     setSidebarWidth: (width: number) => void;
     setBottomPanelHeight: (height: number) => void;
     setChatPanelWidth: (width: number) => void;
@@ -63,6 +66,7 @@ function saveSettings(state: Partial<SettingsState>) {
             geminiApiKey: state.geminiApiKey,
             geminiModel: state.geminiModel,
             activeProvider: state.activeProvider,
+            theme: state.theme,
             sidebarWidth: state.sidebarWidth,
             bottomPanelHeight: state.bottomPanelHeight,
             chatPanelWidth: state.chatPanelWidth,
@@ -86,6 +90,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
     anthropicModel: saved.anthropicModel ?? 'claude-3-5-sonnet-20241022',
     geminiApiKey: saved.geminiApiKey ?? '',
     geminiModel: saved.geminiModel ?? 'gemini-1.5-pro',
+    theme: (saved.theme as any) ?? 'dark',
     sidebarWidth: saved.sidebarWidth ?? 240,
     bottomPanelHeight: saved.bottomPanelHeight ?? 220,
     chatPanelWidth: saved.chatPanelWidth ?? 360,
@@ -102,6 +107,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
     setGeminiApiKey: (key) => set((s) => { const n = { ...s, geminiApiKey: key }; saveSettings(n); return n; }),
     setGeminiModel: (model) => set((s) => { const n = { ...s, geminiModel: model }; saveSettings(n); return n; }),
     setActiveProvider: (provider) => set((s) => { const n = { ...s, activeProvider: provider }; saveSettings(n); return n; }),
+    setTheme: (theme) => set((s) => { const n = { ...s, theme }; saveSettings(n); return n; }),
     setSidebarWidth: (width) => set((s) => { const n = { ...s, sidebarWidth: width }; saveSettings(n); return n; }),
     setBottomPanelHeight: (height) => set((s) => { const n = { ...s, bottomPanelHeight: height }; saveSettings(n); return n; }),
     setChatPanelWidth: (width) => set((s) => { const n = { ...s, chatPanelWidth: width }; saveSettings(n); return n; }),

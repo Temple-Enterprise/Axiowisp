@@ -41,6 +41,7 @@ export const CommandPalette: React.FC = () => {
     const fileTree = useWorkspaceStore((s) => s.fileTree);
     const rootPath = useWorkspaceStore((s) => s.rootPath);
     const openTab = useTabsStore((s) => s.openTab);
+    const toggleSettings = useUiStore((s) => s.toggleSettings);
 
     const [query, setQuery] = useState('');
     const [selectedIndex, setSelectedIndex] = useState(0);
@@ -84,12 +85,12 @@ export const CommandPalette: React.FC = () => {
             {
                 id: 'settings',
                 label: 'Settings',
-                description: 'Open settings (coming soon)',
+                description: 'Open editor settings',
                 icon: <Settings size={14} />,
-                action: () => { closeCommandPalette(); },
+                action: () => { closeCommandPalette(); toggleSettings(); },
             },
         ],
-        [closeCommandPalette, openFolder, toggleSidebar, toggleBottomPanel, toggleChatPanel],
+        [closeCommandPalette, openFolder, toggleSidebar, toggleBottomPanel, toggleChatPanel, toggleSettings],
     );
 
     const fileItems: PaletteItem[] = useMemo(() => {

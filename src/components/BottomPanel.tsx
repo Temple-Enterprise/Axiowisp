@@ -4,6 +4,7 @@ import { FitAddon } from '@xterm/addon-fit';
 import { useUiStore } from '../stores/ui-store';
 import { useWorkspaceStore } from '../stores/workspace-store';
 import { useSettingsStore } from '../stores/settings-store';
+import { useOutputStore } from '../stores/output-store';
 import { Terminal, FileOutput, X } from 'lucide-react';
 import '@xterm/xterm/css/xterm.css';
 import './BottomPanel.css';
@@ -20,6 +21,9 @@ export const BottomPanel: React.FC = () => {
     const fitRef = useRef<FitAddon | null>(null);
     const termIdRef = useRef<number | null>(null);
     const initRef = useRef(false);
+    const outputEndRef = useRef<HTMLDivElement>(null);
+
+    const logs = useOutputStore((s) => s.logs);
 
     const focusTerminal = useCallback(() => {
         xtermRef.current?.focus();
@@ -135,11 +139,11 @@ export const BottomPanel: React.FC = () => {
         }
     }, [bottomPanelTab, focusTerminal]);
 
-    const outputLines = [
-        '[info]  Axiowisp IDE started',
-        '[info]  Renderer loaded successfully',
-        '[info]  Ready.',
-    ];
+    useEffect(() => {
+        if (bottomPanelTab === 'output') {
+            outputEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        }
+    }, [logs, bottomPanelTab]);
 
     return (
         <div className="bottom-panel">
@@ -173,14 +177,15 @@ export const BottomPanel: React.FC = () => {
                 />
                 {bottomPanelTab === 'output' && (
                     <div className="bottom-panel__output">
-                        {outputLines.map((line, i) => (
+                        {logs.map((log, i) => (
                             <div key={i} className="bottom-panel__output-line">
                                 <span className="bottom-panel__timestamp">
-                                    {new Date().toLocaleTimeString()}
+                                    {new Date(log.timestamp).toLocaleTimeString()}
                                 </span>
-                                {line}
+                                {log.text}
                             </div>
                         ))}
+                        <div ref={outputEndRef} />
                     </div>
                 )}
             </div>

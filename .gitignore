@@ -39,3 +39,8 @@ coverage/
 # Misc
 *.tgz
 *.tsbuildinfo
+
+# Electron Builder Output
+/release/
+/build/
+Out/

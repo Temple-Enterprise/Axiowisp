@@ -83,9 +83,13 @@ export const SettingsModal: React.FC = () => {
                         </div>
                         <div className="settings-modal__option">
                             <label>Theme</label>
-                            <select className="settings-modal__select" defaultValue="dark">
+                            <select
+                                className="settings-modal__select"
+                                value={settings.theme}
+                                onChange={(e) => settings.setTheme(e.target.value as 'light' | 'dark')}
+                            >
                                 <option value="dark">Axiowisp Dark</option>
-                                <option value="light" disabled>Light (coming soon)</option>
+                                <option value="light">Axiowisp Light</option>
                             </select>
                         </div>
                     </section>

@@ -13,7 +13,7 @@ export const WelcomeTab: React.FC = () => {
         <div className="welcome">
             <div className="welcome__content">
                 <img
-                    src="/icon.png"
+                    src="./icon.png"
                     alt="Axiowisp"
                     className="welcome__logo-img"
                 />

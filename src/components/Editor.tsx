@@ -50,6 +50,47 @@ const AXIOWISP_THEME: monaco.editor.IStandaloneThemeData = {
     },
 };
 
+const AXIOWISP_LIGHT_THEME: monaco.editor.IStandaloneThemeData = {
+    base: 'vs',
+    inherit: true,
+    rules: [
+        { token: '', foreground: '24292f', background: 'ffffff' },
+        { token: 'comment', foreground: '6e7781', fontStyle: 'italic' },
+        { token: 'keyword', foreground: 'cf222e' },
+        { token: 'string', foreground: '0a3069' },
+        { token: 'number', foreground: '0550ae' },
+        { token: 'type', foreground: '9a6700' },
+        { token: 'function', foreground: '8250df' },
+        { token: 'variable', foreground: '9a6700' },
+        { token: 'constant', foreground: '0550ae' },
+        { token: 'operator', foreground: 'cf222e' },
+        { token: 'delimiter', foreground: '57606a' },
+    ],
+    colors: {
+        'editor.background': '#ffffff',
+        'editor.foreground': '#24292f',
+        'editor.lineHighlightBackground': '#f6f8fa',
+        'editor.selectionBackground': '#b3d4ff',
+        'editorCursor.foreground': '#0969da',
+        'editorLineNumber.foreground': '#8c959f',
+        'editorLineNumber.activeForeground': '#24292f',
+        'editor.inactiveSelectionBackground': '#e1e4e8',
+        'editorIndentGuide.background': '#eaecef',
+        'editorIndentGuide.activeBackground': '#d0d7de',
+        'editorWidget.background': '#f6f8fa',
+        'editorWidget.border': '#d0d7de',
+        'editorSuggestWidget.background': '#f6f8fa',
+        'editorSuggestWidget.border': '#d0d7de',
+        'editorSuggestWidget.selectedBackground': '#eaecef',
+        'editorHoverWidget.background': '#f6f8fa',
+        'editorHoverWidget.border': '#d0d7de',
+        'scrollbarSlider.background': '#8c959f33',
+        'scrollbarSlider.hoverBackground': '#8c959f55',
+        'scrollbarSlider.activeBackground': '#8c959f77',
+        'minimap.background': '#ffffff',
+    },
+};
+
 export const Editor: React.FC = () => {
     const tabs = useTabsStore((s) => s.tabs);
     const activeTabId = useTabsStore((s) => s.activeTabId);
@@ -58,16 +99,24 @@ export const Editor: React.FC = () => {
     const wordWrap = useSettingsStore((s) => s.wordWrap);
     const minimapEnabled = useSettingsStore((s) => s.minimapEnabled);
     const tabSize = useSettingsStore((s) => s.tabSize);
+    const theme = useSettingsStore((s) => s.theme);
     const editorRef = useRef<any>(null);
 
     const activeTab = tabs.find((t) => t.id === activeTabId);
 
     const handleEditorDidMount: OnMount = useCallback((editor, monacoInstance) => {
         editorRef.current = editor;
-        monacoInstance.editor.defineTheme('axiowisp', AXIOWISP_THEME);
-        monacoInstance.editor.setTheme('axiowisp');
+        monacoInstance.editor.defineTheme('axiowisp-dark', AXIOWISP_THEME);
+        monacoInstance.editor.defineTheme('axiowisp-light', AXIOWISP_LIGHT_THEME);
+        monacoInstance.editor.setTheme(theme === 'light' ? 'axiowisp-light' : 'axiowisp-dark');
         editor.focus();
-    }, []);
+    }, [theme]);
+
+    React.useEffect(() => {
+        if (editorRef.current && window.monaco) {
+            window.monaco.editor.setTheme(theme === 'light' ? 'axiowisp-light' : 'axiowisp-dark');
+        }
+    }, [theme]);
 
     const handleChange = useCallback(
         (value: string | undefined) => {
@@ -80,6 +129,24 @@ export const Editor: React.FC = () => {
 
     if (!activeTab) return null;
 
+    if (activeTab.language === 'image') {
+        const src = `axiowisp://local/?path=${encodeURIComponent(activeTab.filePath)}`;
+        return (
+            <div className="editor-media-container">
+                <img src={src} alt={activeTab.fileName} className="editor-media-image" />
+            </div>
+        );
+    }
+
+    if (activeTab.language === 'video') {
+        const src = `axiowisp://local/?path=${encodeURIComponent(activeTab.filePath)}`;
+        return (
+            <div className="editor-media-container">
+                <video controls src={src} className="editor-media-video" />
+            </div>
+        );
+    }
+
     return (
         <div className="editor">
             <MonacoEditor
@@ -89,7 +156,7 @@ export const Editor: React.FC = () => {
                 value={activeTab.content}
                 onChange={handleChange}
                 onMount={handleEditorDidMount}
-                theme="axiowisp"
+                theme={theme === 'light' ? 'axiowisp-light' : 'axiowisp-dark'}
                 loading={<div className="editor__loading">Loading editor…</div>}
                 options={{
                     fontSize: editorFontSize,

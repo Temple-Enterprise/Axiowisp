@@ -157,7 +157,7 @@
     margin: 8px 0;
     border-radius: var(--radius-md);
     overflow: hidden;
-    background: #0d1117;
+    background: var(--bg-base);
     border: 1px solid var(--border-muted);
 }
 
@@ -180,7 +180,7 @@
     font-family: var(--font-mono);
     font-size: 12px;
     line-height: 1.5;
-    color: #e6edf3;
+    color: var(--fg-primary);
 }
 
 .md-pre::-webkit-scrollbar {
@@ -195,10 +195,10 @@
 .md-inline-code {
     padding: 1px 5px;
     border-radius: var(--radius-xs);
-    background: rgba(110, 118, 129, 0.2);
+    background: var(--bg-hover);
     font-family: var(--font-mono);
     font-size: 0.9em;
-    color: #79c0ff;
+    color: var(--fg-accent);
 }
 
 .md-link {

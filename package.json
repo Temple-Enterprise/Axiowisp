@@ -3,6 +3,7 @@
   "version": "0.3.0",
   "private": true,
   "description": "Axiowisp — a modern desktop IDE built with Electron, React & Monaco",
+  "author": "Temple Enterprise LLC",
   "main": "dist-electron/electron/main.js",
   "scripts": {
     "dev": "concurrently -k \"vite\" \"npm run dev:electron\"",
@@ -11,7 +12,28 @@
     "build:renderer": "tsc && vite build",
     "build:electron": "tsc -p tsconfig.electron.json",
     "build": "npm run build:renderer && npm run build:electron",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "package": "npm run build && electron-builder --win"
+  },
+  "build": {
+    "appId": "com.axiowisp.app",
+    "productName": "Axiowisp",
+    "copyright": "0.3.0 | Temple Enterprise LLC | 2026",
+    "artifactName": "Axiowisp.${ext}",
+    "npmRebuild": false,
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist-electron/**/*",
+      "dist/**/*"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "public/icon-bg.png",
+      "verifyUpdateCodeSignature": false,
+      "signAndEditExecutable": false
+    }
   },
   "dependencies": {
     "@monaco-editor/react": "^4.6.0",
@@ -19,6 +41,7 @@
     "@xterm/xterm": "^6.0.0",
     "lucide-react": "^0.453.0",
     "monaco-editor": "^0.52.2",
+    "node-pty": "^1.1.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "zustand": "^5.0.0"
@@ -29,6 +52,7 @@
     "@vitejs/plugin-react": "^4.3.4",
     "concurrently": "^9.1.0",
     "electron": "^33.2.0",
+    "electron-builder": "^26.8.1",
     "typescript": "^5.6.3",
     "vite": "^6.0.3"
   }

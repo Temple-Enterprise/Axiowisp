@@ -210,20 +210,62 @@ export const useChatStore = create<ChatState>((set, get) => ({
                 'Use markdown formatting for code blocks. ' +
                 'When the user asks you to modify a file, output the full new file content in this format:\n' +
                 '**FILE: absolute/path/to/file**\n```language\nfull file content here\n```\n' +
+                'If you need to read a specific file to understand its contents before answering or deciding what to modify, output exactly this line and nothing else:\n' +
+                '**READ: absolute/path/to/file**\n' +
+                'I will then provide you with the contents of that file so you can respond properly.\n' +
                 'Always be concise and helpful.' +
                 workspaceCtx;
 
-            const apiMessages = [
+            let currentApiMessages = [
                 { role: 'system', content: systemPrompt },
                 ...history,
             ];
 
-            if (activeProvider === 'openai') {
-                aiContent = await callOpenAI(apiMessages, settings.openaiApiKey, settings.openaiModel);
-            } else if (activeProvider === 'anthropic') {
-                aiContent = await callAnthropic(apiMessages, settings.anthropicApiKey, settings.anthropicModel);
-            } else if (activeProvider === 'gemini') {
-                aiContent = await callGemini(apiMessages, settings.geminiApiKey, settings.geminiModel);
+            // Loop locally if the AI requests file context (up to 3 times to prevent infinite loops)
+            let iterationCount = 0;
+            const maxIterations = 3;
+
+            while (iterationCount < maxIterations) {
+                iterationCount++;
+
+                if (activeProvider === 'openai') {
+                    aiContent = await callOpenAI(currentApiMessages, settings.openaiApiKey, settings.openaiModel);
+                } else if (activeProvider === 'anthropic') {
+                    aiContent = await callAnthropic(currentApiMessages, settings.anthropicApiKey, settings.anthropicModel);
+                } else if (activeProvider === 'gemini') {
+                    aiContent = await callGemini(currentApiMessages, settings.geminiApiKey, settings.geminiModel);
+                }
+
+                // Check if the AI wants to read a file
+                const readMatch = /\*\*READ:\s*(.*?)\*\*/.exec(aiContent);
+                if (readMatch && window.electronAPI?.readFile) {
+                    const fileToRead = readMatch[1].trim();
+                    console.log(`[Axiowisp AI Tool] AI reading file: ${fileToRead}`);
+
+                    try {
+                        const readResult = await window.electronAPI.readFile(fileToRead);
+                        const fileContent = readResult.success && readResult.data
+                            ? readResult.data
+                            : `Error: Could not read file or file is empty.`;
+
+                        // Append AI's request and our system response to the internal context
+                        currentApiMessages.push({ role: 'assistant', content: aiContent });
+                        currentApiMessages.push({
+                            role: 'system',
+                            content: `Here is the requested content for ${fileToRead}:\n\`\`\`\n${fileContent}\n\`\`\`\nNow proceed with the user's request.`
+                        });
+                        continue; // Loop again to let AI answer with the new context
+                    } catch (err: any) {
+                        currentApiMessages.push({ role: 'assistant', content: aiContent });
+                        currentApiMessages.push({
+                            role: 'system',
+                            content: `Error reading file ${fileToRead}: ${err.message}`
+                        });
+                        continue;
+                    }
+                } else {
+                    break; // No READ request, we're done generating
+                }
             }
 
             // Check if the AI response contains file edits and apply them
