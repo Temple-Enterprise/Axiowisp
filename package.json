@@ -20,6 +20,7 @@
     "productName": "Axiowisp",
     "copyright": "0.3.0 | Temple Enterprise LLC | 2026",
     "artifactName": "Axiowisp.${ext}",
+    "icon": "public/icon-bg.ico",
     "npmRebuild": false,
     "directories": {
       "output": "release"
@@ -30,9 +31,18 @@
     ],
     "win": {
       "target": "nsis",
-      "icon": "public/icon-bg.png",
       "verifyUpdateCodeSignature": false,
       "signAndEditExecutable": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "public/icon-bg.ico",
+      "uninstallerIcon": "public/icon-bg.ico",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Axiowisp"
     }
   },
   "dependencies": {
@@ -53,6 +63,8 @@
     "concurrently": "^9.1.0",
     "electron": "^33.2.0",
     "electron-builder": "^26.8.1",
+    "icon-gen": "^5.0.0",
+    "png-to-ico": "^3.0.1",
     "typescript": "^5.6.3",
     "vite": "^6.0.3"
   }
