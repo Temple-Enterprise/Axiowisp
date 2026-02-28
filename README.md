@@ -13,80 +13,74 @@
 ---
 
 <p align="center">
-  <strong>A modern, minimal desktop IDE built with Electron, React, and TypeScript.</strong>
+  A modern, minimal desktop IDE built with Electron, React, and TypeScript.
 </p>
 
 ---
 
-## ✨ Features
+## Features
 
-- **Monaco Editor** — Full VS Code editing experience with syntax highlighting, IntelliSense, and custom Axiowisp dark theme
-- **Real Terminal** — Integrated PowerShell/Bash terminal powered by `node-pty` + `xterm.js`
-- **AI Chat** — Built-in OpenAI-powered coding assistant (GPT-4o, GPT-3.5, etc.)
-- **Activity Bar** — VS Code-style sidebar navigation (Explorer, Search, Run & Debug)
-- **Code Runner** — Execute commands directly from the IDE with streaming output
-- **Command Palette** — Quick file/action search with `Ctrl+P`
-- **Resizable Panels** — Drag to resize sidebar and terminal panels
-- **Settings** — Persistent configuration for editor, terminal, appearance, and API keys
-- **Dark Theme** — Carefully crafted dark navy theme with blue/purple accents
+- **Monaco Editor** — Syntax highlighting, IntelliSense, bracket colorization, and custom dark/light themes
+- **Integrated Terminal** — PowerShell/Bash via `node-pty` and `xterm.js` with new/clear/kill actions
+- **File Explorer** — Tree view with right-click context menu (create, rename, delete) and toolbar
+- **Breadcrumb Navigation** — File path segments displayed above the editor
+- **AI Chat** — Built-in OpenAI assistant (GPT-4o, GPT-3.5, etc.)
+- **Command Palette** — Quick file search and 12+ commands via `Ctrl+P`
+- **Problems Panel** — Dedicated tab for errors and warnings with severity badges
+- **Code Runner** — Execute commands with streaming output
+- **Resizable Panels** — Drag to resize sidebar, terminal, and chat panels
+- **Settings** — Persistent editor, terminal, and appearance configuration
+- **Dark and Light Themes** — Full theme engine with CSS variable bindings
 
-## 📸 Showcase
+## Showcase
 
 <p align="center">
-  <img src="github/images/showcase.png" alt="Axiowisp IDE Screenshot" width="900" />
+  <img src="github/images/showcase.png" alt="Axiowisp IDE" width="900" />
 </p>
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
-- **Node.js** 18+ ([download](https://nodejs.org/))
-- **npm** 9+ (comes with Node.js)
-- **Python** 3.x and **Visual Studio Build Tools** (for `node-pty` native compilation on Windows)
+- **Node.js** 18+ — [download](https://nodejs.org/)
+- **Python** 3.x and **Visual Studio Build Tools** (for `node-pty` on Windows)
 
-### Installation
+### Quick Start
 
 ```bash
-# Clone the repository
-git clone https://github.com/YOUR_USERNAME/Axiowisp.git
+git clone https://github.com/Temple-Enterprise/Axiowisp.git
 cd Axiowisp
 
-# Install dependencies
-npm install
+# Option A: Use the run script
+python run.py
 
-# Start in development mode
+# Option B: Manual
+npm install
 npm run dev
 ```
 
-This launches both the Vite dev server and Electron concurrently with hot-reload.
-
-### Building for Production
+### Building the Installer
 
 ```bash
-# Compile TypeScript
-npx tsc -p tsconfig.electron.json
-
-# Build renderer (Vite)
-npx vite build
-
-# Launch Electron with compiled output
-npx electron .
+python build.py
 ```
 
-## ⚙️ Tech Stack
+This runs the full pipeline — `npm install`, TypeScript compilation, Vite build, and electron-builder — and produces an NSIS installer in the `release/` directory.
+
+## Tech Stack
 
 | Layer | Technology |
-|-------|-----------|
-| **Framework** | Electron 35 |
-| **Renderer** | React 19 + Vite 6 |
-| **Language** | TypeScript 5.7 |
-| **Editor** | Monaco Editor (`@monaco-editor/react`) |
-| **Terminal** | `node-pty` + `@xterm/xterm` |
-| **State** | Zustand |
-| **Icons** | Lucide React |
-| **AI** | OpenAI API (GPT-4o / GPT-3.5) |
+|-------|------------|
+| Framework | Electron 35 |
+| Renderer | React 19, Vite 6 |
+| Language | TypeScript 5.7 |
+| Editor | Monaco Editor |
+| Terminal | node-pty, xterm.js |
+| State | Zustand |
+| Icons | Lucide React |
+| AI | OpenAI API |
 
-## ⌨️ Keyboard Shortcuts
+## Keyboard Shortcuts
 
 | Shortcut | Action |
 |----------|--------|
@@ -96,29 +90,25 @@ npx electron .
 | `Ctrl+S` | Save File |
 | `Ctrl+Shift+O` | Open Folder |
 | `Ctrl+Shift+L` | Toggle AI Chat |
+| `Ctrl+Shift+F` | Search Files |
 | `Ctrl+W` | Close Tab |
+| `Ctrl+,` | Settings |
 
-## 🤖 AI Chat Setup
+## AI Chat
 
-Axiowisp includes a built-in AI coding assistant powered by OpenAI.
+1. Open **Settings** from the activity bar
+2. Enter your OpenAI API key under the AI section
+3. Select a model and open the Chat panel
 
-1. Open **Settings** (gear icon in the activity bar)
-2. Scroll to the **AI / OpenAI** section
-3. Enter your OpenAI API key (`sk-...`)
-4. Select your preferred model (GPT-4o Mini, GPT-4o, GPT-4 Turbo, or GPT-3.5 Turbo)
-5. Open the **AI Chat** panel and start asking questions!
+Your key is stored locally and only sent directly to the OpenAI API.
 
-Your API key is stored locally in `localStorage` and never sent anywhere except directly to the OpenAI API.
+## Security
 
-## 🔒 Security
-
-Axiowisp follows Electron security best practices:
-
-- **Context Isolation**: Enabled — renderer cannot access Node.js APIs directly
-- **Node Integration**: Disabled in renderer
-- **Content Security Policy**: Strict CSP with explicit allowlists
-- **Preload Script**: All IPC communication goes through a typed `contextBridge` API
-- **No Remote Content**: No external scripts or remote URLs loaded
+- Context isolation enabled
+- Node integration disabled in renderer
+- All IPC goes through a typed `contextBridge` preload
+- Strict Content Security Policy
+- No remote scripts or external URLs loaded
 
 ---
 
