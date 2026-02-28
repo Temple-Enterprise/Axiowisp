@@ -5,6 +5,10 @@ export const IpcChannels = {
     READ_FILE: 'fs:readFile',
     WRITE_FILE: 'fs:writeFile',
     LIST_FILES: 'fs:listFiles',
+    CREATE_FILE: 'fs:createFile',
+    CREATE_FOLDER: 'fs:createFolder',
+    RENAME_ENTRY: 'fs:renameEntry',
+    DELETE_ENTRY: 'fs:deleteEntry',
     // Terminal
     TERMINAL_CREATE: 'terminal:create',
     TERMINAL_WRITE: 'terminal:write',
@@ -68,6 +72,10 @@ export interface ElectronAPI {
     readFile: (filePath: string) => Promise<IpcResult<string>>;
     writeFile: (filePath: string, content: string) => Promise<IpcResult<void>>;
     listFiles: (dirPath: string) => Promise<IpcResult<string[]>>;
+    createFile: (filePath: string) => Promise<IpcResult<void>>;
+    createFolder: (dirPath: string) => Promise<IpcResult<void>>;
+    renameEntry: (oldPath: string, newPath: string) => Promise<IpcResult<void>>;
+    deleteEntry: (targetPath: string) => Promise<IpcResult<void>>;
     // Terminal
     createTerminal: (cwd?: string) => Promise<IpcResult<number>>;
     writeTerminal: (id: number, data: string) => void;

@@ -9,6 +9,11 @@ const electronAPI: ElectronAPI = {
     writeFile: (filePath: string, content: string) =>
         ipcRenderer.invoke(IpcChannels.WRITE_FILE, filePath, content),
     listFiles: (dirPath: string) => ipcRenderer.invoke(IpcChannels.LIST_FILES, dirPath),
+    createFile: (filePath: string) => ipcRenderer.invoke(IpcChannels.CREATE_FILE, filePath),
+    createFolder: (dirPath: string) => ipcRenderer.invoke(IpcChannels.CREATE_FOLDER, dirPath),
+    renameEntry: (oldPath: string, newPath: string) =>
+        ipcRenderer.invoke(IpcChannels.RENAME_ENTRY, oldPath, newPath),
+    deleteEntry: (targetPath: string) => ipcRenderer.invoke(IpcChannels.DELETE_ENTRY, targetPath),
 
     // Terminal
     createTerminal: (cwd?: string) => ipcRenderer.invoke(IpcChannels.TERMINAL_CREATE, cwd),

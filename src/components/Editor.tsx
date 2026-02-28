@@ -3,6 +3,7 @@ import MonacoEditor, { OnMount, loader } from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
 import { useTabsStore } from '../stores/tabs-store';
 import { useSettingsStore } from '../stores/settings-store';
+import { useEditorStore } from '../stores/editor-store';
 import './Editor.css';
 
 // Tell @monaco-editor/react to use our local monaco-editor instead of CDN
@@ -100,6 +101,9 @@ export const Editor: React.FC = () => {
     const minimapEnabled = useSettingsStore((s) => s.minimapEnabled);
     const tabSize = useSettingsStore((s) => s.tabSize);
     const theme = useSettingsStore((s) => s.theme);
+    const setCursorPosition = useEditorStore((s) => s.setCursorPosition);
+    const setSelection = useEditorStore((s) => s.setSelection);
+    const setEol = useEditorStore((s) => s.setEol);
     const editorRef = useRef<any>(null);
 
     const activeTab = tabs.find((t) => t.id === activeTabId);
@@ -110,7 +114,40 @@ export const Editor: React.FC = () => {
         monacoInstance.editor.defineTheme('axiowisp-light', AXIOWISP_LIGHT_THEME);
         monacoInstance.editor.setTheme(theme === 'light' ? 'axiowisp-light' : 'axiowisp-dark');
         editor.focus();
-    }, [theme]);
+
+        // Track cursor position
+        editor.onDidChangeCursorPosition((e: any) => {
+            setCursorPosition(e.position.lineNumber, e.position.column);
+        });
+
+        // Track selection
+        editor.onDidChangeCursorSelection((e: any) => {
+            const sel = e.selection;
+            const model = editor.getModel();
+            if (model && sel) {
+                const selectedText = model.getValueInRange(sel);
+                const lines = sel.endLineNumber - sel.startLineNumber;
+                setSelection(lines, selectedText.length);
+            }
+        });
+
+        // Detect EOL
+        const model = editor.getModel();
+        if (model) {
+            const eolSeq = model.getEOL();
+            setEol(eolSeq === '\r\n' ? 'CRLF' : 'LF');
+            model.onDidChangeContent(() => {
+                const newEol = model.getEOL();
+                setEol(newEol === '\r\n' ? 'CRLF' : 'LF');
+            });
+        }
+
+        // Set initial cursor position
+        const pos = editor.getPosition();
+        if (pos) {
+            setCursorPosition(pos.lineNumber, pos.column);
+        }
+    }, [theme, setCursorPosition, setSelection, setEol]);
 
     React.useEffect(() => {
         if (editorRef.current && window.monaco) {

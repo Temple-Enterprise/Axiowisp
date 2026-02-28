@@ -150,3 +150,15 @@
     color: var(--fg-muted);
     font-size: var(--font-size-sm);
 }
+
+.command-palette__item-shortcut {
+    flex-shrink: 0;
+    margin-left: auto;
+    padding: 1px 5px;
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-xs);
+    background: var(--bg-surface);
+    color: var(--fg-muted);
+    font-family: var(--font-mono);
+    font-size: 10px;
+}

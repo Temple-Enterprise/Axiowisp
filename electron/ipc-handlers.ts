@@ -95,6 +95,62 @@ export function registerIpcHandlers(): void {
         },
     );
 
+    // ── Create File ──────────────────────────────────────────────
+    ipcMain.handle(
+        IpcChannels.CREATE_FILE,
+        async (_event, filePath: string): Promise<IpcResult<void>> => {
+            try {
+                const dir = path.dirname(filePath);
+                if (!fs.existsSync(dir)) {
+                    fs.mkdirSync(dir, { recursive: true });
+                }
+                fs.writeFileSync(filePath, '', 'utf-8');
+                return { success: true };
+            } catch (err: any) {
+                return { success: false, error: err.message ?? String(err) };
+            }
+        },
+    );
+
+    // ── Create Folder ───────────────────────────────────────────
+    ipcMain.handle(
+        IpcChannels.CREATE_FOLDER,
+        async (_event, dirPath: string): Promise<IpcResult<void>> => {
+            try {
+                fs.mkdirSync(dirPath, { recursive: true });
+                return { success: true };
+            } catch (err: any) {
+                return { success: false, error: err.message ?? String(err) };
+            }
+        },
+    );
+
+    // ── Rename Entry ────────────────────────────────────────────
+    ipcMain.handle(
+        IpcChannels.RENAME_ENTRY,
+        async (_event, oldPath: string, newPath: string): Promise<IpcResult<void>> => {
+            try {
+                fs.renameSync(oldPath, newPath);
+                return { success: true };
+            } catch (err: any) {
+                return { success: false, error: err.message ?? String(err) };
+            }
+        },
+    );
+
+    // ── Delete Entry ────────────────────────────────────────────
+    ipcMain.handle(
+        IpcChannels.DELETE_ENTRY,
+        async (_event, targetPath: string): Promise<IpcResult<void>> => {
+            try {
+                fs.rmSync(targetPath, { recursive: true, force: true });
+                return { success: true };
+            } catch (err: any) {
+                return { success: false, error: err.message ?? String(err) };
+            }
+        },
+    );
+
     // ── Terminal: Create (using node-pty for interactive shell) ──
     ipcMain.handle(
         IpcChannels.TERMINAL_CREATE,

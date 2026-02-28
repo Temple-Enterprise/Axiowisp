@@ -8,6 +8,7 @@
 
 .file-tree__item {
     user-select: none;
+    position: relative;
 }
 
 .file-tree__row {
@@ -60,4 +61,92 @@
     color: var(--fg-primary);
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+/* ── Rename / Create Input ──────────────────────────────────── */
+.file-tree__rename-input {
+    flex: 1;
+    min-width: 0;
+    border: 1px solid var(--accent);
+    border-radius: var(--radius-xs);
+    background: var(--bg-input);
+    color: var(--fg-primary);
+    font-size: var(--font-size-sm);
+    font-family: var(--font-sans);
+    padding: 1px 4px;
+    outline: none;
+}
+
+.file-tree__create-row {
+    animation: fileTreeFadeIn 150ms ease;
+}
+
+@keyframes fileTreeFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-2px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ── Context Menu ───────────────────────────────────────────── */
+.file-tree__context-menu {
+    position: fixed;
+    z-index: 1000;
+    min-width: 180px;
+    padding: var(--space-1) 0;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    animation: ctxMenuFade 120ms ease;
+}
+
+@keyframes ctxMenuFade {
+    from {
+        opacity: 0;
+        transform: scale(0.96) translateY(-4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.file-tree__context-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    width: 100%;
+    padding: var(--space-1) var(--space-3);
+    border: none;
+    background: transparent;
+    color: var(--fg-primary);
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    transition: background var(--transition-fast);
+    text-align: left;
+}
+
+.file-tree__context-item:hover {
+    background: var(--accent-muted);
+}
+
+.file-tree__context-item--danger {
+    color: var(--fg-error);
+}
+
+.file-tree__context-item--danger:hover {
+    background: rgba(248, 81, 73, 0.1);
+}
+
+.file-tree__context-separator {
+    height: 1px;
+    margin: var(--space-1) 0;
+    background: var(--border-muted);
 }

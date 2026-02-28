@@ -10,6 +10,7 @@ import { CommandPalette } from './CommandPalette';
 import { SettingsModal } from './SettingsModal';
 import { AboutModal } from './AboutModal';
 import { WelcomeTab } from './WelcomeTab';
+import { Breadcrumbs } from './Breadcrumbs';
 import { useUiStore } from '../stores/ui-store';
 import { useTabsStore } from '../stores/tabs-store';
 import { useSettingsStore } from '../stores/settings-store';
@@ -151,6 +152,7 @@ export const Layout: React.FC = () => {
                 <div className="layout__tabbar">
                     <TabBar />
                 </div>
+                {activeTabId && <Breadcrumbs />}
                 <div className="layout__editor">
                     {activeTabId ? <Editor /> : <WelcomeTab />}
                 </div>

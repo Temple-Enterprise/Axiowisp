@@ -5,7 +5,9 @@ import { useUiStore } from '../stores/ui-store';
 import { useWorkspaceStore } from '../stores/workspace-store';
 import { useSettingsStore } from '../stores/settings-store';
 import { useOutputStore } from '../stores/output-store';
-import { Terminal, FileOutput, X } from 'lucide-react';
+import {
+    Terminal, FileOutput, X, AlertTriangle, Plus, Trash2, Ban,
+} from 'lucide-react';
 import '@xterm/xterm/css/xterm.css';
 import './BottomPanel.css';
 
@@ -24,10 +26,41 @@ export const BottomPanel: React.FC = () => {
     const outputEndRef = useRef<HTMLDivElement>(null);
 
     const logs = useOutputStore((s) => s.logs);
+    const clearOutput = useOutputStore((s) => s.clearOutput);
+
+    const problems = logs.filter((l) => l.severity === 'error' || l.severity === 'warn');
 
     const focusTerminal = useCallback(() => {
         xtermRef.current?.focus();
     }, []);
+
+    const clearTerminal = useCallback(() => {
+        xtermRef.current?.clear();
+    }, []);
+
+    const killTerminal = useCallback(() => {
+        if (termIdRef.current !== null) {
+            window.electronAPI?.disposeTerminal(termIdRef.current);
+            termIdRef.current = null;
+            xtermRef.current?.writeln('\r\n\x1b[31m● Terminal killed\x1b[0m');
+        }
+    }, []);
+
+    const createNewTerminal = useCallback(async () => {
+        if (termIdRef.current !== null) {
+            window.electronAPI?.disposeTerminal(termIdRef.current);
+        }
+        xtermRef.current?.clear();
+        xtermRef.current?.writeln('\x1b[33m● Creating new terminal...\x1b[0m\r\n');
+
+        if (window.electronAPI?.createTerminal) {
+            const result = await window.electronAPI.createTerminal(rootPath || undefined);
+            if (result.success && result.data !== undefined) {
+                termIdRef.current = result.data;
+                xtermRef.current?.writeln('\x1b[32m● Terminal connected\x1b[0m\r\n');
+            }
+        }
+    }, [rootPath]);
 
     // Initialize terminal
     useEffect(() => {
@@ -145,6 +178,12 @@ export const BottomPanel: React.FC = () => {
         }
     }, [logs, bottomPanelTab]);
 
+    const getSeverityClass = (severity: string) => {
+        if (severity === 'error') return 'bottom-panel__output-line--error';
+        if (severity === 'warn') return 'bottom-panel__output-line--warn';
+        return '';
+    };
+
     return (
         <div className="bottom-panel">
             <div className="bottom-panel__header">
@@ -163,10 +202,40 @@ export const BottomPanel: React.FC = () => {
                         <FileOutput size={13} />
                         Output
                     </button>
+                    <button
+                        className={`bottom-panel__tab ${bottomPanelTab === 'problems' ? 'bottom-panel__tab--active' : ''}`}
+                        onClick={() => setBottomPanelTab('problems')}
+                    >
+                        <AlertTriangle size={13} />
+                        Problems
+                        {problems.length > 0 && (
+                            <span className="bottom-panel__badge">{problems.length}</span>
+                        )}
+                    </button>
                 </div>
-                <button className="bottom-panel__close" onClick={toggleBottomPanel}>
-                    <X size={14} />
-                </button>
+                <div className="bottom-panel__actions">
+                    {bottomPanelTab === 'terminal' && (
+                        <>
+                            <button className="bottom-panel__action-btn" onClick={createNewTerminal} title="New Terminal">
+                                <Plus size={14} />
+                            </button>
+                            <button className="bottom-panel__action-btn" onClick={clearTerminal} title="Clear Terminal">
+                                <Trash2 size={14} />
+                            </button>
+                            <button className="bottom-panel__action-btn" onClick={killTerminal} title="Kill Terminal">
+                                <Ban size={14} />
+                            </button>
+                        </>
+                    )}
+                    {bottomPanelTab === 'output' && (
+                        <button className="bottom-panel__action-btn" onClick={clearOutput} title="Clear Output">
+                            <Trash2 size={14} />
+                        </button>
+                    )}
+                    <button className="bottom-panel__close" onClick={toggleBottomPanel}>
+                        <X size={14} />
+                    </button>
+                </div>
             </div>
             <div className="bottom-panel__content">
                 <div
@@ -177,15 +246,43 @@ export const BottomPanel: React.FC = () => {
                 />
                 {bottomPanelTab === 'output' && (
                     <div className="bottom-panel__output">
-                        {logs.map((log, i) => (
-                            <div key={i} className="bottom-panel__output-line">
-                                <span className="bottom-panel__timestamp">
-                                    {new Date(log.timestamp).toLocaleTimeString()}
-                                </span>
-                                {log.text}
-                            </div>
-                        ))}
+                        {logs.length === 0 ? (
+                            <div className="bottom-panel__empty-state">No output yet</div>
+                        ) : (
+                            logs.map((log, i) => (
+                                <div key={i} className={`bottom-panel__output-line ${getSeverityClass(log.severity)}`}>
+                                    <span className="bottom-panel__timestamp">
+                                        {new Date(log.timestamp).toLocaleTimeString()}
+                                    </span>
+                                    <span className="bottom-panel__severity-icon">
+                                        {log.severity === 'error' && '✗'}
+                                        {log.severity === 'warn' && '⚠'}
+                                        {log.severity === 'info' && '●'}
+                                    </span>
+                                    {log.text}
+                                </div>
+                            ))
+                        )}
                         <div ref={outputEndRef} />
+                    </div>
+                )}
+                {bottomPanelTab === 'problems' && (
+                    <div className="bottom-panel__output">
+                        {problems.length === 0 ? (
+                            <div className="bottom-panel__empty-state">No problems detected</div>
+                        ) : (
+                            problems.map((log, i) => (
+                                <div key={i} className={`bottom-panel__output-line ${getSeverityClass(log.severity)}`}>
+                                    <span className="bottom-panel__timestamp">
+                                        {new Date(log.timestamp).toLocaleTimeString()}
+                                    </span>
+                                    <span className="bottom-panel__severity-icon">
+                                        {log.severity === 'error' ? '✗' : '⚠'}
+                                    </span>
+                                    {log.text}
+                                </div>
+                            ))
+                        )}
                     </div>
                 )}
             </div>

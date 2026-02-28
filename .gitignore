@@ -1,47 +1,68 @@
-# Dependencies
+# ─── Dependencies ─────────────────────────────────────────────
 node_modules/
 
-# Build output
+# ─── Build Output ─────────────────────────────────────────────
 dist/
 dist-electron/
+release/
+out/
+Out/
+build/
+*.exe
+*.msi
+*.nsis
+*.blockmap
+*.snap
+*.deb
+*.rpm
+*.AppImage
+*.dmg
 
-# IDE / Editor
-.vscode/
+# ─── TypeScript ───────────────────────────────────────────────
+*.tsbuildinfo
+
+# ─── Environment & Secrets ────────────────────────────────────
+.env
+.env.*
+!.env.example
+
+# ─── IDE / Editor ─────────────────────────────────────────────
 .idea/
+.vscode/
 *.swp
 *.swo
 *~
-
-# OS files
 .DS_Store
 Thumbs.db
-Desktop.ini
+desktop.ini
 
-# Logs
+# ─── OS Files ─────────────────────────────────────────────────
+*.lnk
+ehthumbs.db
+
+# ─── Logs ─────────────────────────────────────────────────────
 *.log
 npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
 build.log
 
-# Environment
-.env
-.env.local
-.env.*.local
+# ─── Package manager locks (keep package-lock.json) ──────────
+yarn.lock
+pnpm-lock.yaml
 
-# Cache
+# ─── Cache ────────────────────────────────────────────────────
 .cache/
 .parcel-cache/
 .vite/
 .turbo/
 
-# Coverage
+# ─── Testing / Coverage ──────────────────────────────────────
 coverage/
 .nyc_output/
 
-# Misc
+# ─── Misc ─────────────────────────────────────────────────────
 *.tgz
-*.tsbuildinfo
-
-# Electron Builder Output
-/release/
-/build/
-Out/
+__pycache__/
+*.py[cod]

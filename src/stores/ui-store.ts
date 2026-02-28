@@ -10,14 +10,14 @@ interface UiState {
     settingsOpen: boolean;
     aboutModalOpen: boolean;
     aboutData: any;
-    bottomPanelTab: 'terminal' | 'output';
+    bottomPanelTab: 'terminal' | 'output' | 'problems';
     activeActivity: Activity;
     toggleSidebar: () => void;
     toggleBottomPanel: () => void;
     toggleChatPanel: () => void;
     openCommandPalette: () => void;
     closeCommandPalette: () => void;
-    setBottomPanelTab: (tab: 'terminal' | 'output') => void;
+    setBottomPanelTab: (tab: 'terminal' | 'output' | 'problems') => void;
     setActiveActivity: (activity: Activity) => void;
     toggleSettings: () => void;
     toggleAboutModal: (isOpen: boolean, data?: any) => void;

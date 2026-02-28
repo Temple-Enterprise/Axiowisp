@@ -2,11 +2,13 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useUiStore } from '../stores/ui-store';
 import { useWorkspaceStore } from '../stores/workspace-store';
 import { useTabsStore } from '../stores/tabs-store';
+import { useOutputStore } from '../stores/output-store';
 import { FileEntry } from '../../shared/types';
 import { getFileIcon } from '../utils/file-icons';
 import {
     Search, FolderOpen, PanelBottom, MessageSquare, PanelLeft,
-    Settings, Command,
+    Settings, FilePlus, FolderPlus, Save, X as CloseIcon,
+    Terminal, AlertTriangle, RefreshCw, Trash2,
 } from 'lucide-react';
 import './CommandPalette.css';
 
@@ -14,6 +16,7 @@ interface PaletteItem {
     id: string;
     label: string;
     description?: string;
+    shortcut?: string;
     icon: React.ReactNode;
     action: () => void;
 }
@@ -37,11 +40,17 @@ export const CommandPalette: React.FC = () => {
     const toggleSidebar = useUiStore((s) => s.toggleSidebar);
     const toggleBottomPanel = useUiStore((s) => s.toggleBottomPanel);
     const toggleChatPanel = useUiStore((s) => s.toggleChatPanel);
+    const setBottomPanelTab = useUiStore((s) => s.setBottomPanelTab);
     const openFolder = useWorkspaceStore((s) => s.openFolder);
+    const refreshTree = useWorkspaceStore((s) => s.refreshTree);
     const fileTree = useWorkspaceStore((s) => s.fileTree);
     const rootPath = useWorkspaceStore((s) => s.rootPath);
     const openTab = useTabsStore((s) => s.openTab);
+    const saveActiveTab = useTabsStore((s) => s.saveActiveTab);
+    const closeAllTabs = useTabsStore((s) => s.closeAllTabs);
     const toggleSettings = useUiStore((s) => s.toggleSettings);
+    const setActiveActivity = useUiStore((s) => s.setActiveActivity);
+    const clearOutput = useOutputStore((s) => s.clearOutput);
 
     const [query, setQuery] = useState('');
     const [selectedIndex, setSelectedIndex] = useState(0);
@@ -58,13 +67,37 @@ export const CommandPalette: React.FC = () => {
                 id: 'open-folder',
                 label: 'Open Folder',
                 description: 'Browse and open a project folder',
+                shortcut: 'Ctrl+Shift+O',
                 icon: <FolderOpen size={14} />,
                 action: () => { closeCommandPalette(); openFolder(); },
+            },
+            {
+                id: 'save-file',
+                label: 'Save File',
+                description: 'Save the current file',
+                shortcut: 'Ctrl+S',
+                icon: <Save size={14} />,
+                action: () => { closeCommandPalette(); saveActiveTab(); },
+            },
+            {
+                id: 'new-file',
+                label: 'New File',
+                description: 'Create a new file in the explorer',
+                icon: <FilePlus size={14} />,
+                action: () => { closeCommandPalette(); setActiveActivity('explorer'); },
+            },
+            {
+                id: 'new-folder',
+                label: 'New Folder',
+                description: 'Create a new folder in the explorer',
+                icon: <FolderPlus size={14} />,
+                action: () => { closeCommandPalette(); setActiveActivity('explorer'); },
             },
             {
                 id: 'toggle-sidebar',
                 label: 'Toggle Sidebar',
                 description: 'Show or hide the file explorer',
+                shortcut: 'Ctrl+B',
                 icon: <PanelLeft size={14} />,
                 action: () => { closeCommandPalette(); toggleSidebar(); },
             },
@@ -72,25 +105,58 @@ export const CommandPalette: React.FC = () => {
                 id: 'toggle-terminal',
                 label: 'Toggle Terminal',
                 description: 'Show or hide the bottom panel',
-                icon: <PanelBottom size={14} />,
+                shortcut: 'Ctrl+`',
+                icon: <Terminal size={14} />,
                 action: () => { closeCommandPalette(); toggleBottomPanel(); },
             },
             {
                 id: 'toggle-chat',
                 label: 'Toggle AI Chat',
                 description: 'Show or hide the chat panel',
+                shortcut: 'Ctrl+Shift+L',
                 icon: <MessageSquare size={14} />,
                 action: () => { closeCommandPalette(); toggleChatPanel(); },
+            },
+            {
+                id: 'show-problems',
+                label: 'Show Problems',
+                description: 'Show errors and warnings',
+                icon: <AlertTriangle size={14} />,
+                action: () => { closeCommandPalette(); setBottomPanelTab('problems'); toggleBottomPanel(); },
+            },
+            {
+                id: 'close-all-tabs',
+                label: 'Close All Tabs',
+                description: 'Close all open editor tabs',
+                icon: <CloseIcon size={14} />,
+                action: () => { closeCommandPalette(); closeAllTabs(); },
+            },
+            {
+                id: 'refresh-tree',
+                label: 'Refresh File Tree',
+                description: 'Refresh the explorer file tree',
+                icon: <RefreshCw size={14} />,
+                action: () => { closeCommandPalette(); refreshTree(); },
+            },
+            {
+                id: 'clear-output',
+                label: 'Clear Output',
+                description: 'Clear the output log',
+                icon: <Trash2 size={14} />,
+                action: () => { closeCommandPalette(); clearOutput(); },
             },
             {
                 id: 'settings',
                 label: 'Settings',
                 description: 'Open editor settings',
+                shortcut: 'Ctrl+,',
                 icon: <Settings size={14} />,
                 action: () => { closeCommandPalette(); toggleSettings(); },
             },
         ],
-        [closeCommandPalette, openFolder, toggleSidebar, toggleBottomPanel, toggleChatPanel, toggleSettings],
+        [closeCommandPalette, openFolder, saveActiveTab, toggleSidebar, toggleBottomPanel,
+            toggleChatPanel, toggleSettings, setActiveActivity, setBottomPanelTab,
+            closeAllTabs, refreshTree, clearOutput],
     );
 
     const fileItems: PaletteItem[] = useMemo(() => {
@@ -179,6 +245,9 @@ export const CommandPalette: React.FC = () => {
                             <span className="command-palette__item-label">{item.label}</span>
                             {item.description && (
                                 <span className="command-palette__item-desc">{item.description}</span>
+                            )}
+                            {item.shortcut && (
+                                <kbd className="command-palette__item-shortcut">{item.shortcut}</kbd>
                             )}
                         </li>
                     ))}

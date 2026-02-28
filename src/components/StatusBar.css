@@ -31,9 +31,45 @@
 
 .statusbar__item {
     white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    padding: 0 2px;
+    border-radius: var(--radius-xs);
+    transition: background var(--transition-fast);
+}
+
+.statusbar__item:hover {
+    background: rgba(255, 255, 255, 0.06);
 }
 
 .statusbar__branch {
+    color: var(--fg-accent);
+    gap: 4px;
+}
+
+.statusbar__errors {
+    gap: 4px;
+    color: var(--fg-secondary);
+}
+
+.statusbar__errors svg:first-child {
+    color: var(--fg-error);
+}
+
+.statusbar__errors svg:nth-child(3) {
+    color: var(--fg-warning);
+    margin-left: 4px;
+}
+
+.statusbar__cursor {
+    color: var(--fg-primary);
+    font-family: var(--font-mono);
+    font-size: 10px;
+}
+
+.statusbar__language {
+    text-transform: capitalize;
     color: var(--fg-accent);
 }
 

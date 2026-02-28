@@ -4,7 +4,7 @@ import { RunPanel } from './RunPanel';
 import { useWorkspaceStore } from '../stores/workspace-store';
 import { useTabsStore } from '../stores/tabs-store';
 import { useUiStore } from '../stores/ui-store';
-import { FolderOpen, Search, ChevronDown, File } from 'lucide-react';
+import { FolderOpen, Search, ChevronDown, File, FilePlus, FolderPlus, RefreshCw, ChevronsDownUp } from 'lucide-react';
 import { FileEntry } from '../../shared/types';
 import './Sidebar.css';
 
@@ -18,10 +18,12 @@ function flattenTree(entries: FileEntry[], results: FileEntry[] = []): FileEntry
 }
 
 export const Sidebar: React.FC = () => {
-    const { rootPath, fileTree, openFolder } = useWorkspaceStore();
+    const { rootPath, fileTree, openFolder, refreshTree } = useWorkspaceStore();
     const openTab = useTabsStore((s) => s.openTab);
     const activeActivity = useUiStore((s) => s.activeActivity);
     const [searchQuery, setSearchQuery] = useState('');
+    const [creatingRoot, setCreatingRoot] = useState<'file' | 'folder' | null>(null);
+    const [createRootValue, setCreateRootValue] = useState('');
 
     const folderName = rootPath?.split(/[\\/]/).pop() ?? '';
 
@@ -43,12 +45,62 @@ export const Sidebar: React.FC = () => {
         [openTab],
     );
 
+    const handleRootCreate = useCallback(async () => {
+        if (!createRootValue.trim() || !rootPath) {
+            setCreatingRoot(null);
+            setCreateRootValue('');
+            return;
+        }
+        const sep = rootPath.includes('/') ? '/' : '\\';
+        const newPath = rootPath + sep + createRootValue;
+        if (creatingRoot === 'file') {
+            await window.electronAPI.createFile(newPath);
+        } else {
+            await window.electronAPI.createFolder(newPath);
+        }
+        await refreshTree();
+        setCreatingRoot(null);
+        setCreateRootValue('');
+    }, [createRootValue, creatingRoot, rootPath, refreshTree]);
+
     return (
         <div className="sidebar">
             {activeActivity === 'explorer' && (
                 <>
                     <div className="sidebar__section-header">
                         <span className="sidebar__section-title">EXPLORER</span>
+                        {rootPath && (
+                            <div className="sidebar__toolbar">
+                                <button
+                                    className="sidebar__toolbar-btn"
+                                    title="New File"
+                                    onClick={() => setCreatingRoot('file')}
+                                >
+                                    <FilePlus size={14} />
+                                </button>
+                                <button
+                                    className="sidebar__toolbar-btn"
+                                    title="New Folder"
+                                    onClick={() => setCreatingRoot('folder')}
+                                >
+                                    <FolderPlus size={14} />
+                                </button>
+                                <button
+                                    className="sidebar__toolbar-btn"
+                                    title="Refresh"
+                                    onClick={refreshTree}
+                                >
+                                    <RefreshCw size={14} />
+                                </button>
+                                <button
+                                    className="sidebar__toolbar-btn"
+                                    title="Collapse All"
+                                    onClick={refreshTree}
+                                >
+                                    <ChevronsDownUp size={14} />
+                                </button>
+                            </div>
+                        )}
                     </div>
                     {rootPath ? (
                         <>
@@ -58,6 +110,23 @@ export const Sidebar: React.FC = () => {
                                     {folderName}
                                 </span>
                             </div>
+                            {/* Root-level Create Input */}
+                            {creatingRoot && (
+                                <div className="sidebar__create-root">
+                                    <input
+                                        className="sidebar__create-input"
+                                        placeholder={creatingRoot === 'file' ? 'filename...' : 'folder name...'}
+                                        value={createRootValue}
+                                        onChange={(e) => setCreateRootValue(e.target.value)}
+                                        onBlur={handleRootCreate}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter') handleRootCreate();
+                                            if (e.key === 'Escape') { setCreatingRoot(null); setCreateRootValue(''); }
+                                        }}
+                                        autoFocus
+                                    />
+                                </div>
+                            )}
                             <div className="sidebar__tree">
                                 <FileTree entries={fileTree} depth={0} />
                             </div>
