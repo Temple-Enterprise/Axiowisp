@@ -19,7 +19,6 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
         const result = await window.electronAPI.openFolder();
         if (!result.success || !result.data) return;
         set({ rootPath: result.data });
-        // Read the directory tree
         const treeResult = await window.electronAPI.readDirectory(result.data);
         if (treeResult.success && treeResult.data) {
             set({ fileTree: treeResult.data });

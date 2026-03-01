@@ -105,7 +105,6 @@ export const TabBar: React.FC = () => {
                 })}
             </div>
 
-            {/* Context menu */}
             {contextMenu && (
                 <div
                     ref={menuRef}

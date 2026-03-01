@@ -24,7 +24,6 @@ interface ChatState {
 
 let messageIdCounter = 0;
 
-/** Build workspace context: list files and optionally read key files. */
 async function buildWorkspaceContext(): Promise<string> {
     if (!window.electronAPI?.listFiles) return '';
 
@@ -149,7 +148,6 @@ async function callGemini(
     return data.candidates?.[0]?.content?.parts?.[0]?.text ?? 'No response';
 }
 
-/** Parse FILE: blocks from AI response into PendingEdit objects */
 function parseFileEdits(response: string): PendingEdit[] {
     const edits: PendingEdit[] = [];
     const editPattern = /\*\*FILE:\s*(.+?)\*\*\s*\n```([\w]*)\n([\s\S]*?)```/g;
@@ -173,7 +171,6 @@ function parseFileEdits(response: string): PendingEdit[] {
     return edits;
 }
 
-/** Strip FILE: blocks from the response text so they don't render as raw markdown */
 function stripFileBlocks(response: string): string {
     return response.replace(/\*\*FILE:\s*.+?\*\*\s*\n```[\w]*\n[\s\S]*?```/g, '').trim();
 }
@@ -281,7 +278,6 @@ export const useChatStore = create<ChatState>((set, get) => ({
             }
         }
 
-        // Parse file edits from the response (they stay PENDING until user accepts)
         const edits = parseFileEdits(aiContent);
         const cleanContent = edits.length > 0 ? stripFileBlocks(aiContent) : aiContent;
 
@@ -306,18 +302,15 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
         const edit = msg.edits[editIndex];
 
-        // Write to disk
         if (window.electronAPI?.writeFile) {
             const result = await window.electronAPI.writeFile(edit.filePath, edit.content);
             if (result.success) {
-                // Refresh the tab if it's open
                 const { useTabsStore } = await import('./tabs-store');
                 const refreshTab = useTabsStore.getState().refreshTab;
                 await refreshTab(edit.filePath);
             }
         }
 
-        // Mark as accepted
         set((state) => ({
             messages: state.messages.map((m) => {
                 if (m.id !== messageId || !m.edits) return m;

@@ -1,12 +1,6 @@
 import { useSettingsStore } from '../stores/settings-store';
 
-/**
- * Ghost Text — Inline AI completions for Monaco.
- *
- * Registers an InlineCompletionItemProvider that calls the user's configured
- * AI provider on a debounce, returning a single ghost suggestion that can be
- * accepted with Tab.
- */
+
 
 let abortController: AbortController | null = null;
 
@@ -18,7 +12,6 @@ async function getCompletion(prefix: string, suffix: string, language: string): 
 
     const prompt = `Language: ${language}\n\nCode before cursor:\n${prefix.slice(-1500)}\n\nCode after cursor:\n${suffix.slice(0, 500)}`;
 
-    // Cancel any in-flight request
     if (abortController) abortController.abort();
     abortController = new AbortController();
     const signal = abortController.signal;
@@ -83,22 +76,16 @@ async function getCompletion(prefix: string, suffix: string, language: string): 
             return data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ?? '';
         }
     } catch {
-        // Aborted or network error — silent
     }
 
     return '';
 }
 
-/**
- * Register the Ghost Text provider on a Monaco editor instance.
- * Call this once when the editor mounts.
- */
 export function registerGhostTextProvider(monaco: any, editor: any): void {
     let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
     const provider = {
         provideInlineCompletions: async (model: any, position: any, _context: any, token: any) => {
-            // Don't trigger on every keystroke — wait 800ms of idle
             if (debounceTimer) clearTimeout(debounceTimer);
 
             return new Promise<any>((resolve) => {
@@ -109,7 +96,6 @@ export function registerGhostTextProvider(monaco: any, editor: any): void {
                     }
 
                     const settings = useSettingsStore.getState();
-                    // Need an API key to work
                     const hasKey =
                         (settings.activeProvider === 'openai' && settings.openaiApiKey) ||
                         (settings.activeProvider === 'anthropic' && settings.anthropicApiKey) ||
@@ -156,7 +142,6 @@ export function registerGhostTextProvider(monaco: any, editor: any): void {
 
     monaco.languages.registerInlineCompletionsProvider({ pattern: '**' }, provider);
 
-    // Enable inline suggest in the editor
     editor.updateOptions({
         inlineSuggest: { enabled: true },
     });

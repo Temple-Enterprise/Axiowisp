@@ -1,14 +1,11 @@
 import { create } from 'zustand';
 
 export interface SettingsState {
-    // Editor
     editorFontSize: number;
     wordWrap: 'off' | 'on' | 'wordWrapColumn';
     minimapEnabled: boolean;
     tabSize: number;
-    // Terminal
     terminalFontSize: number;
-    // API
     activeProvider: 'openai' | 'anthropic' | 'gemini';
     openaiApiKey: string;
     openaiModel: string;
@@ -16,12 +13,9 @@ export interface SettingsState {
     anthropicModel: string;
     geminiApiKey: string;
     geminiModel: string;
-    // UI
     theme: 'light' | 'dark';
-    // Auto-save
     autoSave: boolean;
     autoSaveDelay: number;
-    // Layout (resizable widths/heights)
     sidebarWidth: number;
     bottomPanelHeight: number;
     chatPanelWidth: number;
