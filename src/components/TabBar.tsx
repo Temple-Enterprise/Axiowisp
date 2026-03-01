@@ -1,6 +1,7 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useTabsStore } from '../stores/tabs-store';
 import { getFileIcon } from '../utils/file-icons';
+import { useUiStore } from '../stores/ui-store';
 import { X } from 'lucide-react';
 import './TabBar.css';
 
@@ -11,8 +12,13 @@ export const TabBar: React.FC = () => {
     const closeTab = useTabsStore((s) => s.closeTab);
     const closeAllTabs = useTabsStore((s) => s.closeAllTabs);
     const closeOtherTabs = useTabsStore((s) => s.closeOtherTabs);
+    const closeTabsToRight = useTabsStore((s) => s.closeTabsToRight);
+    const closeSavedTabs = useTabsStore((s) => s.closeSavedTabs);
+    const reorderTabs = useTabsStore((s) => s.reorderTabs);
+    const setPendingCloseTabId = useUiStore((s) => s.setPendingCloseTabId);
     const [contextMenu, setContextMenu] = useState<{ x: number; y: number; tabId: string } | null>(null);
     const menuRef = useRef<HTMLDivElement>(null);
+    const dragIndexRef = useRef<number>(-1);
 
     const handleContextMenu = useCallback((e: React.MouseEvent, tabId: string) => {
         e.preventDefault();
@@ -31,10 +37,35 @@ export const TabBar: React.FC = () => {
         }
     }, [contextMenu]);
 
+    const handleDragStart = useCallback((e: React.DragEvent, index: number) => {
+        dragIndexRef.current = index;
+        e.dataTransfer.effectAllowed = 'move';
+        (e.target as HTMLElement).classList.add('tabbar__tab--dragging');
+    }, []);
+
+    const handleDragOver = useCallback((e: React.DragEvent) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+    }, []);
+
+    const handleDrop = useCallback((e: React.DragEvent, toIndex: number) => {
+        e.preventDefault();
+        const fromIndex = dragIndexRef.current;
+        if (fromIndex !== -1 && fromIndex !== toIndex) {
+            reorderTabs(fromIndex, toIndex);
+        }
+        dragIndexRef.current = -1;
+    }, [reorderTabs]);
+
+    const handleDragEnd = useCallback((e: React.DragEvent) => {
+        (e.target as HTMLElement).classList.remove('tabbar__tab--dragging');
+        dragIndexRef.current = -1;
+    }, []);
+
     return (
         <div className="tabbar">
             <div className="tabbar__tabs">
-                {tabs.map((tab) => {
+                {tabs.map((tab, index) => {
                     const isActive = tab.id === activeTabId;
                     const iconInfo = getFileIcon(tab.fileName, false);
                     const Icon = iconInfo.icon;
@@ -45,6 +76,11 @@ export const TabBar: React.FC = () => {
                             className={`tabbar__tab ${isActive ? 'tabbar__tab--active' : ''}`}
                             onClick={() => setActiveTab(tab.id)}
                             onContextMenu={(e) => handleContextMenu(e, tab.id)}
+                            draggable
+                            onDragStart={(e) => handleDragStart(e, index)}
+                            onDragOver={handleDragOver}
+                            onDrop={(e) => handleDrop(e, index)}
+                            onDragEnd={handleDragEnd}
                             title={tab.filePath}
                         >
                             <Icon size={14} color={iconInfo.color} className="tabbar__tab-icon" />
@@ -54,7 +90,12 @@ export const TabBar: React.FC = () => {
                                 className="tabbar__tab-close"
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    closeTab(tab.id);
+                                    const t = tabs.find((t) => t.id === tab.id);
+                                    if (t?.isDirty) {
+                                        setPendingCloseTabId(tab.id);
+                                    } else {
+                                        closeTab(tab.id);
+                                    }
                                 }}
                             >
                                 <X size={12} />
@@ -83,6 +124,19 @@ export const TabBar: React.FC = () => {
                     >
                         Close Others
                     </button>
+                    <button
+                        className="tabbar__context-item"
+                        onClick={() => { closeTabsToRight(contextMenu.tabId); setContextMenu(null); }}
+                    >
+                        Close to the Right
+                    </button>
+                    <button
+                        className="tabbar__context-item"
+                        onClick={() => { closeSavedTabs(); setContextMenu(null); }}
+                    >
+                        Close Saved
+                    </button>
+                    <div className="tabbar__context-separator" />
                     <button
                         className="tabbar__context-item"
                         onClick={() => { closeAllTabs(); setContextMenu(null); }}

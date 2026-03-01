@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-export type Activity = 'explorer' | 'search' | 'run';
+export type Activity = 'explorer' | 'search' | 'run' | 'git';
 
 interface UiState {
     sidebarVisible: boolean;
@@ -12,6 +12,7 @@ interface UiState {
     aboutData: any;
     bottomPanelTab: 'terminal' | 'output' | 'problems';
     activeActivity: Activity;
+    pendingCloseTabId: string | null;
     toggleSidebar: () => void;
     toggleBottomPanel: () => void;
     toggleChatPanel: () => void;
@@ -21,6 +22,7 @@ interface UiState {
     setActiveActivity: (activity: Activity) => void;
     toggleSettings: () => void;
     toggleAboutModal: (isOpen: boolean, data?: any) => void;
+    setPendingCloseTabId: (tabId: string | null) => void;
 }
 
 export const useUiStore = create<UiState>((set) => ({
@@ -33,6 +35,7 @@ export const useUiStore = create<UiState>((set) => ({
     aboutData: null,
     bottomPanelTab: 'terminal',
     activeActivity: 'explorer',
+    pendingCloseTabId: null,
 
     toggleSidebar: () => set((s) => ({ sidebarVisible: !s.sidebarVisible })),
     toggleBottomPanel: () => set((s) => ({ bottomPanelVisible: !s.bottomPanelVisible })),
@@ -43,4 +46,5 @@ export const useUiStore = create<UiState>((set) => ({
     setActiveActivity: (activity) => set({ activeActivity: activity, sidebarVisible: true }),
     toggleSettings: () => set((s) => ({ settingsOpen: !s.settingsOpen })),
     toggleAboutModal: (isOpen, data) => set({ aboutModalOpen: isOpen, aboutData: data || null }),
+    setPendingCloseTabId: (tabId) => set({ pendingCloseTabId: tabId }),
 }));

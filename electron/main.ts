@@ -163,12 +163,59 @@ function registerProtocols(): void {
     });
 }
 
-app.whenReady().then(() => {
-    registerProtocols();
-    registerIpcHandlers();
-    createMenu();
-    createWindow();
-});
+/** Extract file path from argv (for "Open With" / drag-to-app / CLI). */
+function getFileFromArgs(argv: string[]): string | null {
+    // Skip electron binary and app path, look for a real file path
+    for (let i = 1; i < argv.length; i++) {
+        const arg = argv[i];
+        if (arg && !arg.startsWith('-') && !arg.startsWith('--') && path.isAbsolute(arg)) {
+            try {
+                const fs = require('fs');
+                if (fs.existsSync(arg) && fs.statSync(arg).isFile()) {
+                    return arg;
+                }
+            } catch { /* ignore */ }
+        }
+    }
+    return null;
+}
+
+/** Send a file path to the renderer to open in a tab. */
+function openFileInRenderer(filePath: string): void {
+    if (mainWindow) {
+        mainWindow.webContents.send('open-file', filePath);
+    }
+}
+
+// Only one instance — if user double-clicks another file, focus existing window
+const gotLock = app.requestSingleInstanceLock();
+if (!gotLock) {
+    app.quit();
+} else {
+    app.on('second-instance', (_event, argv) => {
+        if (mainWindow) {
+            if (mainWindow.isMinimized()) mainWindow.restore();
+            mainWindow.focus();
+            const fileToOpen = getFileFromArgs(argv);
+            if (fileToOpen) openFileInRenderer(fileToOpen);
+        }
+    });
+
+    app.whenReady().then(() => {
+        registerProtocols();
+        registerIpcHandlers();
+        createMenu();
+        createWindow();
+
+        // Check if launched with a file argument
+        const fileToOpen = getFileFromArgs(process.argv);
+        if (fileToOpen && mainWindow) {
+            mainWindow.once('ready-to-show', () => {
+                openFileInRenderer(fileToOpen);
+            });
+        }
+    });
+}
 
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') app.quit();

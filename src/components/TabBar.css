@@ -143,3 +143,18 @@
 .tabbar__context-item:hover {
     background: var(--bg-hover);
 }
+
+.tabbar__context-separator {
+    height: 1px;
+    background: var(--border-muted);
+    margin: var(--space-1) 0;
+}
+
+/* Drag reorder */
+.tabbar__tab--dragging {
+    opacity: 0.4;
+}
+
+.tabbar__tab[draggable]:hover {
+    cursor: grab;
+}

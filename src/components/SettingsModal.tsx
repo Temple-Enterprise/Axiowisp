@@ -74,6 +74,32 @@ export const SettingsModal: React.FC = () => {
                                 <option value="4">4 spaces</option>
                             </select>
                         </div>
+                        <div className="settings-modal__option">
+                            <label>Auto Save</label>
+                            <select
+                                className="settings-modal__select"
+                                value={settings.autoSave ? 'on' : 'off'}
+                                onChange={(e) => settings.setAutoSave(e.target.value === 'on')}
+                            >
+                                <option value="off">Off</option>
+                                <option value="on">After Delay</option>
+                            </select>
+                        </div>
+                        {settings.autoSave && (
+                            <div className="settings-modal__option">
+                                <label>Auto Save Delay</label>
+                                <select
+                                    className="settings-modal__select"
+                                    value={String(settings.autoSaveDelay)}
+                                    onChange={(e) => settings.setAutoSaveDelay(Number(e.target.value))}
+                                >
+                                    <option value="500">500ms</option>
+                                    <option value="1000">1s</option>
+                                    <option value="2000">2s</option>
+                                    <option value="5000">5s</option>
+                                </select>
+                            </div>
+                        )}
                     </section>
 
                     <section className="settings-modal__section">

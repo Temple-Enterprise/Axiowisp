@@ -14,6 +14,18 @@ const electronAPI: ElectronAPI = {
     renameEntry: (oldPath: string, newPath: string) =>
         ipcRenderer.invoke(IpcChannels.RENAME_ENTRY, oldPath, newPath),
     deleteEntry: (targetPath: string) => ipcRenderer.invoke(IpcChannels.DELETE_ENTRY, targetPath),
+    searchInFiles: (rootPath: string, query: string, caseSensitive: boolean) =>
+        ipcRenderer.invoke(IpcChannels.SEARCH_IN_FILES, rootPath, query, caseSensitive),
+    replaceInFile: (filePath: string, search: string, replace: string, caseSensitive: boolean) =>
+        ipcRenderer.invoke(IpcChannels.REPLACE_IN_FILE, filePath, search, replace, caseSensitive),
+
+    // Git
+    gitStatus: (cwd: string) => ipcRenderer.invoke(IpcChannels.GIT_STATUS, cwd),
+    gitStage: (cwd: string, filePath: string) => ipcRenderer.invoke(IpcChannels.GIT_STAGE, cwd, filePath),
+    gitUnstage: (cwd: string, filePath: string) => ipcRenderer.invoke(IpcChannels.GIT_UNSTAGE, cwd, filePath),
+    gitCommit: (cwd: string, message: string) => ipcRenderer.invoke(IpcChannels.GIT_COMMIT, cwd, message),
+    gitPush: (cwd: string) => ipcRenderer.invoke(IpcChannels.GIT_PUSH, cwd),
+    gitPull: (cwd: string) => ipcRenderer.invoke(IpcChannels.GIT_PULL, cwd),
 
     // Terminal
     createTerminal: (cwd?: string) => ipcRenderer.invoke(IpcChannels.TERMINAL_CREATE, cwd),
@@ -79,6 +91,11 @@ const electronAPI: ElectronAPI = {
         const handler = () => callback();
         ipcRenderer.on(IpcChannels.MENU_WELCOME, handler);
         return () => ipcRenderer.removeListener(IpcChannels.MENU_WELCOME, handler);
+    },
+    onOpenFile: (callback: (filePath: string) => void) => {
+        const handler = (_event: any, filePath: string) => callback(filePath);
+        ipcRenderer.on('open-file', handler);
+        return () => ipcRenderer.removeListener('open-file', handler);
     },
 };
 

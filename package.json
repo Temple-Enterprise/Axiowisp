@@ -44,7 +44,159 @@
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "shortcutName": "Axiowisp"
-    }
+    },
+    "fileAssociations": [
+      {
+        "ext": "ts",
+        "name": "TypeScript",
+        "role": "Editor"
+      },
+      {
+        "ext": "tsx",
+        "name": "TypeScript JSX",
+        "role": "Editor"
+      },
+      {
+        "ext": "js",
+        "name": "JavaScript",
+        "role": "Editor"
+      },
+      {
+        "ext": "jsx",
+        "name": "JavaScript JSX",
+        "role": "Editor"
+      },
+      {
+        "ext": "json",
+        "name": "JSON",
+        "role": "Editor"
+      },
+      {
+        "ext": "html",
+        "name": "HTML",
+        "role": "Editor"
+      },
+      {
+        "ext": "css",
+        "name": "CSS",
+        "role": "Editor"
+      },
+      {
+        "ext": "scss",
+        "name": "SCSS",
+        "role": "Editor"
+      },
+      {
+        "ext": "md",
+        "name": "Markdown",
+        "role": "Editor"
+      },
+      {
+        "ext": "py",
+        "name": "Python",
+        "role": "Editor"
+      },
+      {
+        "ext": "rs",
+        "name": "Rust",
+        "role": "Editor"
+      },
+      {
+        "ext": "go",
+        "name": "Go",
+        "role": "Editor"
+      },
+      {
+        "ext": "java",
+        "name": "Java",
+        "role": "Editor"
+      },
+      {
+        "ext": "c",
+        "name": "C",
+        "role": "Editor"
+      },
+      {
+        "ext": "cpp",
+        "name": "C++",
+        "role": "Editor"
+      },
+      {
+        "ext": "cs",
+        "name": "C#",
+        "role": "Editor"
+      },
+      {
+        "ext": "rb",
+        "name": "Ruby",
+        "role": "Editor"
+      },
+      {
+        "ext": "php",
+        "name": "PHP",
+        "role": "Editor"
+      },
+      {
+        "ext": "yaml",
+        "name": "YAML",
+        "role": "Editor"
+      },
+      {
+        "ext": "yml",
+        "name": "YAML",
+        "role": "Editor"
+      },
+      {
+        "ext": "xml",
+        "name": "XML",
+        "role": "Editor"
+      },
+      {
+        "ext": "sql",
+        "name": "SQL",
+        "role": "Editor"
+      },
+      {
+        "ext": "sh",
+        "name": "Shell",
+        "role": "Editor"
+      },
+      {
+        "ext": "txt",
+        "name": "Text",
+        "role": "Editor"
+      },
+      {
+        "ext": "log",
+        "name": "Log",
+        "role": "Editor"
+      },
+      {
+        "ext": "toml",
+        "name": "TOML",
+        "role": "Editor"
+      },
+      {
+        "ext": "lua",
+        "name": "Lua",
+        "role": "Editor"
+      },
+      {
+        "ext": "swift",
+        "name": "Swift",
+        "role": "Editor"
+      },
+      {
+        "ext": "kt",
+        "name": "Kotlin",
+        "role": "Editor"
+      },
+      {
+        "ext": "dart",
+        "name": "Dart",
+        "role": "Editor"
+      }
+    ]
   },
   "dependencies": {
     "@monaco-editor/react": "^4.6.0",

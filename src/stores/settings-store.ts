@@ -18,6 +18,9 @@ export interface SettingsState {
     geminiModel: string;
     // UI
     theme: 'light' | 'dark';
+    // Auto-save
+    autoSave: boolean;
+    autoSaveDelay: number;
     // Layout (resizable widths/heights)
     sidebarWidth: number;
     bottomPanelHeight: number;
@@ -36,6 +39,8 @@ export interface SettingsState {
     setGeminiModel: (model: string) => void;
     setActiveProvider: (provider: 'openai' | 'anthropic' | 'gemini') => void;
     setTheme: (theme: 'light' | 'dark') => void;
+    setAutoSave: (enabled: boolean) => void;
+    setAutoSaveDelay: (delay: number) => void;
     setSidebarWidth: (width: number) => void;
     setBottomPanelHeight: (height: number) => void;
     setChatPanelWidth: (width: number) => void;
@@ -67,6 +72,8 @@ function saveSettings(state: Partial<SettingsState>) {
             geminiModel: state.geminiModel,
             activeProvider: state.activeProvider,
             theme: state.theme,
+            autoSave: state.autoSave,
+            autoSaveDelay: state.autoSaveDelay,
             sidebarWidth: state.sidebarWidth,
             bottomPanelHeight: state.bottomPanelHeight,
             chatPanelWidth: state.chatPanelWidth,
@@ -91,6 +98,8 @@ export const useSettingsStore = create<SettingsState>((set) => ({
     geminiApiKey: saved.geminiApiKey ?? '',
     geminiModel: saved.geminiModel ?? 'gemini-1.5-pro',
     theme: (saved.theme as any) ?? 'dark',
+    autoSave: saved.autoSave ?? false,
+    autoSaveDelay: saved.autoSaveDelay ?? 1000,
     sidebarWidth: saved.sidebarWidth ?? 240,
     bottomPanelHeight: saved.bottomPanelHeight ?? 220,
     chatPanelWidth: saved.chatPanelWidth ?? 360,
@@ -108,6 +117,8 @@ export const useSettingsStore = create<SettingsState>((set) => ({
     setGeminiModel: (model) => set((s) => { const n = { ...s, geminiModel: model }; saveSettings(n); return n; }),
     setActiveProvider: (provider) => set((s) => { const n = { ...s, activeProvider: provider }; saveSettings(n); return n; }),
     setTheme: (theme) => set((s) => { const n = { ...s, theme }; saveSettings(n); return n; }),
+    setAutoSave: (autoSave) => set((s) => { const n = { ...s, autoSave }; saveSettings(n); return n; }),
+    setAutoSaveDelay: (autoSaveDelay) => set((s) => { const n = { ...s, autoSaveDelay }; saveSettings(n); return n; }),
     setSidebarWidth: (width) => set((s) => { const n = { ...s, sidebarWidth: width }; saveSettings(n); return n; }),
     setBottomPanelHeight: (height) => set((s) => { const n = { ...s, bottomPanelHeight: height }; saveSettings(n); return n; }),
     setChatPanelWidth: (width) => set((s) => { const n = { ...s, chatPanelWidth: width }; saveSettings(n); return n; }),

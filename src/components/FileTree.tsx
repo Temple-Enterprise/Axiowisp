@@ -3,7 +3,8 @@ import { FileEntry } from '../../shared/types';
 import { useTabsStore } from '../stores/tabs-store';
 import { useWorkspaceStore } from '../stores/workspace-store';
 import { getFileIcon } from '../utils/file-icons';
-import { ChevronRight, ChevronDown, FilePlus, FolderPlus, Pencil, Trash2 } from 'lucide-react';
+import { useReviewStore } from '../stores/review-store';
+import { ChevronRight, ChevronDown, FilePlus, FolderPlus, Pencil, Trash2, Shield } from 'lucide-react';
 import './FileTree.css';
 
 interface FileTreeProps {
@@ -38,6 +39,7 @@ const FileTreeItem: React.FC<FileTreeItemProps> = ({ entry, depth }) => {
     const activeTabId = useTabsStore((s) => s.activeTabId);
     const renameTab = useTabsStore((s) => s.renameTab);
     const refreshTree = useWorkspaceStore((s) => s.refreshTree);
+    const reviewFile = useReviewStore((s) => s.reviewFile);
     const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null);
     const [renaming, setRenaming] = useState(false);
     const [renameValue, setRenameValue] = useState('');
@@ -249,6 +251,20 @@ const FileTreeItem: React.FC<FileTreeItemProps> = ({ entry, depth }) => {
                     >
                         <Trash2 size={13} /> Delete
                     </button>
+                    {!entry.isDirectory && (
+                        <>
+                            <div className="file-tree__context-separator" />
+                            <button
+                                className="file-tree__context-item"
+                                onClick={() => {
+                                    setContextMenu(null);
+                                    reviewFile(entry.path);
+                                }}
+                            >
+                                <Shield size={13} /> AI Review
+                            </button>
+                        </>
+                    )}
                 </div>
             )}
         </li>

@@ -11,6 +11,10 @@ import { SettingsModal } from './SettingsModal';
 import { AboutModal } from './AboutModal';
 import { WelcomeTab } from './WelcomeTab';
 import { Breadcrumbs } from './Breadcrumbs';
+import { ToastContainer } from './ToastContainer';
+import { ConfirmDialog } from './ConfirmDialog';
+import { ReviewPanel } from './ReviewPanel';
+import { DashboardTab } from './DashboardTab';
 import { useUiStore } from '../stores/ui-store';
 import { useTabsStore } from '../stores/tabs-store';
 import { useSettingsStore } from '../stores/settings-store';
@@ -24,6 +28,13 @@ export const Layout: React.FC = () => {
     const settingsOpen = useUiStore((s) => s.settingsOpen);
     const aboutModalOpen = useUiStore((s) => s.aboutModalOpen);
     const activeTabId = useTabsStore((s) => s.activeTabId);
+    const tabs = useTabsStore((s) => s.tabs);
+    const closeTab = useTabsStore((s) => s.closeTab);
+    const saveActiveTab = useTabsStore((s) => s.saveActiveTab);
+    const setActiveTab = useTabsStore((s) => s.setActiveTab);
+    const openTab = useTabsStore((s) => s.openTab);
+    const pendingCloseTabId = useUiStore((s) => s.pendingCloseTabId);
+    const setPendingCloseTabId = useUiStore((s) => s.setPendingCloseTabId);
 
     const theme = useSettingsStore((s) => s.theme);
     const sidebarWidth = useSettingsStore((s) => s.sidebarWidth);
@@ -33,6 +44,8 @@ export const Layout: React.FC = () => {
     const setBottomPanelHeight = useSettingsStore((s) => s.setBottomPanelHeight);
     const setChatPanelWidth = useSettingsStore((s) => s.setChatPanelWidth);
     const toggleAboutModal = useUiStore((s) => s.toggleAboutModal);
+
+    const pendingTab = pendingCloseTabId ? tabs.find((t) => t.id === pendingCloseTabId) : null;
 
     useEffect(() => {
         window.electronAPI.onAbout((data) => {
@@ -154,7 +167,13 @@ export const Layout: React.FC = () => {
                 </div>
                 {activeTabId && <Breadcrumbs />}
                 <div className="layout__editor">
-                    {activeTabId ? <Editor /> : <WelcomeTab />}
+                    {activeTabId === 'dashboard' ? (
+                        <DashboardTab />
+                    ) : activeTabId ? (
+                        <Editor />
+                    ) : (
+                        <WelcomeTab />
+                    )}
                 </div>
                 {bottomPanelVisible && (
                     <>
@@ -182,6 +201,24 @@ export const Layout: React.FC = () => {
             {commandPaletteOpen && <CommandPalette />}
             {settingsOpen && <SettingsModal />}
             {aboutModalOpen && <AboutModal />}
+            {pendingTab && (
+                <ConfirmDialog
+                    fileName={pendingTab.fileName}
+                    onSave={async () => {
+                        setActiveTab(pendingTab.id);
+                        await saveActiveTab();
+                        closeTab(pendingTab.id);
+                        setPendingCloseTabId(null);
+                    }}
+                    onDiscard={() => {
+                        closeTab(pendingTab.id);
+                        setPendingCloseTabId(null);
+                    }}
+                    onCancel={() => setPendingCloseTabId(null)}
+                />
+            )}
+            <ReviewPanel />
+            <ToastContainer />
         </div>
     );
 };

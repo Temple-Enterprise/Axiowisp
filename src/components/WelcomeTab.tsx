@@ -1,7 +1,8 @@
 import React from 'react';
 import { useWorkspaceStore } from '../stores/workspace-store';
+import { useTabsStore } from '../stores/tabs-store';
 import { useUiStore } from '../stores/ui-store';
-import { FolderOpen, Command, Sparkles, Terminal, Settings, Search } from 'lucide-react';
+import { FolderOpen, Command, Sparkles, Terminal, Settings, Search, BarChart3 } from 'lucide-react';
 import './WelcomeTab.css';
 
 interface ShortcutInfo {
@@ -27,6 +28,7 @@ export const WelcomeTab: React.FC = () => {
     const toggleBottomPanel = useUiStore((s) => s.toggleBottomPanel);
     const toggleSettings = useUiStore((s) => s.toggleSettings);
     const setActiveActivity = useUiStore((s) => s.setActiveActivity);
+    const openDashboard = useTabsStore((s) => s.openDashboard);
 
     return (
         <div className="welcome">
@@ -69,6 +71,11 @@ export const WelcomeTab: React.FC = () => {
                         <Settings size={16} />
                         <span>Settings</span>
                         <kbd>Ctrl+,</kbd>
+                    </button>
+                    <button className="welcome__action" onClick={openDashboard}>
+                        <BarChart3 size={16} />
+                        <span>Project Dashboard</span>
+                        <kbd>Ctrl+D</kbd>
                     </button>
                 </div>
 

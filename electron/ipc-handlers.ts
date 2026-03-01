@@ -268,6 +268,122 @@ export function registerIpcHandlers(): void {
             runners.delete(pid);
         }
     });
+
+    // ── Search in Files ─────────────────────────────────────────
+    ipcMain.handle(
+        IpcChannels.SEARCH_IN_FILES,
+        async (_event, rootPath: string, query: string, caseSensitive: boolean) => {
+            try {
+                const matches = searchInFilesRecursive(rootPath, query, caseSensitive);
+                return { success: true, data: matches };
+            } catch (err: any) {
+                return { success: false, error: err.message };
+            }
+        },
+    );
+
+    // ── Replace in File ─────────────────────────────────────────
+    ipcMain.handle(
+        IpcChannels.REPLACE_IN_FILE,
+        async (_event, filePath: string, search: string, replace: string, caseSensitive: boolean) => {
+            try {
+                const content = fs.readFileSync(filePath, 'utf-8');
+                const flags = caseSensitive ? 'g' : 'gi';
+                const regex = new RegExp(search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), flags);
+                const newContent = content.replace(regex, replace);
+                const count = (content.match(regex) || []).length;
+                fs.writeFileSync(filePath, newContent, 'utf-8');
+                return { success: true, data: count };
+            } catch (err: any) {
+                return { success: false, error: err.message };
+            }
+        },
+    );
+
+    // ── Git: Status ─────────────────────────────────────────────
+    ipcMain.handle(
+        IpcChannels.GIT_STATUS,
+        async (_event, cwd: string) => {
+            try {
+                const branch = await gitExec(cwd, ['rev-parse', '--abbrev-ref', 'HEAD']);
+                const statusRaw = await gitExec(cwd, ['status', '--porcelain']);
+                const files = statusRaw.split('\n').filter(Boolean).map((line) => {
+                    const staged = line[0] !== ' ' && line[0] !== '?';
+                    const status = line.substring(0, 2).trim();
+                    const filePath = line.substring(3);
+                    return { path: filePath, status, staged };
+                });
+                return { success: true, data: { branch: branch.trim(), files } };
+            } catch (err: any) {
+                return { success: false, error: err.message };
+            }
+        },
+    );
+
+    // ── Git: Stage ──────────────────────────────────────────────
+    ipcMain.handle(
+        IpcChannels.GIT_STAGE,
+        async (_event, cwd: string, filePath: string) => {
+            try {
+                await gitExec(cwd, ['add', filePath]);
+                return { success: true };
+            } catch (err: any) {
+                return { success: false, error: err.message };
+            }
+        },
+    );
+
+    // ── Git: Unstage ────────────────────────────────────────────
+    ipcMain.handle(
+        IpcChannels.GIT_UNSTAGE,
+        async (_event, cwd: string, filePath: string) => {
+            try {
+                await gitExec(cwd, ['reset', 'HEAD', filePath]);
+                return { success: true };
+            } catch (err: any) {
+                return { success: false, error: err.message };
+            }
+        },
+    );
+
+    // ── Git: Commit ─────────────────────────────────────────────
+    ipcMain.handle(
+        IpcChannels.GIT_COMMIT,
+        async (_event, cwd: string, message: string) => {
+            try {
+                await gitExec(cwd, ['commit', '-m', message]);
+                return { success: true };
+            } catch (err: any) {
+                return { success: false, error: err.message };
+            }
+        },
+    );
+
+    // ── Git: Push ───────────────────────────────────────────────
+    ipcMain.handle(
+        IpcChannels.GIT_PUSH,
+        async (_event, cwd: string) => {
+            try {
+                await gitExec(cwd, ['push']);
+                return { success: true };
+            } catch (err: any) {
+                return { success: false, error: err.message };
+            }
+        },
+    );
+
+    // ── Git: Pull ───────────────────────────────────────────────
+    ipcMain.handle(
+        IpcChannels.GIT_PULL,
+        async (_event, cwd: string) => {
+            try {
+                await gitExec(cwd, ['pull']);
+                return { success: true };
+            } catch (err: any) {
+                return { success: false, error: err.message };
+            }
+        },
+    );
 }
 
 // ── Helpers ──────────────────────────────────────────────────────
@@ -325,3 +441,68 @@ function listFilesRecursive(dirPath: string, depth = 0, maxFiles = 500): string[
 
     return files;
 }
+
+/** Search for a text query across all files in a directory. */
+function searchInFilesRecursive(rootPath: string, query: string, caseSensitive: boolean, depth = 0): any[] {
+    if (depth > 8) return [];
+    const matches: any[] = [];
+    const BINARY_EXT = new Set(['png', 'jpg', 'jpeg', 'gif', 'ico', 'svg', 'mp4', 'webm', 'exe', 'dll', 'zip', 'woff', 'woff2', 'ttf', 'eot']);
+
+    try {
+        const entries = fs.readdirSync(rootPath, { withFileTypes: true });
+        for (const entry of entries) {
+            if (matches.length >= 200) break;
+            if (IGNORE_PATTERNS.has(entry.name)) continue;
+            if (entry.name.startsWith('.')) continue;
+
+            const fullPath = path.join(rootPath, entry.name);
+            if (entry.isDirectory()) {
+                matches.push(...searchInFilesRecursive(fullPath, query, caseSensitive, depth + 1));
+            } else {
+                const ext = entry.name.split('.').pop()?.toLowerCase() ?? '';
+                if (BINARY_EXT.has(ext)) continue;
+
+                try {
+                    const content = fs.readFileSync(fullPath, 'utf-8');
+                    const lines = content.split('\n');
+                    const q = caseSensitive ? query : query.toLowerCase();
+
+                    for (let i = 0; i < lines.length && matches.length < 200; i++) {
+                        const line = lines[i];
+                        const searchLine = caseSensitive ? line : line.toLowerCase();
+                        let idx = searchLine.indexOf(q);
+                        while (idx !== -1 && matches.length < 200) {
+                            matches.push({
+                                filePath: fullPath,
+                                lineNumber: i + 1,
+                                lineContent: line.substring(0, 300),
+                                matchStart: idx,
+                                matchEnd: idx + query.length,
+                            });
+                            idx = searchLine.indexOf(q, idx + 1);
+                        }
+                    }
+                } catch { /* skip unreadable files */ }
+            }
+        }
+    } catch { /* skip inaccessible dirs */ }
+
+    return matches;
+}
+
+/** Execute a git command and return stdout. */
+function gitExec(cwd: string, args: string[]): Promise<string> {
+    return new Promise((resolve, reject) => {
+        const child = spawn('git', args, { cwd, env: process.env as Record<string, string> });
+        let stdout = '';
+        let stderr = '';
+        child.stdout?.on('data', (d: Buffer) => { stdout += d.toString(); });
+        child.stderr?.on('data', (d: Buffer) => { stderr += d.toString(); });
+        child.on('close', (code) => {
+            if (code === 0) resolve(stdout);
+            else reject(new Error(stderr || `git exited with code ${code}`));
+        });
+        child.on('error', reject);
+    });
+}
+

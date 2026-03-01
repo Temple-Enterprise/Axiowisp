@@ -1,6 +1,8 @@
 import { useEffect } from 'react';
 import { useTabsStore } from '../stores/tabs-store';
 import { useUiStore } from '../stores/ui-store';
+import { useSettingsStore } from '../stores/settings-store';
+import { useNotificationStore } from '../stores/notification-store';
 
 /**
  * Register global keyboard shortcuts for the IDE.
@@ -8,10 +10,14 @@ import { useUiStore } from '../stores/ui-store';
  */
 export function useKeyboardShortcuts(): void {
     const saveActiveTab = useTabsStore((s) => s.saveActiveTab);
+    const openDashboard = useTabsStore((s) => s.openDashboard);
     const toggleSidebar = useUiStore((s) => s.toggleSidebar);
     const toggleBottomPanel = useUiStore((s) => s.toggleBottomPanel);
     const toggleChatPanel = useUiStore((s) => s.toggleChatPanel);
     const openCommandPalette = useUiStore((s) => s.openCommandPalette);
+    const setEditorFontSize = useSettingsStore((s) => s.setEditorFontSize);
+    const editorFontSize = useSettingsStore((s) => s.editorFontSize);
+    const addNotification = useNotificationStore((s) => s.addNotification);
 
     useEffect(() => {
         function handleKeyDown(e: KeyboardEvent) {
@@ -21,7 +27,9 @@ export function useKeyboardShortcuts(): void {
             switch (e.key.toLowerCase()) {
                 case 's':
                     e.preventDefault();
-                    saveActiveTab();
+                    saveActiveTab().then(() => {
+                        addNotification('File saved', 'success', 2000);
+                    });
                     break;
                 case 'b':
                     e.preventDefault();
@@ -35,16 +43,50 @@ export function useKeyboardShortcuts(): void {
                     e.preventDefault();
                     openCommandPalette();
                     break;
+                case 'd':
+                    e.preventDefault();
+                    openDashboard();
+                    break;
+                case 'g':
+                    if (!e.shiftKey) {
+                        e.preventDefault();
+                        // Trigger Monaco's Go to Line action
+                        if (window.monaco) {
+                            const editor = (window as any).__axiowisp_editor;
+                            if (editor) {
+                                editor.getAction('editor.action.gotoLine')?.run();
+                            }
+                        }
+                    }
+                    break;
                 case 'l':
                     if (e.shiftKey) {
                         e.preventDefault();
                         toggleChatPanel();
                     }
                     break;
+                case '=':
+                case '+':
+                    e.preventDefault();
+                    setEditorFontSize(Math.min(editorFontSize + 1, 32));
+                    break;
+                case '-':
+                    e.preventDefault();
+                    setEditorFontSize(Math.max(editorFontSize - 1, 8));
+                    break;
+            }
+
+            // Shift+Alt+F — Format Document
+            if (e.shiftKey && e.altKey && e.key.toLowerCase() === 'f') {
+                e.preventDefault();
+                const editor = (window as any).__axiowisp_editor;
+                if (editor) {
+                    editor.getAction('editor.action.formatDocument')?.run();
+                }
             }
         }
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [saveActiveTab, toggleSidebar, toggleBottomPanel, toggleChatPanel, openCommandPalette]);
+    }, [saveActiveTab, openDashboard, toggleSidebar, toggleBottomPanel, toggleChatPanel, openCommandPalette, setEditorFontSize, editorFontSize, addNotification]);
 }

@@ -1,0 +1,102 @@
+/* ─── Confirm Dialog ──────────────────────────────────────────── */
+
+.confirm-dialog__overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: confirmFadeIn 150ms ease;
+}
+
+@keyframes confirmFadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.confirm-dialog {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-overlay);
+    padding: var(--space-5);
+    min-width: 340px;
+    max-width: 420px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.confirm-dialog__icon {
+    color: #d29922;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.confirm-dialog__body {
+    text-align: center;
+}
+
+.confirm-dialog__title {
+    margin: 0 0 var(--space-2) 0;
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    color: var(--fg-primary);
+}
+
+.confirm-dialog__desc {
+    margin: 0;
+    font-size: var(--font-size-sm);
+    color: var(--fg-secondary);
+    line-height: 1.5;
+}
+
+.confirm-dialog__actions {
+    display: flex;
+    gap: var(--space-2);
+    justify-content: center;
+}
+
+.confirm-dialog__btn {
+    padding: 6px 16px;
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    background: var(--bg-surface);
+    color: var(--fg-primary);
+}
+
+.confirm-dialog__btn:hover {
+    background: var(--bg-hover);
+}
+
+.confirm-dialog__btn--save {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+}
+
+.confirm-dialog__btn--save:hover {
+    background: var(--accent-hover);
+}
+
+.confirm-dialog__btn--discard {
+    background: rgba(248, 81, 73, 0.1);
+    color: #f85149;
+    border-color: rgba(248, 81, 73, 0.3);
+}
+
+.confirm-dialog__btn--discard:hover {
+    background: rgba(248, 81, 73, 0.2);
+}

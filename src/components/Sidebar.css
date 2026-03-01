@@ -260,3 +260,111 @@
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+
+/* ── Replace ──────────────────────────────────────────────── */
+.sidebar__replace-wrap {
+    margin-top: var(--space-1);
+}
+
+.sidebar__replace-all-btn {
+    flex-shrink: 0;
+    padding: 2px 8px;
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-xs);
+    background: transparent;
+    color: var(--fg-secondary);
+    font-size: 10px;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.sidebar__replace-all-btn:hover:not(:disabled) {
+    background: var(--bg-hover);
+    color: var(--fg-primary);
+}
+
+.sidebar__replace-all-btn:disabled {
+    opacity: 0.4;
+}
+
+.sidebar__toolbar-btn--active {
+    background: var(--bg-active);
+    color: var(--accent);
+}
+
+/* ── Content Search Results ───────────────────────────────── */
+.sidebar__search-summary {
+    padding: var(--space-1) var(--space-3);
+    font-size: 10px;
+    color: var(--fg-muted);
+    border-bottom: 1px solid var(--border-muted);
+}
+
+.sidebar__search-file-group {
+    border-bottom: 1px solid var(--border-muted);
+}
+
+.sidebar__search-file-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: var(--space-1) var(--space-3);
+    font-size: var(--font-size-xs);
+    color: var(--fg-primary);
+    font-weight: var(--font-weight-medium);
+    background: var(--bg-surface);
+}
+
+.sidebar__search-file-name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.sidebar__search-file-count {
+    flex-shrink: 0;
+    font-size: 10px;
+    color: var(--fg-muted);
+    background: var(--bg-active);
+    padding: 1px 5px;
+    border-radius: 8px;
+}
+
+.sidebar__search-replace-btn {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border: none;
+    border-radius: var(--radius-xs);
+    background: transparent;
+    color: var(--fg-muted);
+    cursor: pointer;
+}
+
+.sidebar__search-replace-btn:hover {
+    background: var(--bg-hover);
+    color: var(--fg-primary);
+}
+
+.sidebar__search-line-num {
+    flex-shrink: 0;
+    width: 32px;
+    text-align: right;
+    font-size: 10px;
+    color: var(--fg-muted);
+    font-family: var(--font-mono);
+    margin-right: var(--space-1);
+}
+
+.sidebar__search-line-content {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: var(--font-mono);
+    font-size: 11px;
+}

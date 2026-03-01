@@ -1,0 +1,218 @@
+/* ─── Dashboard Tab ────────────────────────────────────────────── */
+
+.dashboard {
+    height: 100%;
+    overflow-y: auto;
+    padding: var(--space-6);
+    background: var(--bg-base);
+}
+
+.dashboard__header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-6);
+    color: var(--fg-primary);
+}
+
+.dashboard__header h2 {
+    margin: 0;
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
+}
+
+/* Loading / Empty */
+.dashboard__loading,
+.dashboard__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: var(--space-3);
+    color: var(--fg-muted);
+}
+
+@keyframes dashSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.dashboard__spinner {
+    animation: dashSpin 1s linear infinite;
+    color: var(--accent);
+}
+
+/* Cards */
+.dashboard__cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: var(--space-3);
+    margin-bottom: var(--space-6);
+}
+
+.dashboard__card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-muted);
+    border-radius: var(--radius-lg);
+    padding: var(--space-4);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-1);
+    transition: border-color var(--transition-fast);
+}
+
+.dashboard__card:hover {
+    border-color: var(--accent);
+}
+
+.dashboard__card-icon {
+    color: var(--accent);
+}
+
+.dashboard__card-icon--warn {
+    color: #d29922;
+}
+
+.dashboard__card-value {
+    font-size: 28px;
+    font-weight: var(--font-weight-bold);
+    color: var(--fg-primary);
+    font-family: var(--font-mono);
+}
+
+.dashboard__card-label {
+    font-size: var(--font-size-xs);
+    color: var(--fg-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Section */
+.dashboard__section {
+    margin-bottom: var(--space-6);
+}
+
+.dashboard__section-title {
+    margin: 0 0 var(--space-3) 0;
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-semibold);
+    color: var(--fg-primary);
+}
+
+.dashboard__subsection-title {
+    margin: var(--space-3) 0 var(--space-2) 0;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--fg-secondary);
+}
+
+/* Languages */
+.dashboard__langs {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.dashboard__lang-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.dashboard__lang-name {
+    flex-shrink: 0;
+    width: 140px;
+    font-size: var(--font-size-sm);
+    color: var(--fg-primary);
+    font-weight: var(--font-weight-medium);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.dashboard__lang-bar-bg {
+    flex: 1;
+    height: 8px;
+    background: var(--bg-active);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.dashboard__lang-bar {
+    height: 100%;
+    border-radius: 4px;
+    min-width: 2px;
+    transition: width 400ms ease;
+}
+
+.dashboard__lang-stats {
+    flex-shrink: 0;
+    font-size: 11px;
+    color: var(--fg-muted);
+    font-family: var(--font-mono);
+    white-space: nowrap;
+}
+
+/* Table */
+.dashboard__table {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--border-muted);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.dashboard__table-row {
+    display: flex;
+    justify-content: space-between;
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--font-size-xs);
+    border-bottom: 1px solid var(--border-muted);
+}
+
+.dashboard__table-row:last-child {
+    border-bottom: none;
+}
+
+.dashboard__table-file {
+    color: var(--fg-secondary);
+    font-family: var(--font-mono);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+}
+
+.dashboard__table-size {
+    flex-shrink: 0;
+    color: var(--fg-muted);
+    font-family: var(--font-mono);
+}
+
+/* Dependencies */
+.dashboard__deps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+}
+
+.dashboard__dep {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: 3px 10px;
+    border: 1px solid var(--border-muted);
+    border-radius: var(--radius-sm);
+    font-size: 11px;
+    color: var(--fg-secondary);
+    background: var(--bg-surface);
+}
+
+.dashboard__dep em {
+    font-style: normal;
+    color: var(--fg-muted);
+    font-family: var(--font-mono);
+}

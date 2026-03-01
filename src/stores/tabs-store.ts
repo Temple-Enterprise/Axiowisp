@@ -39,11 +39,17 @@ interface TabsState {
     saveActiveTab: () => Promise<void>;
     renameTab: (oldPath: string, newPath: string) => void;
     refreshTab: (filePath: string) => Promise<void>;
+    closeTabsToRight: (tabId: string) => void;
+    closeSavedTabs: () => void;
+    reorderTabs: (fromIndex: number, toIndex: number) => void;
+    recentFiles: string[];
+    openDashboard: () => void;
 }
 
 export const useTabsStore = create<TabsState>((set, get) => ({
     tabs: [],
     activeTabId: null,
+    recentFiles: [] as string[],
 
     openTab: async (filePath: string) => {
         const { tabs } = get();
@@ -149,6 +155,38 @@ export const useTabsStore = create<TabsState>((set, get) => ({
         }));
     },
 
+    closeTabsToRight: (tabId: string) => {
+        set((state) => {
+            const idx = state.tabs.findIndex((t) => t.id === tabId);
+            if (idx === -1) return state;
+            const newTabs = state.tabs.slice(0, idx + 1);
+            const newActive = newTabs.find((t) => t.id === state.activeTabId)
+                ? state.activeTabId
+                : newTabs[newTabs.length - 1]?.id ?? null;
+            return { tabs: newTabs, activeTabId: newActive };
+        });
+    },
+
+    closeSavedTabs: () => {
+        set((state) => {
+            const newTabs = state.tabs.filter((t) => t.isDirty);
+            const newActive = newTabs.find((t) => t.id === state.activeTabId)
+                ? state.activeTabId
+                : newTabs[0]?.id ?? null;
+            return { tabs: newTabs, activeTabId: newActive };
+        });
+    },
+
+    reorderTabs: (fromIndex: number, toIndex: number) => {
+        set((state) => {
+            const newTabs = [...state.tabs];
+            const [moved] = newTabs.splice(fromIndex, 1);
+            newTabs.splice(toIndex, 0, moved);
+            return { tabs: newTabs };
+        });
+    },
+
+
     refreshTab: async (filePath: string) => {
         const { tabs } = get();
         const tab = tabs.find((t) => t.filePath === filePath);
@@ -162,5 +200,23 @@ export const useTabsStore = create<TabsState>((set, get) => ({
                 ),
             }));
         }
+    },
+
+    openDashboard: () => {
+        set((state) => {
+            const existing = state.tabs.find((t) => t.id === 'dashboard');
+            if (existing) return { activeTabId: 'dashboard' };
+            return {
+                tabs: [...state.tabs, {
+                    id: 'dashboard',
+                    filePath: 'dashboard',
+                    fileName: 'Dashboard',
+                    content: '',
+                    isDirty: false,
+                    language: 'plaintext',
+                }],
+                activeTabId: 'dashboard',
+            };
+        });
     },
 }));

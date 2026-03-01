@@ -4,6 +4,7 @@ import * as monaco from 'monaco-editor';
 import { useTabsStore } from '../stores/tabs-store';
 import { useSettingsStore } from '../stores/settings-store';
 import { useEditorStore } from '../stores/editor-store';
+import { registerGhostTextProvider } from '../utils/ghost-text';
 import './Editor.css';
 
 // Tell @monaco-editor/react to use our local monaco-editor instead of CDN
@@ -126,11 +127,15 @@ export const Editor: React.FC = () => {
 
     const handleEditorDidMount: OnMount = useCallback((editor, monacoInstance) => {
         editorRef.current = editor;
+        (window as any).__axiowisp_editor = editor;
         if (activeTab) lastContentRef.current = activeTab.content;
         monacoInstance.editor.defineTheme('axiowisp-dark', AXIOWISP_THEME);
         monacoInstance.editor.defineTheme('axiowisp-light', AXIOWISP_LIGHT_THEME);
         monacoInstance.editor.setTheme(theme === 'light' ? 'axiowisp-light' : 'axiowisp-dark');
         editor.focus();
+
+        // Register AI ghost text inline completions
+        registerGhostTextProvider(monacoInstance, editor);
 
         // Track cursor position
         editor.onDidChangeCursorPosition((e: any) => {
@@ -180,6 +185,19 @@ export const Editor: React.FC = () => {
         },
         [activeTabId, updateContent],
     );
+
+    // Auto-save
+    const autoSave = useSettingsStore((s) => s.autoSave);
+    const autoSaveDelay = useSettingsStore((s) => s.autoSaveDelay);
+    const saveActiveTab = useTabsStore((s) => s.saveActiveTab);
+
+    useEffect(() => {
+        if (!autoSave || !activeTab?.isDirty) return;
+        const timer = setTimeout(() => {
+            saveActiveTab();
+        }, autoSaveDelay);
+        return () => clearTimeout(timer);
+    }, [autoSave, autoSaveDelay, activeTab?.isDirty, activeTab?.content]);
 
     if (!activeTab) return null;
 

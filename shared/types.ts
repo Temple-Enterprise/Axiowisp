@@ -9,6 +9,8 @@ export const IpcChannels = {
     CREATE_FOLDER: 'fs:createFolder',
     RENAME_ENTRY: 'fs:renameEntry',
     DELETE_ENTRY: 'fs:deleteEntry',
+    SEARCH_IN_FILES: 'fs:searchInFiles',
+    REPLACE_IN_FILE: 'fs:replaceInFile',
     // Terminal
     TERMINAL_CREATE: 'terminal:create',
     TERMINAL_WRITE: 'terminal:write',
@@ -21,6 +23,14 @@ export const IpcChannels = {
     RUNNER_DATA: 'runner:data',         // main → renderer
     RUNNER_EXIT: 'runner:exit',         // main → renderer
     RUNNER_KILL: 'runner:kill',
+    // Git
+    GIT_STATUS: 'git:status',
+    GIT_BRANCH: 'git:branch',
+    GIT_STAGE: 'git:stage',
+    GIT_UNSTAGE: 'git:unstage',
+    GIT_COMMIT: 'git:commit',
+    GIT_PUSH: 'git:push',
+    GIT_PULL: 'git:pull',
     // Menu
     MENU_ABOUT: 'menu:about',
     MENU_OPEN_FOLDER: 'menu:openFolder',
@@ -65,6 +75,27 @@ export interface ChatMessage {
     timestamp: number;
 }
 
+// ─── Search ──────────────────────────────────────────────────────
+export interface SearchMatch {
+    filePath: string;
+    lineNumber: number;
+    lineContent: string;
+    matchStart: number;
+    matchEnd: number;
+}
+
+// ─── Git ─────────────────────────────────────────────────────────
+export interface GitFileStatus {
+    path: string;
+    status: string; // 'M' | 'A' | 'D' | '??' | etc
+    staged: boolean;
+}
+
+export interface GitStatus {
+    branch: string;
+    files: GitFileStatus[];
+}
+
 // ─── Electron API (exposed via preload) ─────────────────────────
 export interface ElectronAPI {
     openFolder: () => Promise<IpcResult<string>>;
@@ -76,6 +107,8 @@ export interface ElectronAPI {
     createFolder: (dirPath: string) => Promise<IpcResult<void>>;
     renameEntry: (oldPath: string, newPath: string) => Promise<IpcResult<void>>;
     deleteEntry: (targetPath: string) => Promise<IpcResult<void>>;
+    searchInFiles: (rootPath: string, query: string, caseSensitive: boolean) => Promise<IpcResult<SearchMatch[]>>;
+    replaceInFile: (filePath: string, search: string, replace: string, caseSensitive: boolean) => Promise<IpcResult<number>>;
     // Terminal
     createTerminal: (cwd?: string) => Promise<IpcResult<number>>;
     writeTerminal: (id: number, data: string) => void;
@@ -88,6 +121,13 @@ export interface ElectronAPI {
     killRunner: (pid: number) => void;
     onRunnerData: (callback: (pid: number, data: string) => void) => void;
     onRunnerExit: (callback: (pid: number, code: number) => void) => void;
+    // Git
+    gitStatus: (cwd: string) => Promise<IpcResult<GitStatus>>;
+    gitStage: (cwd: string, filePath: string) => Promise<IpcResult<void>>;
+    gitUnstage: (cwd: string, filePath: string) => Promise<IpcResult<void>>;
+    gitCommit: (cwd: string, message: string) => Promise<IpcResult<void>>;
+    gitPush: (cwd: string) => Promise<IpcResult<void>>;
+    gitPull: (cwd: string) => Promise<IpcResult<void>>;
     // Menu
     onAbout: (callback: (data: any) => void) => () => void;
     onMenuOpenFolder: (callback: () => void) => () => void;
@@ -97,6 +137,7 @@ export interface ElectronAPI {
     onMenuToggleChat: (callback: () => void) => () => void;
     onMenuCommandPalette: (callback: () => void) => () => void;
     onMenuWelcome: (callback: () => void) => () => void;
+    onOpenFile: (callback: (filePath: string) => void) => () => void;
 }
 
 // ─── Window augmentation ────────────────────────────────────────

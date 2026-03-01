@@ -3,10 +3,19 @@ import { Layout } from './components/Layout';
 import { useKeyboardShortcuts } from './hooks/use-keyboard-shortcuts';
 import { useMenuActions } from './hooks/use-menu-actions';
 import { useOutputStore } from './stores/output-store';
+import { useTabsStore } from './stores/tabs-store';
 
 export const App: React.FC = () => {
     useKeyboardShortcuts();
     useMenuActions();
+
+    // Listen for files opened via "Open With" / CLI
+    React.useEffect(() => {
+        const cleanup = window.electronAPI.onOpenFile((filePath: string) => {
+            useTabsStore.getState().openTab(filePath);
+        });
+        return cleanup;
+    }, []);
 
     React.useEffect(() => {
         const { appendOutput } = useOutputStore.getState();
