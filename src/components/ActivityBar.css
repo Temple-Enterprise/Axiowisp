@@ -1,5 +1,3 @@
-/* ─── Activity Bar ─────────────────────────────────────────────── */
-
 .activitybar {
     display: flex;
     flex-direction: column;

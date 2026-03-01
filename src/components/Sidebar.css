@@ -1,5 +1,3 @@
-/* ─── Sidebar ──────────────────────────────────────────────────── */
-
 .sidebar {
     display: flex;
     flex-direction: column;
@@ -7,7 +5,7 @@
     overflow: hidden;
 }
 
-/* ── Section Header ────────────────────────────────────────── */
+
 .sidebar__section-header {
     display: flex;
     align-items: center;
@@ -24,7 +22,7 @@
     letter-spacing: 1px;
 }
 
-/* ── Toolbar ───────────────────────────────────────────────── */
+
 .sidebar__toolbar {
     display: flex;
     align-items: center;
@@ -50,7 +48,7 @@
     color: var(--fg-primary);
 }
 
-/* ── Folder Header ─────────────────────────────────────────── */
+
 .sidebar__folder-header {
     display: flex;
     align-items: center;
@@ -71,7 +69,7 @@
     white-space: nowrap;
 }
 
-/* ── Root Create ───────────────────────────────────────────── */
+
 .sidebar__create-root {
     padding: var(--space-1) var(--space-2);
     border-bottom: 1px solid var(--border-muted);
@@ -101,7 +99,7 @@
     box-sizing: border-box;
 }
 
-/* ── Tree Scroll ───────────────────────────────────────────── */
+
 .sidebar__tree {
     flex: 1;
     overflow-y: auto;
@@ -126,7 +124,7 @@
     background: var(--fg-muted);
 }
 
-/* ── Empty State ───────────────────────────────────────────── */
+
 .sidebar__empty {
     flex: 1;
     display: flex;
@@ -173,7 +171,7 @@
     font-size: 10px;
 }
 
-/* ── Search ────────────────────────────────────────────────── */
+
 .sidebar__search-content {
     flex: 1;
     display: flex;
@@ -214,7 +212,7 @@
     color: var(--fg-muted);
 }
 
-/* ── Search Results ───────────────────────────────────────── */
+
 .sidebar__search-results {
     flex: 1;
     overflow-y: auto;
@@ -261,7 +259,7 @@
     white-space: nowrap;
 }
 
-/* ── Replace ──────────────────────────────────────────────── */
+
 .sidebar__replace-wrap {
     margin-top: var(--space-1);
 }
@@ -292,7 +290,7 @@
     color: var(--accent);
 }
 
-/* ── Content Search Results ───────────────────────────────── */
+
 .sidebar__search-summary {
     padding: var(--space-1) var(--space-3);
     font-size: 10px;

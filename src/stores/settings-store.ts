@@ -1,14 +1,11 @@
 import { create } from 'zustand';
 
 export interface SettingsState {
-    // Editor
     editorFontSize: number;
     wordWrap: 'off' | 'on' | 'wordWrapColumn';
     minimapEnabled: boolean;
     tabSize: number;
-    // Terminal
     terminalFontSize: number;
-    // API
     activeProvider: 'openai' | 'anthropic' | 'gemini';
     openaiApiKey: string;
     openaiModel: string;
@@ -16,12 +13,9 @@ export interface SettingsState {
     anthropicModel: string;
     geminiApiKey: string;
     geminiModel: string;
-    // UI
     theme: 'light' | 'dark';
-    // Auto-save
     autoSave: boolean;
     autoSaveDelay: number;
-    // Layout (resizable widths/heights)
     sidebarWidth: number;
     bottomPanelHeight: number;
     chatPanelWidth: number;
@@ -52,7 +46,7 @@ function loadSettings(): Partial<SettingsState> {
     try {
         const raw = localStorage.getItem(STORAGE_KEY);
         if (raw) return JSON.parse(raw);
-    } catch { /* ignore */ }
+    } catch { }
     return {};
 }
 
@@ -79,7 +73,7 @@ function saveSettings(state: Partial<SettingsState>) {
             chatPanelWidth: state.chatPanelWidth,
         };
         localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
-    } catch { /* ignore */ }
+    } catch { }
 }
 
 const saved = loadSettings();

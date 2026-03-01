@@ -10,7 +10,6 @@ import { FolderOpen, Search, ChevronDown, File, FilePlus, FolderPlus, RefreshCw,
 import { FileEntry, SearchMatch } from '../../shared/types';
 import './Sidebar.css';
 
-/** Flatten file tree into a searchable list. */
 function flattenTree(entries: FileEntry[], results: FileEntry[] = []): FileEntry[] {
     for (const entry of entries) {
         if (!entry.isDirectory) results.push(entry);
@@ -47,7 +46,6 @@ export const Sidebar: React.FC = () => {
 
     const folderName = rootPath?.split(/[\\/]/).pop() ?? '';
 
-    // Fuzzy file name search
     const fileNameResults = useMemo(() => {
         if (!searchQuery.trim() || !fileTree.length) return [];
         const q = searchQuery.toLowerCase();
@@ -62,7 +60,6 @@ export const Sidebar: React.FC = () => {
         [openTab],
     );
 
-    // Content search — searches inside files
     const handleContentSearch = useCallback(async () => {
         if (!searchQuery.trim() || !rootPath) return;
         setIsSearching(true);
@@ -96,7 +93,6 @@ export const Sidebar: React.FC = () => {
         handleContentSearch();
     }, [contentSearchResults, searchQuery, replaceQuery, handleContentSearch, addNotification]);
 
-    // Group content search results by file
     const groupedResults = useMemo(() => {
         const map = new Map<string, SearchMatch[]>();
         for (const r of contentSearchResults) {

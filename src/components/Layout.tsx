@@ -53,7 +53,6 @@ export const Layout: React.FC = () => {
         });
     }, [toggleAboutModal]);
 
-    // Sync theme class to the global body element so scrollbars and overlays inherit it.
     useEffect(() => {
         document.body.classList.remove('theme-light', 'theme-dark');
         document.body.classList.add(`theme-${theme}`);
@@ -116,7 +115,7 @@ export const Layout: React.FC = () => {
         const startWidth = chatPanelWidth;
 
         const onMove = (ev: MouseEvent) => {
-            const delta = startX - ev.clientX; // dragging left = wider
+            const delta = startX - ev.clientX;
             const newWidth = Math.max(280, Math.min(700, startWidth + delta));
             setChatPanelWidth(newWidth);
         };
@@ -133,7 +132,6 @@ export const Layout: React.FC = () => {
         document.addEventListener('mouseup', onUp);
     }, [chatPanelWidth, setChatPanelWidth]);
 
-    // Build CSS custom properties for dynamic sizes
     const layoutStyle: React.CSSProperties = {
         '--dynamic-sidebar-width': `${sidebarWidth}px`,
         '--dynamic-bottom-height': `${bottomPanelHeight}px`,

@@ -1,4 +1,3 @@
-// ─── IPC Channel Names ───────────────────────────────────────────
 export const IpcChannels = {
     OPEN_FOLDER: 'dialog:openFolder',
     READ_DIRECTORY: 'fs:readDirectory',
@@ -11,19 +10,14 @@ export const IpcChannels = {
     DELETE_ENTRY: 'fs:deleteEntry',
     SEARCH_IN_FILES: 'fs:searchInFiles',
     REPLACE_IN_FILE: 'fs:replaceInFile',
-    // Terminal
     TERMINAL_CREATE: 'terminal:create',
     TERMINAL_WRITE: 'terminal:write',
     TERMINAL_RESIZE: 'terminal:resize',
     TERMINAL_DISPOSE: 'terminal:dispose',
-    TERMINAL_DATA: 'terminal:data',     // main → renderer
-    TERMINAL_EXIT: 'terminal:exit',     // main → renderer
-    // Runner
+    TERMINAL_EXIT: 'terminal:exit',
     RUNNER_EXECUTE: 'runner:execute',
-    RUNNER_DATA: 'runner:data',         // main → renderer
-    RUNNER_EXIT: 'runner:exit',         // main → renderer
+    RUNNER_EXIT: 'runner:exit',
     RUNNER_KILL: 'runner:kill',
-    // Git
     GIT_STATUS: 'git:status',
     GIT_BRANCH: 'git:branch',
     GIT_STAGE: 'git:stage',
@@ -31,7 +25,6 @@ export const IpcChannels = {
     GIT_COMMIT: 'git:commit',
     GIT_PUSH: 'git:push',
     GIT_PULL: 'git:pull',
-    // Menu
     MENU_ABOUT: 'menu:about',
     MENU_OPEN_FOLDER: 'menu:openFolder',
     MENU_SAVE: 'menu:save',
@@ -42,7 +35,6 @@ export const IpcChannels = {
     MENU_WELCOME: 'menu:welcome',
 } as const;
 
-// ─── File Tree ───────────────────────────────────────────────────
 export interface FileEntry {
     name: string;
     path: string;
@@ -50,14 +42,12 @@ export interface FileEntry {
     children?: FileEntry[];
 }
 
-// ─── IPC Result Wrapper ─────────────────────────────────────────
 export interface IpcResult<T = unknown> {
     success: boolean;
     data?: T;
     error?: string;
 }
 
-// ─── Tab ─────────────────────────────────────────────────────────
 export interface Tab {
     id: string;
     filePath: string;
@@ -67,7 +57,6 @@ export interface Tab {
     language: string;
 }
 
-// ─── Chat ────────────────────────────────────────────────────────
 export interface ChatMessage {
     id: string;
     role: 'user' | 'assistant' | 'system';
@@ -75,7 +64,6 @@ export interface ChatMessage {
     timestamp: number;
 }
 
-// ─── Search ──────────────────────────────────────────────────────
 export interface SearchMatch {
     filePath: string;
     lineNumber: number;
@@ -84,10 +72,9 @@ export interface SearchMatch {
     matchEnd: number;
 }
 
-// ─── Git ─────────────────────────────────────────────────────────
 export interface GitFileStatus {
     path: string;
-    status: string; // 'M' | 'A' | 'D' | '??' | etc
+    status: string;
     staged: boolean;
 }
 
@@ -96,7 +83,6 @@ export interface GitStatus {
     files: GitFileStatus[];
 }
 
-// ─── Electron API (exposed via preload) ─────────────────────────
 export interface ElectronAPI {
     openFolder: () => Promise<IpcResult<string>>;
     readDirectory: (dirPath: string) => Promise<IpcResult<FileEntry[]>>;
@@ -109,26 +95,22 @@ export interface ElectronAPI {
     deleteEntry: (targetPath: string) => Promise<IpcResult<void>>;
     searchInFiles: (rootPath: string, query: string, caseSensitive: boolean) => Promise<IpcResult<SearchMatch[]>>;
     replaceInFile: (filePath: string, search: string, replace: string, caseSensitive: boolean) => Promise<IpcResult<number>>;
-    // Terminal
     createTerminal: (cwd?: string) => Promise<IpcResult<number>>;
     writeTerminal: (id: number, data: string) => void;
     resizeTerminal: (id: number, cols: number, rows: number) => void;
     disposeTerminal: (id: number) => void;
     onTerminalData: (callback: (id: number, data: string) => void) => void;
     onTerminalExit: (callback: (id: number, code: number) => void) => void;
-    // Runner
     runCommand: (cmd: string, cwd?: string) => Promise<IpcResult<number>>;
     killRunner: (pid: number) => void;
     onRunnerData: (callback: (pid: number, data: string) => void) => void;
     onRunnerExit: (callback: (pid: number, code: number) => void) => void;
-    // Git
     gitStatus: (cwd: string) => Promise<IpcResult<GitStatus>>;
     gitStage: (cwd: string, filePath: string) => Promise<IpcResult<void>>;
     gitUnstage: (cwd: string, filePath: string) => Promise<IpcResult<void>>;
     gitCommit: (cwd: string, message: string) => Promise<IpcResult<void>>;
     gitPush: (cwd: string) => Promise<IpcResult<void>>;
     gitPull: (cwd: string) => Promise<IpcResult<void>>;
-    // Menu
     onAbout: (callback: (data: any) => void) => () => void;
     onMenuOpenFolder: (callback: () => void) => () => void;
     onMenuSave: (callback: () => void) => () => void;
@@ -140,7 +122,6 @@ export interface ElectronAPI {
     onOpenFile: (callback: (filePath: string) => void) => () => void;
 }
 
-// ─── Window augmentation ────────────────────────────────────────
 declare global {
     interface Window {
         electronAPI: ElectronAPI;

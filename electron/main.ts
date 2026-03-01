@@ -30,7 +30,6 @@ function createWindow(): void {
         },
     });
 
-    // Graceful show once ready
     mainWindow.once('ready-to-show', () => {
         mainWindow?.show();
     });
@@ -163,9 +162,7 @@ function registerProtocols(): void {
     });
 }
 
-/** Extract file path from argv (for "Open With" / drag-to-app / CLI). */
 function getFileFromArgs(argv: string[]): string | null {
-    // Skip electron binary and app path, look for a real file path
     for (let i = 1; i < argv.length; i++) {
         const arg = argv[i];
         if (arg && !arg.startsWith('-') && !arg.startsWith('--') && path.isAbsolute(arg)) {
@@ -174,20 +171,18 @@ function getFileFromArgs(argv: string[]): string | null {
                 if (fs.existsSync(arg) && fs.statSync(arg).isFile()) {
                     return arg;
                 }
-            } catch { /* ignore */ }
+            } catch { }
         }
     }
     return null;
 }
 
-/** Send a file path to the renderer to open in a tab. */
 function openFileInRenderer(filePath: string): void {
     if (mainWindow) {
         mainWindow.webContents.send('open-file', filePath);
     }
 }
 
-// Only one instance — if user double-clicks another file, focus existing window
 const gotLock = app.requestSingleInstanceLock();
 if (!gotLock) {
     app.quit();
@@ -207,7 +202,6 @@ if (!gotLock) {
         createMenu();
         createWindow();
 
-        // Check if launched with a file argument
         const fileToOpen = getFileFromArgs(process.argv);
         if (fileToOpen && mainWindow) {
             mainWindow.once('ready-to-show', () => {

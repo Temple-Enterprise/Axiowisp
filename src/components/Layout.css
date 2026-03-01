@@ -1,5 +1,3 @@
-/* ─── IDE Layout Grid ──────────────────────────────────────────── */
-
 .layout {
     display: grid;
     width: 100vw;
@@ -10,7 +8,6 @@
     font-family: var(--font-sans);
     font-size: var(--font-size-md);
 
-    /* Default: activitybar + main only */
     grid-template-rows: 1fr var(--status-bar-height);
     grid-template-columns: var(--activitybar-width) 1fr;
     grid-template-areas:
@@ -18,7 +15,6 @@
         "statusbar statusbar";
 }
 
-/* ── With sidebar ──────────────────────────────────────────── */
 .layout[data-sidebar="true"] {
     grid-template-columns: var(--activitybar-width) var(--dynamic-sidebar-width, var(--sidebar-width)) 4px 1fr;
     grid-template-areas:
@@ -26,7 +22,6 @@
         "statusbar statusbar statusbar statusbar";
 }
 
-/* ── With chat ─────────────────────────────────────────────── */
 .layout[data-chat="true"] {
     grid-template-columns: var(--activitybar-width) 1fr 4px var(--dynamic-chat-width, var(--chat-panel-width));
     grid-template-areas:
@@ -34,7 +29,6 @@
         "statusbar statusbar statusbar statusbar";
 }
 
-/* ── With sidebar + chat ───────────────────────────────────── */
 .layout[data-sidebar="true"][data-chat="true"] {
     grid-template-columns: var(--activitybar-width) var(--dynamic-sidebar-width, var(--sidebar-width)) 4px 1fr 4px var(--dynamic-chat-width, var(--chat-panel-width));
     grid-template-areas:
@@ -42,7 +36,6 @@
         "statusbar statusbar statusbar statusbar statusbar statusbar";
 }
 
-/* ── Regions ───────────────────────────────────────────────── */
 .layout__activitybar {
     grid-area: activitybar;
     overflow: hidden;

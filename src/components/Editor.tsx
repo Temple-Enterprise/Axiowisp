@@ -7,10 +7,8 @@ import { useEditorStore } from '../stores/editor-store';
 import { registerGhostTextProvider } from '../utils/ghost-text';
 import './Editor.css';
 
-// Tell @monaco-editor/react to use our local monaco-editor instead of CDN
 loader.config({ monaco });
 
-// Custom dark theme matching Axiowisp tokens
 const AXIOWISP_THEME: monaco.editor.IStandaloneThemeData = {
     base: 'vs-dark',
     inherit: true,
@@ -110,152 +108,137 @@ export const Editor: React.FC = () => {
 
     const activeTab = tabs.find((t) => t.id === activeTabId);
 
-    // Sync external content changes (e.g. AI accept, git pull) into Monaco
-    useEffect(() => {
-        if (!activeTab || !editorRef.current) return;
-        const model = editorRef.current.getModel();
-        if (!model) return;
+    if (activeTab.content !== currentModelValue && activeTab.content !== lastContentRef.current) {
+        lastContentRef.current = activeTab.content;
+        model.setValue(activeTab.content);
+    }
+}, [activeTab?.content]);
 
-        const currentModelValue = model.getValue();
-        // Only push if the store content differs from what Monaco has
-        // (meaning it was changed externally, not by the user typing)
-        if (activeTab.content !== currentModelValue && activeTab.content !== lastContentRef.current) {
-            lastContentRef.current = activeTab.content;
-            model.setValue(activeTab.content);
-        }
-    }, [activeTab?.content]);
+const handleEditorDidMount: OnMount = useCallback((editor, monacoInstance) => {
+    editorRef.current = editor;
+    (window as any).__axiowisp_editor = editor;
+    if (activeTab) lastContentRef.current = activeTab.content;
+    monacoInstance.editor.defineTheme('axiowisp-dark', AXIOWISP_THEME);
+    monacoInstance.editor.defineTheme('axiowisp-light', AXIOWISP_LIGHT_THEME);
+    monacoInstance.editor.setTheme(theme === 'light' ? 'axiowisp-light' : 'axiowisp-dark');
+    editor.focus();
 
-    const handleEditorDidMount: OnMount = useCallback((editor, monacoInstance) => {
-        editorRef.current = editor;
-        (window as any).__axiowisp_editor = editor;
-        if (activeTab) lastContentRef.current = activeTab.content;
-        monacoInstance.editor.defineTheme('axiowisp-dark', AXIOWISP_THEME);
-        monacoInstance.editor.defineTheme('axiowisp-light', AXIOWISP_LIGHT_THEME);
-        monacoInstance.editor.setTheme(theme === 'light' ? 'axiowisp-light' : 'axiowisp-dark');
-        editor.focus();
+    registerGhostTextProvider(monacoInstance, editor);
 
-        // Register AI ghost text inline completions
-        registerGhostTextProvider(monacoInstance, editor);
+    editor.onDidChangeCursorPosition((e: any) => {
+        setCursorPosition(e.position.lineNumber, e.position.column);
+    });
 
-        // Track cursor position
-        editor.onDidChangeCursorPosition((e: any) => {
-            setCursorPosition(e.position.lineNumber, e.position.column);
-        });
-
-        // Track selection
-        editor.onDidChangeCursorSelection((e: any) => {
-            const sel = e.selection;
-            const model = editor.getModel();
-            if (model && sel) {
-                const selectedText = model.getValueInRange(sel);
-                const lines = sel.endLineNumber - sel.startLineNumber;
-                setSelection(lines, selectedText.length);
-            }
-        });
-
-        // Detect EOL
+    editor.onDidChangeCursorSelection((e: any) => {
+        const sel = e.selection;
         const model = editor.getModel();
-        if (model) {
-            const eolSeq = model.getEOL();
-            setEol(eolSeq === '\r\n' ? 'CRLF' : 'LF');
-            model.onDidChangeContent(() => {
-                const newEol = model.getEOL();
-                setEol(newEol === '\r\n' ? 'CRLF' : 'LF');
-            });
+        if (model && sel) {
+            const selectedText = model.getValueInRange(sel);
+            const lines = sel.endLineNumber - sel.startLineNumber;
+            setSelection(lines, selectedText.length);
         }
+    });
 
-        // Set initial cursor position
-        const pos = editor.getPosition();
-        if (pos) {
-            setCursorPosition(pos.lineNumber, pos.column);
-        }
-    }, [theme, setCursorPosition, setSelection, setEol]);
-
-    useEffect(() => {
-        if (editorRef.current && window.monaco) {
-            window.monaco.editor.setTheme(theme === 'light' ? 'axiowisp-light' : 'axiowisp-dark');
-        }
-    }, [theme]);
-
-    const handleChange = useCallback(
-        (value: string | undefined) => {
-            if (activeTabId && value !== undefined) {
-                updateContent(activeTabId, value);
-            }
-        },
-        [activeTabId, updateContent],
-    );
-
-    // Auto-save
-    const autoSave = useSettingsStore((s) => s.autoSave);
-    const autoSaveDelay = useSettingsStore((s) => s.autoSaveDelay);
-    const saveActiveTab = useTabsStore((s) => s.saveActiveTab);
-
-    useEffect(() => {
-        if (!autoSave || !activeTab?.isDirty) return;
-        const timer = setTimeout(() => {
-            saveActiveTab();
-        }, autoSaveDelay);
-        return () => clearTimeout(timer);
-    }, [autoSave, autoSaveDelay, activeTab?.isDirty, activeTab?.content]);
-
-    if (!activeTab) return null;
-
-    if (activeTab.language === 'image') {
-        const src = `axiowisp://local/?path=${encodeURIComponent(activeTab.filePath)}`;
-        return (
-            <div className="editor-media-container">
-                <img src={src} alt={activeTab.fileName} className="editor-media-image" />
-            </div>
-        );
+    const model = editor.getModel();
+    if (model) {
+        const eolSeq = model.getEOL();
+        setEol(eolSeq === '\r\n' ? 'CRLF' : 'LF');
+        model.onDidChangeContent(() => {
+            const newEol = model.getEOL();
+            setEol(newEol === '\r\n' ? 'CRLF' : 'LF');
+        });
     }
 
-    if (activeTab.language === 'video') {
-        const src = `axiowisp://local/?path=${encodeURIComponent(activeTab.filePath)}`;
-        return (
-            <div className="editor-media-container">
-                <video controls src={src} className="editor-media-video" />
-            </div>
-        );
+    const pos = editor.getPosition();
+    if (pos) {
+        setCursorPosition(pos.lineNumber, pos.column);
     }
+}, [theme, setCursorPosition, setSelection, setEol]);
 
+useEffect(() => {
+    if (editorRef.current && window.monaco) {
+        window.monaco.editor.setTheme(theme === 'light' ? 'axiowisp-light' : 'axiowisp-dark');
+    }
+}, [theme]);
+
+const handleChange = useCallback(
+    (value: string | undefined) => {
+        if (activeTabId && value !== undefined) {
+            updateContent(activeTabId, value);
+        }
+    },
+    [activeTabId, updateContent],
+);
+
+const autoSave = useSettingsStore((s) => s.autoSave);
+const autoSaveDelay = useSettingsStore((s) => s.autoSaveDelay);
+const saveActiveTab = useTabsStore((s) => s.saveActiveTab);
+
+useEffect(() => {
+    if (!autoSave || !activeTab?.isDirty) return;
+    const timer = setTimeout(() => {
+        saveActiveTab();
+    }, autoSaveDelay);
+    return () => clearTimeout(timer);
+}, [autoSave, autoSaveDelay, activeTab?.isDirty, activeTab?.content]);
+
+if (!activeTab) return null;
+
+if (activeTab.language === 'image') {
+    const src = `axiowisp://local/?path=${encodeURIComponent(activeTab.filePath)}`;
     return (
-        <div className="editor">
-            <MonacoEditor
-                key={activeTab.id}
-                height="100%"
-                language={activeTab.language}
-                value={activeTab.content}
-                onChange={handleChange}
-                onMount={handleEditorDidMount}
-                theme={theme === 'light' ? 'axiowisp-light' : 'axiowisp-dark'}
-                loading={<div className="editor__loading">Loading editor…</div>}
-                options={{
-                    fontSize: editorFontSize,
-                    fontFamily: "'JetBrains Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace",
-                    fontLigatures: true,
-                    lineHeight: Math.round(editorFontSize * 1.6),
-                    letterSpacing: 0.3,
-                    minimap: { enabled: minimapEnabled, maxColumn: 80 },
-                    scrollBeyondLastLine: false,
-                    smoothScrolling: true,
-                    cursorBlinking: 'smooth',
-                    cursorSmoothCaretAnimation: 'on',
-                    padding: { top: 12, bottom: 12 },
-                    renderLineHighlight: 'gutter',
-                    wordWrap: wordWrap,
-                    tabSize: tabSize,
-                    automaticLayout: true,
-                    bracketPairColorization: { enabled: true },
-                    guides: {
-                        bracketPairs: true,
-                        indentation: true,
-                    },
-                    suggest: {
-                        showIcons: true,
-                    },
-                }}
-            />
+        <div className="editor-media-container">
+            <img src={src} alt={activeTab.fileName} className="editor-media-image" />
         </div>
     );
+}
+
+if (activeTab.language === 'video') {
+    const src = `axiowisp://local/?path=${encodeURIComponent(activeTab.filePath)}`;
+    return (
+        <div className="editor-media-container">
+            <video controls src={src} className="editor-media-video" />
+        </div>
+    );
+}
+
+return (
+    <div className="editor">
+        <MonacoEditor
+            key={activeTab.id}
+            height="100%"
+            language={activeTab.language}
+            value={activeTab.content}
+            onChange={handleChange}
+            onMount={handleEditorDidMount}
+            theme={theme === 'light' ? 'axiowisp-light' : 'axiowisp-dark'}
+            loading={<div className="editor__loading">Loading editor…</div>}
+            options={{
+                fontSize: editorFontSize,
+                fontFamily: "'JetBrains Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace",
+                fontLigatures: true,
+                lineHeight: Math.round(editorFontSize * 1.6),
+                letterSpacing: 0.3,
+                minimap: { enabled: minimapEnabled, maxColumn: 80 },
+                scrollBeyondLastLine: false,
+                smoothScrolling: true,
+                cursorBlinking: 'smooth',
+                cursorSmoothCaretAnimation: 'on',
+                padding: { top: 12, bottom: 12 },
+                renderLineHighlight: 'gutter',
+                wordWrap: wordWrap,
+                tabSize: tabSize,
+                automaticLayout: true,
+                bracketPairColorization: { enabled: true },
+                guides: {
+                    bracketPairs: true,
+                    indentation: true,
+                },
+                suggest: {
+                    showIcons: true,
+                },
+            }}
+        />
+    </div>
+);
 };

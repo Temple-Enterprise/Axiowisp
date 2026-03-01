@@ -1,5 +1,3 @@
-/* ─── Welcome Tab ──────────────────────────────────────────────── */
-
 .welcome {
     display: flex;
     align-items: center;
@@ -96,7 +94,7 @@
     font-family: var(--font-mono);
 }
 
-/* ── Shortcuts Section ─────────────────────────────────────── */
+
 .welcome__shortcuts {
     width: 100%;
     padding-top: var(--space-4);

@@ -1,5 +1,3 @@
-/* ─── Chat Panel ───────────────────────────────────────────────── */
-
 .chat-panel {
     display: flex;
     flex-direction: column;
@@ -55,7 +53,6 @@
     color: var(--fg-primary);
 }
 
-/* Messages */
 .chat-panel__messages {
     flex: 1;
     overflow-y: auto;
@@ -74,7 +71,6 @@
     border-radius: 3px;
 }
 
-/* Empty state */
 .chat-panel__empty {
     display: flex;
     flex-direction: column;
@@ -106,7 +102,6 @@
     max-width: 220px;
 }
 
-/* Message bubble */
 .chat-panel__msg {
     padding: var(--space-2) var(--space-3);
     border-radius: var(--radius-md);
@@ -143,7 +138,6 @@
     line-height: 1.6;
 }
 
-/* ── Markdown rendering ──────────────────────────────────── */
 .md-paragraph {
     margin: 0 0 4px 0;
 }
@@ -210,7 +204,6 @@
     text-decoration: underline;
 }
 
-/* Input area */
 .chat-panel__input-area {
     flex-shrink: 0;
     padding: var(--space-2) var(--space-3);
@@ -285,7 +278,6 @@
     animation: spin 1s linear infinite;
 }
 
-/* ── Diff Blocks ──────────────────────────────────────── */
 
 .chat-diff-list {
     display: flex;

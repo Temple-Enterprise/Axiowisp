@@ -11,7 +11,6 @@ interface FileIconInfo {
 }
 
 const extensionMap: Record<string, FileIconInfo> = {
-    // Web
     ts: { icon: FileCode, color: '#3178c6' },
     tsx: { icon: FileCode, color: '#3178c6' },
     js: { icon: FileCode, color: '#f7df1e' },
@@ -21,7 +20,6 @@ const extensionMap: Record<string, FileIconInfo> = {
     scss: { icon: Hash, color: '#cd6799' },
     less: { icon: Hash, color: '#1d365d' },
 
-    // Data
     json: { icon: Braces, color: '#f7df1e' },
     yaml: { icon: FileText, color: '#cb171e' },
     yml: { icon: FileText, color: '#cb171e' },
@@ -30,7 +28,6 @@ const extensionMap: Record<string, FileIconInfo> = {
     csv: { icon: FileSpreadsheet, color: '#3fb950' },
     sql: { icon: Database, color: '#e38c00' },
 
-    // Languages
     py: { icon: FileCode, color: '#3572a5' },
     rs: { icon: FileCode, color: '#dea584' },
     go: { icon: FileCode, color: '#00add8' },
@@ -44,17 +41,14 @@ const extensionMap: Record<string, FileIconInfo> = {
     kt: { icon: FileCode, color: '#a97bff' },
     lua: { icon: FileCode, color: '#000080' },
 
-    // Config
     env: { icon: Lock, color: '#ecd53f' },
     sh: { icon: Terminal, color: '#3fb950' },
     bash: { icon: Terminal, color: '#3fb950' },
 
-    // Docs
     md: { icon: FileText, color: '#519aba' },
     txt: { icon: FileText, color: '#8b949e' },
     log: { icon: FileText, color: '#6e7681' },
 
-    // Media
     png: { icon: Image, color: '#a371f7' },
     jpg: { icon: Image, color: '#a371f7' },
     jpeg: { icon: Image, color: '#a371f7' },
@@ -65,7 +59,6 @@ const extensionMap: Record<string, FileIconInfo> = {
     mp3: { icon: Music, color: '#db61a2' },
     wav: { icon: Music, color: '#db61a2' },
 
-    // Package
     lock: { icon: Lock, color: '#8b949e' },
 };
 
@@ -84,12 +77,10 @@ export function getFileIcon(fileName: string, isDirectory: boolean, isOpen?: boo
 
     const lowerName = fileName.toLowerCase();
 
-    // Check special file names first
     if (specialFileMap[lowerName]) {
         return specialFileMap[lowerName];
     }
 
-    // Check extension
     const ext = lowerName.split('.').pop() ?? '';
     if (extensionMap[ext]) {
         return extensionMap[ext];

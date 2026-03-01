@@ -73,7 +73,6 @@ async function gatherStats(rootPath: string): Promise<DashboardData> {
 
     fileSizes.sort((a, b) => b.size - a.size);
 
-    // Read package.json if exists
     let dependencies: { name: string; version: string }[] = [];
     let devDependencies: { name: string; version: string }[] = [];
     try {
@@ -102,7 +101,6 @@ async function gatherStats(rootPath: string): Promise<DashboardData> {
     };
 }
 
-// Color palette for language bars
 const LANG_COLORS = [
     '#3178c6', '#f1e05a', '#e34c26', '#563d7c', '#2b7489',
     '#89e051', '#dea584', '#b07219', '#4F5D95', '#00ADD8',
@@ -166,7 +164,6 @@ export const DashboardTab: React.FC = () => {
                 <h2>Project Health Dashboard</h2>
             </div>
 
-            {/* Stats Cards */}
             <div className="dashboard__cards">
                 <div className="dashboard__card">
                     <FileCode size={20} className="dashboard__card-icon" />
@@ -190,7 +187,6 @@ export const DashboardTab: React.FC = () => {
                 </div>
             </div>
 
-            {/* Languages */}
             <div className="dashboard__section">
                 <h3 className="dashboard__section-title">Languages</h3>
                 <div className="dashboard__langs">
@@ -214,7 +210,6 @@ export const DashboardTab: React.FC = () => {
                 </div>
             </div>
 
-            {/* Largest Files */}
             <div className="dashboard__section">
                 <h3 className="dashboard__section-title">Largest Files</h3>
                 <div className="dashboard__table">
@@ -227,7 +222,6 @@ export const DashboardTab: React.FC = () => {
                 </div>
             </div>
 
-            {/* Dependencies */}
             {(data.dependencies.length > 0 || data.devDependencies.length > 0) && (
                 <div className="dashboard__section">
                     <h3 className="dashboard__section-title">Dependencies</h3>

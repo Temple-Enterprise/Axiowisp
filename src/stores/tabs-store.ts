@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 import { Tab } from '../../shared/types';
 
-// Map file extension → Monaco language id
 function detectLanguage(fileName: string): string {
     const ext = fileName.split('.').pop()?.toLowerCase() ?? '';
 
@@ -53,14 +52,12 @@ export const useTabsStore = create<TabsState>((set, get) => ({
 
     openTab: async (filePath: string) => {
         const { tabs } = get();
-        // If already open, just activate
         const existing = tabs.find((t) => t.filePath === filePath);
         if (existing) {
             set({ activeTabId: existing.id });
             return;
         }
 
-        // Read file content from main process
         const result = await window.electronAPI.readFile(filePath);
         if (!result.success) {
             console.error('Failed to read file:', result.error);

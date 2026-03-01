@@ -5,23 +5,19 @@ import { spawn, ChildProcess } from 'child_process';
 import * as pty from 'node-pty';
 import { IpcChannels, FileEntry, IpcResult } from '../shared/types';
 
-// Directories/files to skip when scanning a project tree
 const IGNORE_PATTERNS = new Set([
     'node_modules', '.git', '.next', '.vite', 'dist', 'dist-electron',
     '__pycache__', '.DS_Store', 'Thumbs.db', '.cache', '.parcel-cache',
     'coverage', '.nyc_output', '.turbo',
 ]);
 
-// Track active terminals and runners
 const terminals = new Map<number, pty.IPty>();
 const runners = new Map<number, ChildProcess>();
 let termIdCounter = 1;
 
-/** Register all IPC handlers on the main process. */
 export function registerIpcHandlers(): void {
     const getWindow = () => BrowserWindow.getFocusedWindow() ?? BrowserWindow.getAllWindows()[0];
 
-    // ── Open Folder Dialog ──────────────────────────────────────
     ipcMain.handle(IpcChannels.OPEN_FOLDER, async (): Promise<IpcResult<string>> => {
         try {
             const win = getWindow();
@@ -38,7 +34,6 @@ export function registerIpcHandlers(): void {
         }
     });
 
-    // ── Read Directory (recursive) ──────────────────────────────
     ipcMain.handle(
         IpcChannels.READ_DIRECTORY,
         async (_event, dirPath: string): Promise<IpcResult<FileEntry[]>> => {
@@ -51,7 +46,6 @@ export function registerIpcHandlers(): void {
         },
     );
 
-    // ── Read File ───────────────────────────────────────────────
     ipcMain.handle(
         IpcChannels.READ_FILE,
         async (_event, filePath: string): Promise<IpcResult<string>> => {
@@ -64,12 +58,10 @@ export function registerIpcHandlers(): void {
         },
     );
 
-    // ── Write File ──────────────────────────────────────────────
     ipcMain.handle(
         IpcChannels.WRITE_FILE,
         async (_event, filePath: string, content: string): Promise<IpcResult<void>> => {
             try {
-                // Ensure directory exists
                 const dir = path.dirname(filePath);
                 if (!fs.existsSync(dir)) {
                     fs.mkdirSync(dir, { recursive: true });
@@ -82,7 +74,6 @@ export function registerIpcHandlers(): void {
         },
     );
 
-    // ── List Files (flat, for AI context) ───────────────────────
     ipcMain.handle(
         IpcChannels.LIST_FILES,
         async (_event, dirPath: string): Promise<IpcResult<string[]>> => {
@@ -95,7 +86,6 @@ export function registerIpcHandlers(): void {
         },
     );
 
-    // ── Create File ──────────────────────────────────────────────
     ipcMain.handle(
         IpcChannels.CREATE_FILE,
         async (_event, filePath: string): Promise<IpcResult<void>> => {
@@ -112,7 +102,6 @@ export function registerIpcHandlers(): void {
         },
     );
 
-    // ── Create Folder ───────────────────────────────────────────
     ipcMain.handle(
         IpcChannels.CREATE_FOLDER,
         async (_event, dirPath: string): Promise<IpcResult<void>> => {
@@ -125,7 +114,6 @@ export function registerIpcHandlers(): void {
         },
     );
 
-    // ── Rename Entry ────────────────────────────────────────────
     ipcMain.handle(
         IpcChannels.RENAME_ENTRY,
         async (_event, oldPath: string, newPath: string): Promise<IpcResult<void>> => {
@@ -138,7 +126,6 @@ export function registerIpcHandlers(): void {
         },
     );
 
-    // ── Delete Entry ────────────────────────────────────────────
     ipcMain.handle(
         IpcChannels.DELETE_ENTRY,
         async (_event, targetPath: string): Promise<IpcResult<void>> => {
@@ -151,7 +138,6 @@ export function registerIpcHandlers(): void {
         },
     );
 
-    // ── Terminal: Create (using node-pty for interactive shell) ──
     ipcMain.handle(
         IpcChannels.TERMINAL_CREATE,
         async (_event, cwd?: string): Promise<IpcResult<number>> => {
@@ -194,7 +180,6 @@ export function registerIpcHandlers(): void {
         },
     );
 
-    // ── Terminal: Write ─────────────────────────────────────────
     ipcMain.on(IpcChannels.TERMINAL_WRITE, (_event, id: number, data: string) => {
         const term = terminals.get(id);
         if (term) {
@@ -202,8 +187,6 @@ export function registerIpcHandlers(): void {
         }
     });
 
-    // ── Terminal: Resize (no-op for child_process, only pty supports resize)
-    // ── Terminal: Resize ────────────────────────────────────────
     ipcMain.on(IpcChannels.TERMINAL_RESIZE, (_event, id: number, cols: number, rows: number) => {
         const term = terminals.get(id);
         if (term) {
@@ -215,7 +198,6 @@ export function registerIpcHandlers(): void {
         }
     });
 
-    // ── Terminal: Dispose ───────────────────────────────────────
     ipcMain.on(IpcChannels.TERMINAL_DISPOSE, (_event, id: number) => {
         const term = terminals.get(id);
         if (term) {
@@ -224,7 +206,6 @@ export function registerIpcHandlers(): void {
         }
     });
 
-    // ── Runner: Execute ─────────────────────────────────────────
     ipcMain.handle(
         IpcChannels.RUNNER_EXECUTE,
         async (_event, cmd: string, cwd?: string): Promise<IpcResult<number>> => {
@@ -260,7 +241,6 @@ export function registerIpcHandlers(): void {
         },
     );
 
-    // ── Runner: Kill ────────────────────────────────────────────
     ipcMain.on(IpcChannels.RUNNER_KILL, (_event, pid: number) => {
         const child = runners.get(pid);
         if (child) {
@@ -269,7 +249,6 @@ export function registerIpcHandlers(): void {
         }
     });
 
-    // ── Search in Files ─────────────────────────────────────────
     ipcMain.handle(
         IpcChannels.SEARCH_IN_FILES,
         async (_event, rootPath: string, query: string, caseSensitive: boolean) => {
@@ -282,7 +261,6 @@ export function registerIpcHandlers(): void {
         },
     );
 
-    // ── Replace in File ─────────────────────────────────────────
     ipcMain.handle(
         IpcChannels.REPLACE_IN_FILE,
         async (_event, filePath: string, search: string, replace: string, caseSensitive: boolean) => {
@@ -300,7 +278,6 @@ export function registerIpcHandlers(): void {
         },
     );
 
-    // ── Git: Status ─────────────────────────────────────────────
     ipcMain.handle(
         IpcChannels.GIT_STATUS,
         async (_event, cwd: string) => {
@@ -320,7 +297,6 @@ export function registerIpcHandlers(): void {
         },
     );
 
-    // ── Git: Stage ──────────────────────────────────────────────
     ipcMain.handle(
         IpcChannels.GIT_STAGE,
         async (_event, cwd: string, filePath: string) => {
@@ -333,7 +309,6 @@ export function registerIpcHandlers(): void {
         },
     );
 
-    // ── Git: Unstage ────────────────────────────────────────────
     ipcMain.handle(
         IpcChannels.GIT_UNSTAGE,
         async (_event, cwd: string, filePath: string) => {
@@ -346,7 +321,6 @@ export function registerIpcHandlers(): void {
         },
     );
 
-    // ── Git: Commit ─────────────────────────────────────────────
     ipcMain.handle(
         IpcChannels.GIT_COMMIT,
         async (_event, cwd: string, message: string) => {
@@ -359,7 +333,6 @@ export function registerIpcHandlers(): void {
         },
     );
 
-    // ── Git: Push ───────────────────────────────────────────────
     ipcMain.handle(
         IpcChannels.GIT_PUSH,
         async (_event, cwd: string) => {
@@ -372,7 +345,6 @@ export function registerIpcHandlers(): void {
         },
     );
 
-    // ── Git: Pull ───────────────────────────────────────────────
     ipcMain.handle(
         IpcChannels.GIT_PULL,
         async (_event, cwd: string) => {
@@ -385,8 +357,6 @@ export function registerIpcHandlers(): void {
         },
     );
 }
-
-// ── Helpers ──────────────────────────────────────────────────────
 
 function readDirectorySync(dirPath: string, depth = 0): FileEntry[] {
     if (depth > 10) return [];
@@ -418,7 +388,6 @@ function readDirectorySync(dirPath: string, depth = 0): FileEntry[] {
     return result;
 }
 
-/** Recursively list all file paths in a directory (for AI context building). */
 function listFilesRecursive(dirPath: string, depth = 0, maxFiles = 500): string[] {
     if (depth > 8) return [];
     const files: string[] = [];
@@ -437,12 +406,11 @@ function listFilesRecursive(dirPath: string, depth = 0, maxFiles = 500): string[
                 files.push(fullPath);
             }
         }
-    } catch { /* skip inaccessible dirs */ }
+    } catch { }
 
     return files;
 }
 
-/** Search for a text query across all files in a directory. */
 function searchInFilesRecursive(rootPath: string, query: string, caseSensitive: boolean, depth = 0): any[] {
     if (depth > 8) return [];
     const matches: any[] = [];
@@ -482,15 +450,14 @@ function searchInFilesRecursive(rootPath: string, query: string, caseSensitive: 
                             idx = searchLine.indexOf(q, idx + 1);
                         }
                     }
-                } catch { /* skip unreadable files */ }
+                } catch { }
             }
         }
-    } catch { /* skip inaccessible dirs */ }
+    } catch { }
 
     return matches;
 }
 
-/** Execute a git command and return stdout. */
 function gitExec(cwd: string, args: string[]): Promise<string> {
     return new Promise((resolve, reject) => {
         const child = spawn('git', args, { cwd, env: process.env as Record<string, string> });

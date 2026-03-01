@@ -71,7 +71,6 @@ export const ChatPanel: React.FC = () => {
                         <div className="chat-panel__msg-body">
                             {msg.role === 'assistant' ? renderMarkdown(msg.content) : msg.content}
                         </div>
-                        {/* Render pending edits as diff blocks */}
                         {msg.edits && msg.edits.length > 0 && (
                             <div className="chat-diff-list">
                                 {msg.edits.map((edit, i) => (
@@ -122,7 +121,6 @@ export const ChatPanel: React.FC = () => {
     );
 };
 
-/* ── Diff Block Component ─────────────────────────────── */
 
 interface DiffBlockProps {
     edit: {

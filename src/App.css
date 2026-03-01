@@ -1,5 +1,3 @@
-/* ─── Global Reset & Base Styles ──────────────────────────────── */
-
 *,
 *::before,
 *::after {
@@ -23,7 +21,6 @@ body,
     -moz-osx-font-smoothing: grayscale;
 }
 
-/* Remove default focus outlines, add custom for keyboard nav */
 :focus {
     outline: none;
 }
@@ -34,7 +31,6 @@ body,
     border-radius: var(--radius-xs);
 }
 
-/* Scrollbar defaults */
 ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
@@ -57,7 +53,6 @@ body,
     background: transparent;
 }
 
-/* Prevent text selection on UI chrome */
 button,
 [role="tab"],
 [role="treeitem"] {

@@ -1,5 +1,3 @@
-/* ─── Bottom Panel ─────────────────────────────────────────────── */
-
 .bottom-panel {
     display: flex;
     flex-direction: column;
@@ -114,7 +112,6 @@
     min-height: 0;
 }
 
-/* xterm container */
 .bottom-panel__xterm {
     width: 100%;
     height: 100%;
@@ -135,7 +132,6 @@
     height: 100% !important;
 }
 
-/* Output */
 .bottom-panel__output {
     font-family: var(--font-mono);
     font-size: var(--font-size-xs);

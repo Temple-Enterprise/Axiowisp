@@ -1,5 +1,3 @@
-/* ─── Command Palette ──────────────────────────────────────────── */
-
 .command-palette__overlay {
     position: fixed;
     inset: 0;
@@ -46,7 +44,6 @@
     }
 }
 
-/* Input row */
 .command-palette__input-row {
     display: flex;
     align-items: center;
@@ -85,7 +82,6 @@
     font-size: 10px;
 }
 
-/* Results list */
 .command-palette__list {
     list-style: none;
     margin: 0;

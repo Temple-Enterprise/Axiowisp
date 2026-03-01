@@ -4,7 +4,7 @@ import os
 import shutil
 import time
 
-# ─── ANSI colors ──────────────────────────────────────────────
+
 GREEN  = "\033[92m"
 YELLOW = "\033[93m"
 RED    = "\033[91m"
@@ -54,12 +54,10 @@ def main():
 
     total_start = time.time()
 
-    # ── Step 1: Install dependencies ─────────────────────────
     if not run_command("npm install", "Installing dependencies..."):
         error("Failed to install dependencies. Aborting.")
         sys.exit(1)
 
-    # ── Step 2: Build renderer (TypeScript + Vite) ───────────
     if not run_command("npx tsc", "Compiling renderer TypeScript..."):
         error("Renderer TypeScript compilation failed. Aborting.")
         sys.exit(1)
@@ -68,17 +66,14 @@ def main():
         error("Vite build failed. Aborting.")
         sys.exit(1)
 
-    # ── Step 3: Build Electron main process ──────────────────
     if not run_command("npx tsc -p tsconfig.electron.json", "Compiling Electron main process..."):
         error("Electron TypeScript compilation failed. Aborting.")
         sys.exit(1)
 
-    # ── Step 4: Package with electron-builder (NSIS) ─────────
     if not run_command("npx electron-builder --win", "Packaging with electron-builder (NSIS installer)..."):
         error("Packaging failed. Aborting.")
         sys.exit(1)
 
-    # ── Done ─────────────────────────────────────────────────
     total_elapsed = time.time() - total_start
     print()
     print(f"{GREEN}{BOLD}╔══════════════════════════════════════════╗{RESET}")

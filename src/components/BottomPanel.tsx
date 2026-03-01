@@ -62,7 +62,6 @@ export const BottomPanel: React.FC = () => {
         }
     }, [rootPath]);
 
-    // Initialize terminal
     useEffect(() => {
         if (!termRef.current || initRef.current) return;
         initRef.current = true;
@@ -110,7 +109,6 @@ export const BottomPanel: React.FC = () => {
         xtermRef.current = xterm;
         fitRef.current = fitAddon;
 
-        // Create a real terminal process via IPC
         if (window.electronAPI?.createTerminal) {
             window.electronAPI.createTerminal(rootPath || undefined).then((result) => {
                 if (result.success && result.data !== undefined) {
@@ -123,7 +121,6 @@ export const BottomPanel: React.FC = () => {
                 xterm.writeln(`\x1b[31m✗ Terminal error: ${err.message}\x1b[0m`);
             });
 
-            // Receive data from the shell process
             window.electronAPI.onTerminalData((_id: number, data: string) => {
                 xterm.write(data);
             });
@@ -133,7 +130,6 @@ export const BottomPanel: React.FC = () => {
                 termIdRef.current = null;
             });
 
-            // Send keystrokes to the shell
             xterm.onData((data: string) => {
                 if (termIdRef.current !== null) {
                     window.electronAPI.writeTerminal(termIdRef.current, data);
@@ -144,7 +140,6 @@ export const BottomPanel: React.FC = () => {
             xterm.writeln('Run the app with: npx tsc -p tsconfig.electron.json && npx electron .');
         }
 
-        // Handle container resize
         const observer = new ResizeObserver(() => {
             try { fitAddon.fit(); } catch { /* ignore */ }
             if (termIdRef.current !== null && window.electronAPI?.resizeTerminal) {
@@ -165,7 +160,6 @@ export const BottomPanel: React.FC = () => {
         };
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-    // Focus terminal when switching to the terminal tab
     useEffect(() => {
         if (bottomPanelTab === 'terminal') {
             setTimeout(focusTerminal, 50);

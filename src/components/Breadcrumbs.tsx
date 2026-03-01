@@ -13,7 +13,6 @@ export const Breadcrumbs: React.FC = () => {
     const activeTab = tabs.find((t) => t.id === activeTabId);
     if (!activeTab || !rootPath) return null;
 
-    // Build relative path segments
     const relativePath = activeTab.filePath
         .replace(rootPath, '')
         .replace(/^[\\/]/, '');

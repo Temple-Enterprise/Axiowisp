@@ -4,10 +4,6 @@ import { useUiStore } from '../stores/ui-store';
 import { useSettingsStore } from '../stores/settings-store';
 import { useNotificationStore } from '../stores/notification-store';
 
-/**
- * Register global keyboard shortcuts for the IDE.
- * Must be called once from the root component.
- */
 export function useKeyboardShortcuts(): void {
     const saveActiveTab = useTabsStore((s) => s.saveActiveTab);
     const openDashboard = useTabsStore((s) => s.openDashboard);
@@ -50,7 +46,6 @@ export function useKeyboardShortcuts(): void {
                 case 'g':
                     if (!e.shiftKey) {
                         e.preventDefault();
-                        // Trigger Monaco's Go to Line action
                         if (window.monaco) {
                             const editor = (window as any).__axiowisp_editor;
                             if (editor) {
@@ -76,7 +71,6 @@ export function useKeyboardShortcuts(): void {
                     break;
             }
 
-            // Shift+Alt+F — Format Document
             if (e.shiftKey && e.altKey && e.key.toLowerCase() === 'f') {
                 e.preventDefault();
                 const editor = (window as any).__axiowisp_editor;

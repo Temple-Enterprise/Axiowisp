@@ -67,7 +67,6 @@ const FileTreeItem: React.FC<FileTreeItemProps> = ({ entry, depth }) => {
         setContextMenu({ x: e.clientX, y: e.clientY, entry });
     };
 
-    // Close context menu on click outside
     useEffect(() => {
         if (!contextMenu) return;
         const handler = (e: MouseEvent) => {
@@ -79,7 +78,6 @@ const FileTreeItem: React.FC<FileTreeItemProps> = ({ entry, depth }) => {
         return () => document.removeEventListener('mousedown', handler);
     }, [contextMenu]);
 
-    // Auto-focus rename input
     useEffect(() => {
         if (renaming && renameRef.current) {
             renameRef.current.focus();
@@ -88,7 +86,6 @@ const FileTreeItem: React.FC<FileTreeItemProps> = ({ entry, depth }) => {
         }
     }, [renaming, renameValue]);
 
-    // Auto-focus create input
     useEffect(() => {
         if (creating && createRef.current) {
             createRef.current.focus();
@@ -175,7 +172,6 @@ const FileTreeItem: React.FC<FileTreeItemProps> = ({ entry, depth }) => {
                 <FileTree entries={entry.children} depth={depth + 1} />
             )}
 
-            {/* Inline create input */}
             {creating && entry.isDirectory && expanded && (
                 <div
                     className="file-tree__row file-tree__create-row"
@@ -203,7 +199,6 @@ const FileTreeItem: React.FC<FileTreeItemProps> = ({ entry, depth }) => {
                 </div>
             )}
 
-            {/* Context menu */}
             {contextMenu && (
                 <div
                     ref={menuRef}

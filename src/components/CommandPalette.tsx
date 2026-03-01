@@ -21,7 +21,6 @@ interface PaletteItem {
     action: () => void;
 }
 
-/** Flatten file tree into a list of file paths */
 function flattenFiles(entries: FileEntry[]): FileEntry[] {
     const result: FileEntry[] = [];
     for (const entry of entries) {
@@ -60,7 +59,6 @@ export const CommandPalette: React.FC = () => {
         inputRef.current?.focus();
     }, []);
 
-    // ── Build items list ──────────────────────────────────────
     const commands: PaletteItem[] = useMemo(
         () => [
             {
@@ -175,7 +173,6 @@ export const CommandPalette: React.FC = () => {
         });
     }, [fileTree, rootPath, closeCommandPalette, openTab]);
 
-    // ── Filter ────────────────────────────────────────────────
     const allItems = useMemo(() => [...fileItems, ...commands], [fileItems, commands]);
 
     const filtered = useMemo(() => {
@@ -190,7 +187,6 @@ export const CommandPalette: React.FC = () => {
             .slice(0, 50);
     }, [query, allItems]);
 
-    // ── Keyboard nav ──────────────────────────────────────────
     useEffect(() => {
         setSelectedIndex(0);
     }, [query]);

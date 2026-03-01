@@ -9,7 +9,6 @@ export const App: React.FC = () => {
     useKeyboardShortcuts();
     useMenuActions();
 
-    // Listen for files opened via "Open With" / CLI
     React.useEffect(() => {
         const cleanup = window.electronAPI.onOpenFile((filePath: string) => {
             useTabsStore.getState().openTab(filePath);
@@ -39,7 +38,6 @@ export const App: React.FC = () => {
             };
         });
 
-        // initial messages
         console.info('Axiowisp IDE started');
         console.info('Renderer loaded successfully');
         console.info('Ready.');

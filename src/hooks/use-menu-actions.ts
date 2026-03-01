@@ -3,10 +3,6 @@ import { useUiStore } from '../stores/ui-store';
 import { useWorkspaceStore } from '../stores/workspace-store';
 import { useTabsStore } from '../stores/tabs-store';
 
-/**
- * Register global listeners for Electron native menu items.
- * Must be called once from the root component.
- */
 export function useMenuActions(): void {
     const toggleSidebar = useUiStore((s) => s.toggleSidebar);
     const toggleBottomPanel = useUiStore((s) => s.toggleBottomPanel);
