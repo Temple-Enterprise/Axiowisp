@@ -1,6 +1,6 @@
 {
   "name": "axiowisp",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "private": true,
   "description": "Axiowisp — a modern desktop IDE built with Electron, React & Monaco",
   "author": "Temple Enterprise LLC",
@@ -18,7 +18,7 @@
   "build": {
     "appId": "com.axiowisp.app",
     "productName": "Axiowisp",
-    "copyright": "0.3.1 | Temple Enterprise LLC | 2026",
+    "copyright": "0.3.2 | Temple Enterprise LLC | 2026",
     "artifactName": "Axiowisp.${ext}",
     "icon": "public/icon-bg.ico",
     "npmRebuild": false,

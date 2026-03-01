@@ -1,11 +1,25 @@
 import { create } from 'zustand';
 import { ChatMessage } from '../../shared/types';
 
+interface PendingEdit {
+    filePath: string;
+    content: string;
+    language: string;
+    lineCount: number;
+    status: 'pending' | 'accepted' | 'rejected';
+}
+
+interface ChatMessageWithEdits extends ChatMessage {
+    edits?: PendingEdit[];
+}
+
 interface ChatState {
-    messages: ChatMessage[];
+    messages: ChatMessageWithEdits[];
     isLoading: boolean;
     sendMessage: (content: string) => void;
     clearMessages: () => void;
+    acceptEdit: (messageId: string, editIndex: number) => Promise<void>;
+    rejectEdit: (messageId: string, editIndex: number) => void;
 }
 
 let messageIdCounter = 0;
@@ -15,7 +29,6 @@ async function buildWorkspaceContext(): Promise<string> {
     if (!window.electronAPI?.listFiles) return '';
 
     try {
-        // Get the workspace store to find the root path
         const { useWorkspaceStore } = await import('./workspace-store');
         const rootPath = useWorkspaceStore.getState().rootPath;
         if (!rootPath) return '';
@@ -26,14 +39,12 @@ async function buildWorkspaceContext(): Promise<string> {
         const files = result.data;
         const fileList = files.map((f: string) => f.replace(rootPath, '').replace(/\\/g, '/')).join('\n');
 
-        // Read currently open tabs for inline context
         const { useTabsStore } = await import('./tabs-store');
         const { tabs, activeTabId } = useTabsStore.getState();
         const activeTab = tabs.find(t => t.id === activeTabId);
 
         let activeFileContext = '';
         if (activeTab) {
-            // Limit to first 200 lines to avoid token overflow
             const lines = activeTab.content.split('\n').slice(0, 200).join('\n');
             activeFileContext = `\n\nCurrently open file (${activeTab.fileName}):\n\`\`\`${activeTab.language}\n${lines}\n\`\`\``;
         }
@@ -77,7 +88,6 @@ async function callAnthropic(
     apiKey: string,
     model: string,
 ): Promise<string> {
-    // Anthropic expects system prompt to be separate
     const systemMessage = messages.find(m => m.role === 'system');
     const userMessages = messages.filter(m => m.role !== 'system');
 
@@ -87,7 +97,7 @@ async function callAnthropic(
             'x-api-key': apiKey,
             'anthropic-version': '2023-06-01',
             'content-type': 'application/json',
-            'dangerously-allow-browser': 'true', // Needed for local dev if not proxied
+            'dangerously-allow-browser': 'true',
         },
         body: JSON.stringify({
             model,
@@ -123,9 +133,7 @@ async function callGemini(
             contents: messages.map(m => ({
                 role: m.role === 'assistant' ? 'model' : 'user',
                 parts: [{ text: m.content }]
-            })).filter(m => m.role !== 'system'), // Gemini often handles system instructions differently, but basic chat can ignore or merge.
-            // For better system prompt handling in Gemini, we can put it in 'systemInstruction' if supported or prepend to first user message.
-            // Here we'll map system prompt to systemInstruction if using a model that supports it, or just prepend.
+            })).filter(m => m.role !== 'system'),
             systemInstruction: messages.find(m => m.role === 'system') ? {
                 parts: [{ text: messages.find(m => m.role === 'system')?.content || '' }]
             } : undefined,
@@ -141,28 +149,33 @@ async function callGemini(
     return data.candidates?.[0]?.content?.parts?.[0]?.text ?? 'No response';
 }
 
-/** Try to apply AI-generated file edits. Format: FILE:path\n```\ncontent\n``` */
-async function applyFileEdits(response: string): Promise<string[]> {
-    const applied: string[] = [];
-    // Match patterns like: **FILE: path/to/file**\n```\ncontent\n```
-    const editPattern = /\*\*FILE:\s*(.+?)\*\*\s*\n```[\w]*\n([\s\S]*?)```/g;
+/** Parse FILE: blocks from AI response into PendingEdit objects */
+function parseFileEdits(response: string): PendingEdit[] {
+    const edits: PendingEdit[] = [];
+    const editPattern = /\*\*FILE:\s*(.+?)\*\*\s*\n```([\w]*)\n([\s\S]*?)```/g;
     let match;
 
     while ((match = editPattern.exec(response)) !== null) {
         const filePath = match[1].trim();
-        const content = match[2];
+        const language = match[2] || 'plaintext';
+        const content = match[3];
+        const lineCount = content.split('\n').length;
 
-        if (window.electronAPI?.writeFile) {
-            try {
-                const result = await window.electronAPI.writeFile(filePath, content);
-                if (result.success) {
-                    applied.push(filePath);
-                }
-            } catch { /* ignore failed writes */ }
-        }
+        edits.push({
+            filePath,
+            content,
+            language,
+            lineCount,
+            status: 'pending',
+        });
     }
 
-    return applied;
+    return edits;
+}
+
+/** Strip FILE: blocks from the response text so they don't render as raw markdown */
+function stripFileBlocks(response: string): string {
+    return response.replace(/\*\*FILE:\s*.+?\*\*\s*\n```[\w]*\n[\s\S]*?```/g, '').trim();
 }
 
 export const useChatStore = create<ChatState>((set, get) => ({
@@ -170,7 +183,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     isLoading: false,
 
     sendMessage: async (content: string) => {
-        const userMsg: ChatMessage = {
+        const userMsg: ChatMessageWithEdits = {
             id: `msg-${++messageIdCounter}`,
             role: 'user',
             content,
@@ -189,15 +202,12 @@ export const useChatStore = create<ChatState>((set, get) => ({
         let aiContent: string = '';
 
         try {
-            // Validation
             if (activeProvider === 'openai' && !settings.openaiApiKey) throw new Error('OpenAI API key missing.');
             if (activeProvider === 'anthropic' && !settings.anthropicApiKey) throw new Error('Anthropic API key missing.');
             if (activeProvider === 'gemini' && !settings.geminiApiKey) throw new Error('Gemini API key missing.');
 
-            // Build workspace context
             const workspaceCtx = await buildWorkspaceContext();
 
-            // Build message history
             const history = get().messages.map((m) => ({
                 role: m.role,
                 content: m.content,
@@ -221,7 +231,6 @@ export const useChatStore = create<ChatState>((set, get) => ({
                 ...history,
             ];
 
-            // Loop locally if the AI requests file context (up to 3 times to prevent infinite loops)
             let iterationCount = 0;
             const maxIterations = 3;
 
@@ -236,7 +245,6 @@ export const useChatStore = create<ChatState>((set, get) => ({
                     aiContent = await callGemini(currentApiMessages, settings.geminiApiKey, settings.geminiModel);
                 }
 
-                // Check if the AI wants to read a file
                 const readMatch = /\*\*READ:\s*(.*?)\*\*/.exec(aiContent);
                 if (readMatch && window.electronAPI?.readFile) {
                     const fileToRead = readMatch[1].trim();
@@ -248,13 +256,12 @@ export const useChatStore = create<ChatState>((set, get) => ({
                             ? readResult.data
                             : `Error: Could not read file or file is empty.`;
 
-                        // Append AI's request and our system response to the internal context
                         currentApiMessages.push({ role: 'assistant', content: aiContent });
                         currentApiMessages.push({
                             role: 'system',
                             content: `Here is the requested content for ${fileToRead}:\n\`\`\`\n${fileContent}\n\`\`\`\nNow proceed with the user's request.`
                         });
-                        continue; // Loop again to let AI answer with the new context
+                        continue;
                     } catch (err: any) {
                         currentApiMessages.push({ role: 'assistant', content: aiContent });
                         currentApiMessages.push({
@@ -264,32 +271,71 @@ export const useChatStore = create<ChatState>((set, get) => ({
                         continue;
                     }
                 } else {
-                    break; // No READ request, we're done generating
+                    break;
                 }
             }
-
-            // Check if the AI response contains file edits and apply them
-            const applied = await applyFileEdits(aiContent);
-            if (applied.length > 0) {
-                aiContent += `\n\n✅ Applied changes to: ${applied.map(f => `\`${f}\``).join(', ')}`;
-            }
         } catch (err: any) {
-            aiContent = `❌ **Error:** ${err.message}`;
+            aiContent = `**Error:** ${err.message}`;
             if (err.message.includes('key missing')) {
                 aiContent += ' Please check your Settings.';
             }
         }
 
-        const aiMsg: ChatMessage = {
+        // Parse file edits from the response (they stay PENDING until user accepts)
+        const edits = parseFileEdits(aiContent);
+        const cleanContent = edits.length > 0 ? stripFileBlocks(aiContent) : aiContent;
+
+        const aiMsg: ChatMessageWithEdits = {
             id: `msg-${++messageIdCounter}`,
             role: 'assistant',
-            content: aiContent,
+            content: cleanContent,
             timestamp: Date.now(),
+            edits: edits.length > 0 ? edits : undefined,
         };
 
         set((state) => ({
             messages: [...state.messages, aiMsg],
             isLoading: false,
+        }));
+    },
+
+    acceptEdit: async (messageId: string, editIndex: number) => {
+        const { messages } = get();
+        const msg = messages.find((m) => m.id === messageId);
+        if (!msg?.edits?.[editIndex]) return;
+
+        const edit = msg.edits[editIndex];
+
+        // Write to disk
+        if (window.electronAPI?.writeFile) {
+            const result = await window.electronAPI.writeFile(edit.filePath, edit.content);
+            if (result.success) {
+                // Refresh the tab if it's open
+                const { useTabsStore } = await import('./tabs-store');
+                const refreshTab = useTabsStore.getState().refreshTab;
+                await refreshTab(edit.filePath);
+            }
+        }
+
+        // Mark as accepted
+        set((state) => ({
+            messages: state.messages.map((m) => {
+                if (m.id !== messageId || !m.edits) return m;
+                const newEdits = [...m.edits];
+                newEdits[editIndex] = { ...newEdits[editIndex], status: 'accepted' };
+                return { ...m, edits: newEdits };
+            }),
+        }));
+    },
+
+    rejectEdit: (messageId: string, editIndex: number) => {
+        set((state) => ({
+            messages: state.messages.map((m) => {
+                if (m.id !== messageId || !m.edits) return m;
+                const newEdits = [...m.edits];
+                newEdits[editIndex] = { ...newEdits[editIndex], status: 'rejected' };
+                return { ...m, edits: newEdits };
+            }),
         }));
     },
 

@@ -37,6 +37,8 @@ interface TabsState {
     markClean: (tabId: string) => void;
     updateContent: (tabId: string, content: string) => void;
     saveActiveTab: () => Promise<void>;
+    renameTab: (oldPath: string, newPath: string) => void;
+    refreshTab: (filePath: string) => Promise<void>;
 }
 
 export const useTabsStore = create<TabsState>((set, get) => ({
@@ -132,6 +134,33 @@ export const useTabsStore = create<TabsState>((set, get) => ({
             }));
         } else {
             console.error('Failed to save file:', result.error);
+        }
+    },
+
+    renameTab: (oldPath: string, newPath: string) => {
+        const newFileName = newPath.split(/[\\/]/).pop() ?? newPath;
+        set((state) => ({
+            tabs: state.tabs.map((t) =>
+                t.id === oldPath
+                    ? { ...t, id: newPath, filePath: newPath, fileName: newFileName, language: detectLanguage(newFileName) }
+                    : t,
+            ),
+            activeTabId: state.activeTabId === oldPath ? newPath : state.activeTabId,
+        }));
+    },
+
+    refreshTab: async (filePath: string) => {
+        const { tabs } = get();
+        const tab = tabs.find((t) => t.filePath === filePath);
+        if (!tab) return;
+
+        const result = await window.electronAPI.readFile(filePath);
+        if (result.success && result.data !== undefined) {
+            set((state) => ({
+                tabs: state.tabs.map((t) =>
+                    t.filePath === filePath ? { ...t, content: result.data!, isDirty: false } : t,
+                ),
+            }));
         }
     },
 }));

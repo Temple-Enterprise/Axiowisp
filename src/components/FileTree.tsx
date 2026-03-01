@@ -36,6 +36,7 @@ const FileTreeItem: React.FC<FileTreeItemProps> = ({ entry, depth }) => {
     const [expanded, setExpanded] = useState(false);
     const openTab = useTabsStore((s) => s.openTab);
     const activeTabId = useTabsStore((s) => s.activeTabId);
+    const renameTab = useTabsStore((s) => s.renameTab);
     const refreshTree = useWorkspaceStore((s) => s.refreshTree);
     const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null);
     const [renaming, setRenaming] = useState(false);
@@ -101,6 +102,7 @@ const FileTreeItem: React.FC<FileTreeItemProps> = ({ entry, depth }) => {
         const newPath = parentDir + renameValue;
         const result = await window.electronAPI.renameEntry(entry.path, newPath);
         if (result.success) {
+            renameTab(entry.path, newPath);
             await refreshTree();
         }
         setRenaming(false);

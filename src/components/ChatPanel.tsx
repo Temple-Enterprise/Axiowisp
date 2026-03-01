@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useChatStore } from '../stores/chat-store';
 import { useUiStore } from '../stores/ui-store';
 import { renderMarkdown } from '../utils/markdown';
-import { Send, Sparkles, X, Trash2, Loader } from 'lucide-react';
+import { Send, Sparkles, X, Trash2, Loader, Check, FileCode, ChevronDown, ChevronRight } from 'lucide-react';
 import './ChatPanel.css';
 
 export const ChatPanel: React.FC = () => {
@@ -10,6 +10,8 @@ export const ChatPanel: React.FC = () => {
     const isLoading = useChatStore((s) => s.isLoading);
     const sendMessage = useChatStore((s) => s.sendMessage);
     const clearMessages = useChatStore((s) => s.clearMessages);
+    const acceptEdit = useChatStore((s) => s.acceptEdit);
+    const rejectEdit = useChatStore((s) => s.rejectEdit);
     const toggleChatPanel = useUiStore((s) => s.toggleChatPanel);
     const [input, setInput] = useState('');
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -69,6 +71,19 @@ export const ChatPanel: React.FC = () => {
                         <div className="chat-panel__msg-body">
                             {msg.role === 'assistant' ? renderMarkdown(msg.content) : msg.content}
                         </div>
+                        {/* Render pending edits as diff blocks */}
+                        {msg.edits && msg.edits.length > 0 && (
+                            <div className="chat-diff-list">
+                                {msg.edits.map((edit, i) => (
+                                    <DiffBlock
+                                        key={`${msg.id}-edit-${i}`}
+                                        edit={edit}
+                                        onAccept={() => acceptEdit(msg.id, i)}
+                                        onReject={() => rejectEdit(msg.id, i)}
+                                    />
+                                ))}
+                            </div>
+                        )}
                     </div>
                 ))}
                 {isLoading && (
@@ -103,6 +118,75 @@ export const ChatPanel: React.FC = () => {
                     <Send size={14} />
                 </button>
             </div>
+        </div>
+    );
+};
+
+/* ── Diff Block Component ─────────────────────────────── */
+
+interface DiffBlockProps {
+    edit: {
+        filePath: string;
+        content: string;
+        language: string;
+        lineCount: number;
+        status: 'pending' | 'accepted' | 'rejected';
+    };
+    onAccept: () => void;
+    onReject: () => void;
+}
+
+const DiffBlock: React.FC<DiffBlockProps> = ({ edit, onAccept, onReject }) => {
+    const [expanded, setExpanded] = useState(false);
+    const fileName = edit.filePath.split(/[\\/]/).pop() ?? edit.filePath;
+
+    const statusClass = `chat-diff--${edit.status}`;
+    const lines = edit.content.split('\n');
+    const preview = lines.slice(0, 15).join('\n');
+    const hasMore = lines.length > 15;
+
+    return (
+        <div className={`chat-diff ${statusClass}`}>
+            <div className="chat-diff__header">
+                <div className="chat-diff__file-info" onClick={() => setExpanded(!expanded)}>
+                    {expanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
+                    <FileCode size={13} />
+                    <span className="chat-diff__filename">{fileName}</span>
+                    <span className="chat-diff__badge">+{edit.lineCount} lines</span>
+                </div>
+                <div className="chat-diff__actions">
+                    {edit.status === 'pending' && (
+                        <>
+                            <button className="chat-diff__btn chat-diff__btn--accept" onClick={onAccept} title="Accept changes">
+                                <Check size={13} /> Accept
+                            </button>
+                            <button className="chat-diff__btn chat-diff__btn--reject" onClick={onReject} title="Reject changes">
+                                <X size={13} /> Reject
+                            </button>
+                        </>
+                    )}
+                    {edit.status === 'accepted' && (
+                        <span className="chat-diff__status chat-diff__status--accepted">
+                            <Check size={12} /> Applied
+                        </span>
+                    )}
+                    {edit.status === 'rejected' && (
+                        <span className="chat-diff__status chat-diff__status--rejected">
+                            <X size={12} /> Rejected
+                        </span>
+                    )}
+                </div>
+            </div>
+            {expanded && (
+                <div className="chat-diff__body">
+                    <pre className="chat-diff__code"><code>{hasMore && !expanded ? preview + '\n...' : edit.content}</code></pre>
+                </div>
+            )}
+            {!expanded && (
+                <div className="chat-diff__preview" onClick={() => setExpanded(true)}>
+                    <pre className="chat-diff__code chat-diff__code--preview"><code>{preview}{hasMore ? '\n...' : ''}</code></pre>
+                </div>
+            )}
         </div>
     );
 };

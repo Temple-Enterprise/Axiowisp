@@ -284,3 +284,178 @@
 .chat-panel__spinner {
     animation: spin 1s linear infinite;
 }
+
+/* ── Diff Blocks ──────────────────────────────────────── */
+
+.chat-diff-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin-top: var(--space-2);
+}
+
+.chat-diff {
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--bg-base);
+    transition: border-color var(--transition-fast);
+}
+
+.chat-diff--pending {
+    border-color: rgba(56, 139, 253, 0.4);
+}
+
+.chat-diff--accepted {
+    border-color: rgba(63, 185, 80, 0.4);
+    opacity: 0.85;
+}
+
+.chat-diff--rejected {
+    border-color: rgba(248, 81, 73, 0.2);
+    opacity: 0.5;
+}
+
+.chat-diff__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 10px;
+    background: rgba(255, 255, 255, 0.03);
+    border-bottom: 1px solid var(--border-muted);
+    gap: var(--space-2);
+}
+
+.chat-diff__file-info {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    color: var(--fg-secondary);
+    font-size: 12px;
+    min-width: 0;
+}
+
+.chat-diff__file-info:hover {
+    color: var(--fg-primary);
+}
+
+.chat-diff__filename {
+    font-family: var(--font-mono);
+    font-weight: var(--font-weight-medium);
+    color: var(--fg-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.chat-diff__badge {
+    flex-shrink: 0;
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 8px;
+    background: rgba(56, 139, 253, 0.15);
+    color: var(--fg-accent);
+    font-family: var(--font-mono);
+}
+
+.chat-diff__actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.chat-diff__btn {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    padding: 3px 8px;
+    border: none;
+    border-radius: var(--radius-xs);
+    font-size: 11px;
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.chat-diff__btn--accept {
+    background: rgba(63, 185, 80, 0.15);
+    color: #3fb950;
+}
+
+.chat-diff__btn--accept:hover {
+    background: rgba(63, 185, 80, 0.3);
+}
+
+.chat-diff__btn--reject {
+    background: rgba(248, 81, 73, 0.1);
+    color: #f85149;
+}
+
+.chat-diff__btn--reject:hover {
+    background: rgba(248, 81, 73, 0.25);
+}
+
+.chat-diff__status {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 11px;
+    font-weight: var(--font-weight-medium);
+}
+
+.chat-diff__status--accepted {
+    color: #3fb950;
+}
+
+.chat-diff__status--rejected {
+    color: #f85149;
+}
+
+.chat-diff__body,
+.chat-diff__preview {
+    max-height: 300px;
+    overflow: auto;
+}
+
+.chat-diff__preview {
+    max-height: 120px;
+    cursor: pointer;
+    position: relative;
+}
+
+.chat-diff__preview::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 32px;
+    background: linear-gradient(transparent, var(--bg-base));
+    pointer-events: none;
+}
+
+.chat-diff__code {
+    margin: 0;
+    padding: 10px 12px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    line-height: 1.5;
+    color: var(--fg-primary);
+    white-space: pre;
+    overflow-x: auto;
+}
+
+.chat-diff__code--preview {
+    color: var(--fg-secondary);
+}
+
+.chat-diff__code::-webkit-scrollbar {
+    height: 4px;
+}
+
+.chat-diff__code::-webkit-scrollbar-thumb {
+    background: var(--border-default);
+    border-radius: 2px;
+}

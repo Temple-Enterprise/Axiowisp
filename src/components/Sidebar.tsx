@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import { FileTree } from './FileTree';
 import { RunPanel } from './RunPanel';
 import { useWorkspaceStore } from '../stores/workspace-store';
@@ -24,6 +24,19 @@ export const Sidebar: React.FC = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [creatingRoot, setCreatingRoot] = useState<'file' | 'folder' | null>(null);
     const [createRootValue, setCreateRootValue] = useState('');
+    const [treeCtx, setTreeCtx] = useState<{ x: number; y: number } | null>(null);
+    const treeCtxRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (!treeCtx) return;
+        const handler = (e: MouseEvent) => {
+            if (treeCtxRef.current && !treeCtxRef.current.contains(e.target as Node)) {
+                setTreeCtx(null);
+            }
+        };
+        document.addEventListener('mousedown', handler);
+        return () => document.removeEventListener('mousedown', handler);
+    }, [treeCtx]);
 
     const folderName = rootPath?.split(/[\\/]/).pop() ?? '';
 
@@ -127,9 +140,35 @@ export const Sidebar: React.FC = () => {
                                     />
                                 </div>
                             )}
-                            <div className="sidebar__tree">
+                            <div
+                                className="sidebar__tree"
+                                onContextMenu={(e) => {
+                                    e.preventDefault();
+                                    setTreeCtx({ x: e.clientX, y: e.clientY });
+                                }}
+                            >
                                 <FileTree entries={fileTree} depth={0} />
                             </div>
+                            {treeCtx && (
+                                <div
+                                    ref={treeCtxRef}
+                                    className="file-tree__context-menu"
+                                    style={{ left: treeCtx.x, top: treeCtx.y }}
+                                >
+                                    <button
+                                        className="file-tree__context-item"
+                                        onClick={() => { setTreeCtx(null); setCreatingRoot('file'); }}
+                                    >
+                                        <FilePlus size={13} /> New File
+                                    </button>
+                                    <button
+                                        className="file-tree__context-item"
+                                        onClick={() => { setTreeCtx(null); setCreatingRoot('folder'); }}
+                                    >
+                                        <FolderPlus size={13} /> New Folder
+                                    </button>
+                                </div>
+                            )}
                         </>
                     ) : (
                         <div className="sidebar__empty">

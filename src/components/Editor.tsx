@@ -1,4 +1,4 @@
-import React, { useRef, useCallback } from 'react';
+import React, { useRef, useCallback, useEffect } from 'react';
 import MonacoEditor, { OnMount, loader } from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
 import { useTabsStore } from '../stores/tabs-store';
@@ -105,11 +105,28 @@ export const Editor: React.FC = () => {
     const setSelection = useEditorStore((s) => s.setSelection);
     const setEol = useEditorStore((s) => s.setEol);
     const editorRef = useRef<any>(null);
+    const lastContentRef = useRef<string>('');
 
     const activeTab = tabs.find((t) => t.id === activeTabId);
 
+    // Sync external content changes (e.g. AI accept, git pull) into Monaco
+    useEffect(() => {
+        if (!activeTab || !editorRef.current) return;
+        const model = editorRef.current.getModel();
+        if (!model) return;
+
+        const currentModelValue = model.getValue();
+        // Only push if the store content differs from what Monaco has
+        // (meaning it was changed externally, not by the user typing)
+        if (activeTab.content !== currentModelValue && activeTab.content !== lastContentRef.current) {
+            lastContentRef.current = activeTab.content;
+            model.setValue(activeTab.content);
+        }
+    }, [activeTab?.content]);
+
     const handleEditorDidMount: OnMount = useCallback((editor, monacoInstance) => {
         editorRef.current = editor;
+        if (activeTab) lastContentRef.current = activeTab.content;
         monacoInstance.editor.defineTheme('axiowisp-dark', AXIOWISP_THEME);
         monacoInstance.editor.defineTheme('axiowisp-light', AXIOWISP_LIGHT_THEME);
         monacoInstance.editor.setTheme(theme === 'light' ? 'axiowisp-light' : 'axiowisp-dark');
@@ -149,7 +166,7 @@ export const Editor: React.FC = () => {
         }
     }, [theme, setCursorPosition, setSelection, setEol]);
 
-    React.useEffect(() => {
+    useEffect(() => {
         if (editorRef.current && window.monaco) {
             window.monaco.editor.setTheme(theme === 'light' ? 'axiowisp-light' : 'axiowisp-dark');
         }

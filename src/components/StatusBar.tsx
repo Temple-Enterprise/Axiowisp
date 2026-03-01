@@ -59,7 +59,7 @@ export const StatusBar: React.FC = () => {
                         <span className="statusbar__item statusbar__language">{activeTab.language}</span>
                     </>
                 )}
-                <span className="statusbar__item statusbar__version">Axiowisp v0.3.1</span>
+                <span className="statusbar__item statusbar__version">Axiowisp v0.3.2</span>
             </div>
         </div>
     );
