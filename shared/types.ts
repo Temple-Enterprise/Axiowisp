@@ -36,6 +36,8 @@ export const IpcChannels = {
     MENU_COMMAND_PALETTE: 'menu:commandPalette',
     MENU_WELCOME: 'menu:welcome',
     API_REQUEST: 'api:request',
+    GIT_DIFF_STAGED: 'git:diffStaged',
+    GIT_SHOW_FILE: 'git:showFile',
 } as const;
 
 export interface FileEntry {
@@ -58,6 +60,7 @@ export interface Tab {
     content: string;
     isDirty: boolean;
     language: string;
+    originalContent?: string; // for diff tabs (language starts with 'diff:')
 }
 
 export interface ChatMessage {
@@ -131,6 +134,8 @@ export interface ElectronAPI {
     gitPush: (cwd: string) => Promise<IpcResult<void>>;
     gitPull: (cwd: string) => Promise<IpcResult<void>>;
     apiRequest: (options: ApiRequestOptions) => Promise<IpcResult<ApiResponse>>;
+    gitDiffStaged: (cwd: string) => Promise<IpcResult<string>>;
+    gitShowFile: (cwd: string, filePath: string) => Promise<IpcResult<string>>;
     onAbout: (callback: (data: any) => void) => () => void;
     onMenuOpenFolder: (callback: () => void) => () => void;
     onMenuSave: (callback: () => void) => () => void;

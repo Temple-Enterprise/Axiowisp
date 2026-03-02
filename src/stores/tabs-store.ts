@@ -43,6 +43,7 @@ interface TabsState {
     reorderTabs: (fromIndex: number, toIndex: number) => void;
     recentFiles: string[];
     openDashboard: () => void;
+    openDiff: (filePath: string, originalContent: string, modifiedContent: string, language: string) => void;
 }
 
 export const useTabsStore = create<TabsState>((set, get) => ({
@@ -78,6 +79,11 @@ export const useTabsStore = create<TabsState>((set, get) => ({
             tabs: [...state.tabs, newTab],
             activeTabId: newTab.id,
         }));
+
+        try {
+            const { useActivityStore } = await import('./activity-store');
+            useActivityStore.getState().addEvent('file-open', `Opened ${fileName}`);
+        } catch { /* ignore */ }
     },
 
     closeTab: (tabId: string) => {
@@ -135,6 +141,10 @@ export const useTabsStore = create<TabsState>((set, get) => ({
             set((state) => ({
                 tabs: state.tabs.map((t) => (t.id === tab.id ? { ...t, isDirty: false } : t)),
             }));
+            try {
+                const { useActivityStore } = await import('./activity-store');
+                useActivityStore.getState().addEvent('file-save', `Saved ${tab.fileName}`);
+            } catch { /* ignore */ }
         } else {
             console.error('Failed to save file:', result.error);
         }
@@ -213,6 +223,27 @@ export const useTabsStore = create<TabsState>((set, get) => ({
                     language: 'plaintext',
                 }],
                 activeTabId: 'dashboard',
+            };
+        });
+    },
+
+    openDiff: (filePath, originalContent, modifiedContent, language) => {
+        const tabId = `diff:${filePath}`;
+        set((state) => {
+            const existing = state.tabs.find((t) => t.id === tabId);
+            if (existing) return { activeTabId: tabId };
+            const fileName = filePath.split(/[\\/]/).pop() ?? filePath;
+            return {
+                tabs: [...state.tabs, {
+                    id: tabId,
+                    filePath,
+                    fileName: `${fileName} (diff)`,
+                    content: modifiedContent,
+                    originalContent,
+                    isDirty: false,
+                    language: `diff:${language}`,
+                }],
+                activeTabId: tabId,
             };
         });
     },

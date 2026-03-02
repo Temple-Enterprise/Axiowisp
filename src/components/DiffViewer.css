@@ -1,0 +1,41 @@
+.diff-viewer {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: var(--bg-base);
+}
+
+.diff-viewer__legend {
+    display: flex;
+    gap: var(--space-3);
+    align-items: center;
+    padding: 5px var(--space-3);
+    border-bottom: 1px solid var(--border-default);
+    background: var(--bg-surface);
+    flex-shrink: 0;
+}
+
+.diff-viewer__legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    color: var(--fg-secondary);
+}
+
+.diff-viewer__legend-item::before {
+    content: '';
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: var(--radius-xs);
+}
+
+.diff-viewer__legend-item--removed::before { background: rgba(248, 81, 73, 0.3); }
+.diff-viewer__legend-item--added::before   { background: rgba(63, 185, 80, 0.3); }
+
+.diff-viewer__editor {
+    flex: 1;
+    overflow: hidden;
+}

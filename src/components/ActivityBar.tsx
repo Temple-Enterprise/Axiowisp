@@ -1,7 +1,7 @@
 import React from 'react';
 import { useUiStore, Activity } from '../stores/ui-store';
 import {
-    Files, Search, Play, MessageSquare, Settings, GitBranch, Globe
+    Files, Search, Play, MessageSquare, Settings, GitBranch, Globe, Library
 } from 'lucide-react';
 import './ActivityBar.css';
 
@@ -16,6 +16,7 @@ const topItems: ActivityItem[] = [
     { id: 'search', icon: <Search size={22} />, label: 'Search' },
     { id: 'git', icon: <GitBranch size={22} />, label: 'Source Control' },
     { id: 'api', icon: <Globe size={22} />, label: 'API Client' },
+    { id: 'snippets', icon: <Library size={22} />, label: 'Snippets' },
     { id: 'run', icon: <Play size={22} />, label: 'Run' },
 ];
 

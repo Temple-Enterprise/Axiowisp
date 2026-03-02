@@ -201,3 +201,13 @@
     opacity: 0.6;
     margin-top: var(--space-1);
 }
+.git-panel__generate-btn {
+    flex-shrink: 0;
+    color: var(--fg-accent);
+    border: 1px solid var(--border-accent);
+}
+
+.git-panel__generate-btn:hover:not(:disabled) {
+    background: var(--accent-muted);
+    color: var(--fg-accent);
+}

@@ -15,6 +15,7 @@ import { ToastContainer } from './ToastContainer';
 import { ConfirmDialog } from './ConfirmDialog';
 import { ReviewPanel } from './ReviewPanel';
 import { DashboardTab } from './DashboardTab';
+import { DiffViewer } from './DiffViewer';
 import { useUiStore } from '../stores/ui-store';
 import { useTabsStore } from '../stores/tabs-store';
 import { useSettingsStore } from '../stores/settings-store';
@@ -167,6 +168,8 @@ export const Layout: React.FC = () => {
                 <div className="layout__editor">
                     {activeTabId === 'dashboard' ? (
                         <DashboardTab />
+                    ) : activeTabId && tabs.find((t) => t.id === activeTabId)?.language?.startsWith('diff:') ? (
+                        <DiffViewer />
                     ) : activeTabId ? (
                         <Editor />
                     ) : (

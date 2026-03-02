@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useWorkspaceStore } from '../stores/workspace-store';
+import { useActivityStore } from '../stores/activity-store';
 import {
-    BarChart3, FileCode, Package, AlertTriangle, Clock, HardDrive,
-    Loader, FolderOpen,
+    BarChart3, FileCode, Package, AlertTriangle, HardDrive,
+    Loader, FolderOpen, FileText, Save, GitCommit, Upload, Globe, MessageSquare, Zap,
 } from 'lucide-react';
 import './DashboardTab.css';
 
@@ -107,8 +108,27 @@ const LANG_COLORS = [
     '#A97BFF', '#e44b23', '#375eab', '#f34b7d', '#DA5B0B',
 ];
 
+const ACTIVITY_ICONS: Record<string, React.ReactNode> = {
+    'file-open': <FileText size={13} />,
+    'file-save': <Save size={13} />,
+    'git-commit': <GitCommit size={13} />,
+    'git-push': <Upload size={13} />,
+    'api-request': <Globe size={13} />,
+    'ai-message': <MessageSquare size={13} />,
+    'ws-connect': <Zap size={13} />,
+};
+
+function relativeTime(ts: number): string {
+    const diff = Math.floor((Date.now() - ts) / 1000);
+    if (diff < 60) return `${diff}s ago`;
+    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+    return `${Math.floor(diff / 86400)}d ago`;
+}
+
 export const DashboardTab: React.FC = () => {
     const rootPath = useWorkspaceStore((s) => s.rootPath);
+    const events = useActivityStore((s) => s.events);
     const [data, setData] = useState<DashboardData | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -242,6 +262,23 @@ export const DashboardTab: React.FC = () => {
                     )}
                 </div>
             )}
+
+            <div className="dashboard__section">
+                <h3 className="dashboard__section-title">Recent Activity</h3>
+                {events.length === 0 ? (
+                    <p className="dashboard__timeline-empty">No activity yet. Open files, make commits, or send API requests.</p>
+                ) : (
+                    <div className="dashboard__timeline">
+                        {events.slice(0, 30).map((ev) => (
+                            <div key={ev.id} className="dashboard__timeline-event">
+                                <span className="dashboard__timeline-icon">{ACTIVITY_ICONS[ev.type] ?? <FileText size={13} />}</span>
+                                <span className="dashboard__timeline-label">{ev.label}</span>
+                                <span className="dashboard__timeline-time">{relativeTime(ev.timestamp)}</span>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
         </div>
     );
 };

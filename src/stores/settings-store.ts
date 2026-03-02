@@ -19,6 +19,7 @@ export interface SettingsState {
     sidebarWidth: number;
     bottomPanelHeight: number;
     chatPanelWidth: number;
+    keybindings: Record<string, string>;
 
     setEditorFontSize: (size: number) => void;
     setWordWrap: (wrap: 'off' | 'on' | 'wordWrapColumn') => void;
@@ -38,7 +39,21 @@ export interface SettingsState {
     setSidebarWidth: (width: number) => void;
     setBottomPanelHeight: (height: number) => void;
     setChatPanelWidth: (width: number) => void;
+    updateKeybinding: (commandId: string, combo: string) => void;
 }
+
+export const DEFAULT_KEYBINDINGS: Record<string, string> = {
+    save: 'ctrl+s',
+    toggleSidebar: 'ctrl+b',
+    toggleBottomPanel: 'ctrl+j',
+    commandPalette: 'ctrl+p',
+    dashboard: 'ctrl+d',
+    gotoLine: 'ctrl+g',
+    toggleChat: 'ctrl+shift+l',
+    fontSizeUp: 'ctrl+=',
+    fontSizeDown: 'ctrl+-',
+    formatDocument: 'ctrl+shift+alt+f',
+};
 
 const STORAGE_KEY = 'axiowisp-settings';
 
@@ -71,6 +86,7 @@ function saveSettings(state: Partial<SettingsState>) {
             sidebarWidth: state.sidebarWidth,
             bottomPanelHeight: state.bottomPanelHeight,
             chatPanelWidth: state.chatPanelWidth,
+            keybindings: state.keybindings,
         };
         localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
     } catch { }
@@ -97,6 +113,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
     sidebarWidth: saved.sidebarWidth ?? 240,
     bottomPanelHeight: saved.bottomPanelHeight ?? 220,
     chatPanelWidth: saved.chatPanelWidth ?? 360,
+    keybindings: { ...DEFAULT_KEYBINDINGS, ...(saved.keybindings ?? {}) },
 
     setEditorFontSize: (size) => set((s) => { const n = { ...s, editorFontSize: size }; saveSettings(n); return n; }),
     setWordWrap: (wrap) => set((s) => { const n = { ...s, wordWrap: wrap }; saveSettings(n); return n; }),
@@ -116,4 +133,9 @@ export const useSettingsStore = create<SettingsState>((set) => ({
     setSidebarWidth: (width) => set((s) => { const n = { ...s, sidebarWidth: width }; saveSettings(n); return n; }),
     setBottomPanelHeight: (height) => set((s) => { const n = { ...s, bottomPanelHeight: height }; saveSettings(n); return n; }),
     setChatPanelWidth: (width) => set((s) => { const n = { ...s, chatPanelWidth: width }; saveSettings(n); return n; }),
+    updateKeybinding: (commandId, combo) => set((s) => {
+        const n = { ...s, keybindings: { ...s.keybindings, [commandId]: combo } };
+        saveSettings(n);
+        return n;
+    }),
 }));

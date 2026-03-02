@@ -71,6 +71,10 @@ export const useGitStore = create<GitState>((set, get) => ({
             set({ commitMessage: '' });
             const { useNotificationStore } = await import('./notification-store');
             useNotificationStore.getState().addNotification('Changes committed', 'success');
+            try {
+                const { useActivityStore } = await import('./activity-store');
+                useActivityStore.getState().addEvent('git-commit', `Committed: ${commitMessage.slice(0, 60)}`);
+            } catch { /* ignore */ }
         }
         await get().refresh();
     },
@@ -84,6 +88,10 @@ export const useGitStore = create<GitState>((set, get) => ({
         if (result.success) {
             const { useNotificationStore } = await import('./notification-store');
             useNotificationStore.getState().addNotification('Pushed to remote', 'success');
+            try {
+                const { useActivityStore } = await import('./activity-store');
+                useActivityStore.getState().addEvent('git-push', `Pushed to remote`);
+            } catch { /* ignore */ }
         } else {
             const { useNotificationStore } = await import('./notification-store');
             useNotificationStore.getState().addNotification(`Push failed: ${result.error}`, 'error');

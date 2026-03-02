@@ -1,6 +1,7 @@
-import React, { useRef, useCallback, useEffect } from 'react';
+import React, { useRef, useCallback, useEffect, useState } from 'react';
 import MonacoEditor, { OnMount, loader } from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
+import { Eye, EyeOff } from 'lucide-react';
 import { useTabsStore } from '../stores/tabs-store';
 import { useSettingsStore } from '../stores/settings-store';
 import { useEditorStore } from '../stores/editor-store';
@@ -106,7 +107,30 @@ export const Editor: React.FC = () => {
     const editorRef = useRef<any>(null);
     const lastContentRef = useRef<string>('');
 
+    // Live preview state
+    const [previewOpen, setPreviewOpen] = useState(false);
+    const [previewBlobUrl, setPreviewBlobUrl] = useState('');
+    const prevBlobRef = useRef('');
+
     const activeTab = tabs.find((t) => t.id === activeTabId);
+
+    // Reset preview when tab changes
+    useEffect(() => { setPreviewOpen(false); }, [activeTabId]);
+
+    // Manage blob URL for preview
+    useEffect(() => {
+        if (!previewOpen || activeTab?.language !== 'html') {
+            if (prevBlobRef.current) { URL.revokeObjectURL(prevBlobRef.current); prevBlobRef.current = ''; setPreviewBlobUrl(''); }
+            return;
+        }
+        if (prevBlobRef.current) URL.revokeObjectURL(prevBlobRef.current);
+        const blob = new Blob([activeTab?.content ?? ''], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        prevBlobRef.current = url;
+        setPreviewBlobUrl(url);
+    }, [previewOpen, activeTab?.content, activeTab?.language]);
+
+    useEffect(() => { return () => { if (prevBlobRef.current) URL.revokeObjectURL(prevBlobRef.current); }; }, []);
 
     useEffect(() => {
         if (!activeTab || !editorRef.current) return;
@@ -208,43 +232,73 @@ export const Editor: React.FC = () => {
         );
     }
 
+    const monacoEl = (
+        <MonacoEditor
+            key={activeTab.id}
+            height="100%"
+            language={activeTab.language}
+            value={activeTab.content}
+            onChange={handleChange}
+            onMount={handleEditorDidMount}
+            theme={theme === 'light' ? 'axiowisp-light' : 'axiowisp-dark'}
+            loading={<div className="editor__loading">Loading editor…</div>}
+            options={{
+                fontSize: editorFontSize,
+                fontFamily: "'JetBrains Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace",
+                fontLigatures: true,
+                lineHeight: Math.round(editorFontSize * 1.6),
+                letterSpacing: 0.3,
+                minimap: { enabled: minimapEnabled, maxColumn: 80 },
+                scrollBeyondLastLine: false,
+                smoothScrolling: true,
+                cursorBlinking: 'smooth',
+                cursorSmoothCaretAnimation: 'on',
+                padding: { top: 12, bottom: 12 },
+                renderLineHighlight: 'gutter',
+                wordWrap: wordWrap,
+                tabSize: tabSize,
+                automaticLayout: true,
+                bracketPairColorization: { enabled: true },
+                guides: { bracketPairs: true, indentation: true },
+                suggest: { showIcons: true },
+            }}
+        />
+    );
+
+    if (activeTab.language === 'html') {
+        return (
+            <div className="editor editor--html">
+                <div className="editor__preview-toolbar">
+                    <button
+                        className={`editor__preview-btn${previewOpen ? ' active' : ''}`}
+                        onClick={() => setPreviewOpen(p => !p)}
+                        title={previewOpen ? 'Close Preview' : 'Open Live Preview'}
+                    >
+                        {previewOpen ? <EyeOff size={13} /> : <Eye size={13} />}
+                        {previewOpen ? 'Close Preview' : 'Preview'}
+                    </button>
+                </div>
+                <div className={`editor__content${previewOpen ? ' editor__content--split' : ''}`}>
+                    <div className="editor__monaco-pane">{monacoEl}</div>
+                    {previewOpen && (
+                        <div className="editor__preview-pane">
+                            <iframe
+                                key={previewBlobUrl}
+                                src={previewBlobUrl}
+                                className="editor__preview-frame"
+                                title="HTML Preview"
+                                sandbox="allow-scripts allow-same-origin"
+                            />
+                        </div>
+                    )}
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="editor">
-            <MonacoEditor
-                key={activeTab.id}
-                height="100%"
-                language={activeTab.language}
-                value={activeTab.content}
-                onChange={handleChange}
-                onMount={handleEditorDidMount}
-                theme={theme === 'light' ? 'axiowisp-light' : 'axiowisp-dark'}
-                loading={<div className="editor__loading">Loading editor…</div>}
-                options={{
-                    fontSize: editorFontSize,
-                    fontFamily: "'JetBrains Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace",
-                    fontLigatures: true,
-                    lineHeight: Math.round(editorFontSize * 1.6),
-                    letterSpacing: 0.3,
-                    minimap: { enabled: minimapEnabled, maxColumn: 80 },
-                    scrollBeyondLastLine: false,
-                    smoothScrolling: true,
-                    cursorBlinking: 'smooth',
-                    cursorSmoothCaretAnimation: 'on',
-                    padding: { top: 12, bottom: 12 },
-                    renderLineHighlight: 'gutter',
-                    wordWrap: wordWrap,
-                    tabSize: tabSize,
-                    automaticLayout: true,
-                    bracketPairColorization: { enabled: true },
-                    guides: {
-                        bracketPairs: true,
-                        indentation: true,
-                    },
-                    suggest: {
-                        showIcons: true,
-                    },
-                }}
-            />
+            {monacoEl}
         </div>
     );
 };

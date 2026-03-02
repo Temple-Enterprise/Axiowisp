@@ -188,3 +188,79 @@
     margin: 0;
     text-align: center;
 }
+/* ── Keybindings Table ────────────────────────────────── */
+
+.settings-modal__kb-table {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.settings-modal__kb-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: 5px var(--space-2);
+    border-radius: var(--radius-xs);
+    transition: background var(--transition-fast);
+}
+
+.settings-modal__kb-row:hover {
+    background: var(--bg-hover);
+}
+
+.settings-modal__kb-command {
+    flex: 1;
+    font-size: var(--font-size-xs);
+    color: var(--fg-secondary);
+}
+
+.settings-modal__kb-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    border-radius: var(--radius-xs);
+    border: 1px solid var(--border-default);
+    background: var(--bg-elevated);
+    color: var(--fg-primary);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    cursor: pointer;
+    min-width: 120px;
+    justify-content: center;
+    transition: border-color var(--transition-fast), background var(--transition-fast), color var(--transition-fast);
+}
+
+.settings-modal__kb-chip:hover {
+    border-color: var(--border-accent);
+    background: var(--accent-muted);
+    color: var(--fg-accent);
+}
+
+.settings-modal__kb-chip.capturing {
+    border-color: var(--accent);
+    background: var(--accent-muted);
+    color: var(--fg-accent);
+    animation: kb-pulse 1s ease-in-out infinite;
+}
+
+@keyframes kb-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+.settings-modal__kb-reset {
+    background: transparent;
+    border: none;
+    color: var(--fg-muted);
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    padding: 2px 4px;
+    border-radius: var(--radius-xs);
+    transition: color var(--transition-fast), background var(--transition-fast);
+}
+
+.settings-modal__kb-reset:hover {
+    color: var(--fg-primary);
+    background: var(--bg-hover);
+}

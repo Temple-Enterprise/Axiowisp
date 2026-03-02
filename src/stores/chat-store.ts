@@ -293,6 +293,11 @@ export const useChatStore = create<ChatState>((set, get) => ({
             messages: [...state.messages, aiMsg],
             isLoading: false,
         }));
+
+        try {
+            const { useActivityStore } = await import('./activity-store');
+            useActivityStore.getState().addEvent('ai-message', `AI: ${content.slice(0, 60)}${content.length > 60 ? '…' : ''}`);
+        } catch { /* ignore */ }
     },
 
     acceptEdit: async (messageId: string, editIndex: number) => {

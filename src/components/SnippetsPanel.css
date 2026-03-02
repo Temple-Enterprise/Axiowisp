@@ -1,0 +1,265 @@
+.snippets-panel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    background: var(--bg-base);
+    color: var(--fg-primary);
+    font-size: var(--font-size-sm);
+}
+
+.snippets-panel__toolbar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: var(--space-2);
+    border-bottom: 1px solid var(--border-default);
+    flex-shrink: 0;
+}
+
+.snippets-panel__search-wrap {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    background: var(--bg-input);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-sm);
+    padding: 0 var(--space-2);
+    gap: var(--space-1);
+}
+
+.snippets-panel__search-icon {
+    color: var(--fg-muted);
+    flex-shrink: 0;
+}
+
+.snippets-panel__search {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--fg-primary);
+    font-size: var(--font-size-xs);
+    padding: var(--space-1) 0;
+    font-family: var(--font-sans);
+}
+
+.snippets-panel__search::placeholder {
+    color: var(--fg-muted);
+}
+
+.snippets-panel__btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    background: transparent;
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-sm);
+    color: var(--fg-secondary);
+    cursor: pointer;
+    transition: background var(--transition-fast), color var(--transition-fast);
+    flex-shrink: 0;
+}
+
+.snippets-panel__btn:hover {
+    background: var(--bg-hover);
+    color: var(--fg-primary);
+}
+
+/* Create form */
+.snippets-panel__create {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: var(--space-2);
+    border-bottom: 1px solid var(--border-default);
+    background: var(--bg-surface);
+    flex-shrink: 0;
+}
+
+.snippets-panel__input,
+.snippets-panel__textarea {
+    background: var(--bg-input);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-sm);
+    color: var(--fg-primary);
+    font-size: var(--font-size-xs);
+    font-family: var(--font-sans);
+    padding: var(--space-2);
+    outline: none;
+    width: 100%;
+    box-sizing: border-box;
+    transition: border-color var(--transition-fast);
+}
+
+.snippets-panel__input:focus,
+.snippets-panel__textarea:focus {
+    border-color: var(--border-accent);
+}
+
+.snippets-panel__textarea {
+    font-family: var(--font-mono);
+    resize: vertical;
+    min-height: 80px;
+}
+
+.snippets-panel__create-actions {
+    display: flex;
+    gap: var(--space-2);
+}
+
+.snippets-panel__save-btn,
+.snippets-panel__cancel-btn {
+    flex: 1;
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-xs);
+    font-family: var(--font-sans);
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: background var(--transition-fast);
+}
+
+.snippets-panel__save-btn {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+}
+
+.snippets-panel__save-btn:hover {
+    background: var(--accent-hover);
+}
+
+.snippets-panel__cancel-btn {
+    background: transparent;
+    color: var(--fg-secondary);
+    border-color: var(--border-default);
+}
+
+.snippets-panel__cancel-btn:hover {
+    background: var(--bg-hover);
+    color: var(--fg-primary);
+}
+
+/* List */
+.snippets-panel__list {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--space-1);
+}
+
+.snippets-panel__empty {
+    text-align: center;
+    color: var(--fg-muted);
+    font-size: var(--font-size-xs);
+    padding: var(--space-6) var(--space-4);
+    margin: 0;
+    line-height: 1.5;
+}
+
+.snippets-panel__item {
+    border-radius: var(--radius-sm);
+    margin-bottom: 2px;
+    overflow: hidden;
+    border: 1px solid transparent;
+    transition: border-color var(--transition-fast);
+}
+
+.snippets-panel__item:hover {
+    border-color: var(--border-default);
+}
+
+.snippets-panel__item-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: var(--space-1) var(--space-2);
+    cursor: pointer;
+    background: var(--bg-surface);
+    transition: background var(--transition-fast);
+    min-height: 30px;
+    user-select: none;
+}
+
+.snippets-panel__item-header:hover {
+    background: var(--bg-hover);
+}
+
+.snippets-panel__item-name {
+    flex: 1;
+    font-size: var(--font-size-xs);
+    color: var(--fg-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.snippets-panel__item-lang {
+    font-size: 10px;
+    color: var(--fg-muted);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-muted);
+    border-radius: var(--radius-xs);
+    padding: 0 4px;
+    line-height: 16px;
+    flex-shrink: 0;
+}
+
+.snippets-panel__insert-btn,
+.snippets-panel__delete-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-xs);
+    cursor: pointer;
+    transition: background var(--transition-fast), color var(--transition-fast);
+    flex-shrink: 0;
+    opacity: 0;
+}
+
+.snippets-panel__item-header:hover .snippets-panel__insert-btn,
+.snippets-panel__item-header:hover .snippets-panel__delete-btn {
+    opacity: 1;
+}
+
+.snippets-panel__insert-btn {
+    font-size: 10px;
+    color: var(--fg-accent);
+    padding: 1px 5px;
+    border: 1px solid var(--border-accent);
+}
+
+.snippets-panel__insert-btn:hover {
+    background: var(--accent-muted);
+}
+
+.snippets-panel__delete-btn {
+    color: var(--fg-muted);
+    padding: 2px;
+    width: 18px;
+    height: 18px;
+}
+
+.snippets-panel__delete-btn:hover {
+    background: rgba(255, 80, 80, 0.15);
+    color: var(--fg-error);
+}
+
+.snippets-panel__preview {
+    margin: 0;
+    padding: var(--space-2);
+    background: var(--bg-elevated);
+    border-top: 1px solid var(--border-default);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--fg-secondary);
+    white-space: pre-wrap;
+    word-break: break-all;
+    max-height: 120px;
+    overflow-y: auto;
+    line-height: 1.5;
+}

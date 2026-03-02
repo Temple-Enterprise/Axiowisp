@@ -1,13 +1,49 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useUiStore } from '../stores/ui-store';
-import { useSettingsStore } from '../stores/settings-store';
-import { X, Monitor, Palette, Terminal, Key } from 'lucide-react';
+import { useSettingsStore, DEFAULT_KEYBINDINGS } from '../stores/settings-store';
+import { X, Monitor, Palette, Terminal, Key, Keyboard } from 'lucide-react';
 import './SettingsModal.css';
+
+const COMMAND_LABELS: Record<string, string> = {
+    save: 'Save File',
+    toggleSidebar: 'Toggle Sidebar',
+    toggleBottomPanel: 'Toggle Bottom Panel',
+    commandPalette: 'Command Palette',
+    dashboard: 'Dashboard',
+    gotoLine: 'Go to Line',
+    toggleChat: 'Toggle AI Chat',
+    fontSizeUp: 'Increase Font Size',
+    fontSizeDown: 'Decrease Font Size',
+    formatDocument: 'Format Document',
+};
 
 export const SettingsModal: React.FC = () => {
     const toggleSettings = useUiStore((s) => s.toggleSettings);
     const settings = useSettingsStore();
     const [apiKeyVisible, setApiKeyVisible] = useState(false);
+    const [capturingId, setCapturingId] = useState<string | null>(null);
+    const captureRef = useRef<HTMLButtonElement>(null);
+
+    useEffect(() => {
+        if (!capturingId) return;
+        const handler = (e: KeyboardEvent) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const parts: string[] = [];
+            if (e.ctrlKey) parts.push('ctrl');
+            if (e.shiftKey) parts.push('shift');
+            if (e.altKey) parts.push('alt');
+            if (e.metaKey) parts.push('meta');
+            const key = e.key.toLowerCase();
+            if (!['control', 'shift', 'alt', 'meta'].includes(key)) parts.push(key);
+            if (parts.length > 0 && !['control', 'shift', 'alt', 'meta'].includes(parts[parts.length - 1])) {
+                settings.updateKeybinding(capturingId, parts.join('+'));
+            }
+            setCapturingId(null);
+        };
+        window.addEventListener('keydown', handler, true);
+        return () => window.removeEventListener('keydown', handler, true);
+    }, [capturingId, settings]);
 
     return (
         <div className="settings-overlay" onClick={toggleSettings}>
@@ -232,6 +268,41 @@ export const SettingsModal: React.FC = () => {
                                     </>
                                 )}
                             </select>
+                        </div>
+                    </section>
+
+                    <section className="settings-modal__section">
+                        <div className="settings-modal__section-header">
+                            <Keyboard size={15} />
+                            <span>Keybindings</span>
+                        </div>
+                        <div className="settings-modal__kb-table">
+                            {Object.keys(DEFAULT_KEYBINDINGS).map((commandId) => {
+                                const current = settings.keybindings[commandId] ?? DEFAULT_KEYBINDINGS[commandId];
+                                const isCapturing = capturingId === commandId;
+                                return (
+                                    <div key={commandId} className="settings-modal__kb-row">
+                                        <span className="settings-modal__kb-command">{COMMAND_LABELS[commandId] ?? commandId}</span>
+                                        <button
+                                            ref={isCapturing ? captureRef : undefined}
+                                            className={`settings-modal__kb-chip${isCapturing ? ' capturing' : ''}`}
+                                            onClick={() => setCapturingId(isCapturing ? null : commandId)}
+                                            title="Click to rebind"
+                                        >
+                                            {isCapturing ? 'Press a key…' : current}
+                                        </button>
+                                        {current !== DEFAULT_KEYBINDINGS[commandId] && (
+                                            <button
+                                                className="settings-modal__kb-reset"
+                                                onClick={() => settings.updateKeybinding(commandId, DEFAULT_KEYBINDINGS[commandId])}
+                                                title="Reset to default"
+                                            >
+                                                ↺
+                                            </button>
+                                        )}
+                                    </div>
+                                );
+                            })}
                         </div>
                     </section>
                 </div>

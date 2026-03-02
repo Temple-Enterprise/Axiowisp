@@ -24,6 +24,8 @@ const electronAPI: ElectronAPI = {
     gitCommit: (cwd: string, message: string) => ipcRenderer.invoke(IpcChannels.GIT_COMMIT, cwd, message),
     gitPush: (cwd: string) => ipcRenderer.invoke(IpcChannels.GIT_PUSH, cwd),
     gitPull: (cwd: string) => ipcRenderer.invoke(IpcChannels.GIT_PULL, cwd),
+    gitDiffStaged: (cwd: string) => ipcRenderer.invoke(IpcChannels.GIT_DIFF_STAGED, cwd),
+    gitShowFile: (cwd: string, filePath: string) => ipcRenderer.invoke(IpcChannels.GIT_SHOW_FILE, cwd, filePath),
 
     apiRequest: (options) => ipcRenderer.invoke(IpcChannels.API_REQUEST, options),
 

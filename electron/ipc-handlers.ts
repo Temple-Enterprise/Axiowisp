@@ -358,6 +358,31 @@ export function registerIpcHandlers(): void {
     );
 
     ipcMain.handle(
+        IpcChannels.GIT_DIFF_STAGED,
+        async (_event, cwd: string): Promise<IpcResult<string>> => {
+            try {
+                const diff = await gitExec(cwd, ['diff', '--cached']);
+                return { success: true, data: diff };
+            } catch (err: any) {
+                return { success: false, error: err.message };
+            }
+        },
+    );
+
+    ipcMain.handle(
+        IpcChannels.GIT_SHOW_FILE,
+        async (_event, cwd: string, filePath: string): Promise<IpcResult<string>> => {
+            try {
+                const content = await gitExec(cwd, ['show', `HEAD:${filePath}`]);
+                return { success: true, data: content };
+            } catch {
+                // File is new (not in HEAD) — return empty string
+                return { success: true, data: '' };
+            }
+        },
+    );
+
+    ipcMain.handle(
         IpcChannels.API_REQUEST,
         async (_event, options: ApiRequestOptions): Promise<IpcResult<ApiResponse>> => {
             try {
