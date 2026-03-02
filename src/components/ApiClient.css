@@ -1,0 +1,314 @@
+.api-client {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    color: var(--text-color);
+    background-color: var(--bg-sidebar);
+    overflow: hidden;
+}
+
+.api-client__request-section {
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0;
+}
+
+.api-client__url-bar {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.api-client__method-select {
+    padding: 6px;
+    border-radius: 4px;
+    background: var(--bg-hover);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    outline: none;
+    min-width: 80px;
+}
+
+.api-client__method-select:focus {
+    border-color: var(--accent-color);
+}
+
+.api-client__method-select option {
+    color: var(--text-color);
+    background: var(--bg-hover);
+}
+
+.api-client__method--get {
+    color: #5bc0de;
+}
+
+.api-client__method--post {
+    color: #5cb85c;
+}
+
+.api-client__method--put {
+    color: #f0ad4e;
+}
+
+.api-client__method--patch {
+    color: #f0ad4e;
+}
+
+.api-client__method--delete {
+    color: #d9534f;
+}
+
+.api-client__url-input {
+    flex: 1;
+    min-width: 0;
+    padding: 6px 10px;
+    border-radius: 4px;
+    background: var(--bg-editor);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    font-size: 13px;
+    font-family: var(--font-mono);
+    outline: none;
+}
+
+.api-client__url-input:focus {
+    border-color: var(--accent-color);
+}
+
+.api-client__send-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 6px 14px;
+    background: var(--accent-color);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    flex-shrink: 0;
+}
+
+.api-client__send-btn:hover:not(:disabled) {
+    opacity: 0.9;
+}
+
+.api-client__send-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.api-client__spin {
+    animation: api-client-spin 1s linear infinite;
+}
+
+@keyframes api-client-spin {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.api-client__panel {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.api-client__panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.2px;
+}
+
+.api-client__icon-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-radius: 4px;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.api-client__icon-btn:hover {
+    background: var(--bg-hover);
+    color: var(--text-color);
+}
+
+.api-client__icon-btn--danger:hover {
+    color: #d9534f;
+    background: rgba(217, 83, 79, 0.1);
+}
+
+.api-client__kv-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.api-client__kv-row {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.api-client__kv-input {
+    flex: 1;
+    padding: 5px 8px;
+    border-radius: 4px;
+    background: var(--bg-editor);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    font-size: 12px;
+    font-family: var(--font-mono);
+    outline: none;
+    min-width: 0;
+}
+
+.api-client__kv-input:focus {
+    border-color: var(--text-muted);
+}
+
+.api-client__empty-hint {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-style: italic;
+    padding: 4px 0;
+}
+
+.api-client__body-input {
+    width: 100%;
+    min-height: 120px;
+    padding: 8px;
+    border-radius: 4px;
+    background: var(--bg-editor);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    font-size: 12px;
+    font-family: var(--font-mono);
+    outline: none;
+    resize: vertical;
+}
+
+.api-client__body-input:focus {
+    border-color: var(--accent-color);
+}
+
+.api-client__response-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+    background: var(--bg-editor);
+}
+
+.api-client__section-title {
+    padding: 8px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background: var(--bg-sidebar);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.api-client__empty-state,
+.api-client__loading-state,
+.api-client__error-state {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    color: var(--text-muted);
+    padding: 24px;
+    text-align: center;
+}
+
+.api-client__error-text {
+    color: #d9534f;
+    word-break: break-all;
+    font-family: var(--font-mono);
+    font-size: 12px;
+}
+
+.api-client__response-meta {
+    display: flex;
+    gap: 12px;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-hover);
+    flex-wrap: wrap;
+}
+
+.api-client__status-badge,
+.api-client__meta-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background: var(--bg-editor);
+    border: 1px solid var(--border-color);
+}
+
+.api-client__status--success {
+    color: #5cb85c;
+    border-color: rgba(92, 184, 92, 0.4);
+}
+
+.api-client__status--redirect {
+    color: #f0ad4e;
+    border-color: rgba(240, 173, 78, 0.4);
+}
+
+.api-client__status--client-error {
+    color: #d9534f;
+    border-color: rgba(217, 83, 79, 0.4);
+}
+
+.api-client__status--server-error {
+    color: #d9534f;
+    border-color: rgba(217, 83, 79, 0.4);
+}
+
+.api-client__meta-badge {
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+}
+
+.api-client__response-body-wrapper {
+    flex: 1;
+    overflow: auto;
+    padding: 12px;
+}
+
+.api-client__response-body {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-color);
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}

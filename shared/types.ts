@@ -15,9 +15,11 @@ export const IpcChannels = {
     TERMINAL_RESIZE: 'terminal:resize',
     TERMINAL_DISPOSE: 'terminal:dispose',
     TERMINAL_EXIT: 'terminal:exit',
+    TERMINAL_DATA: 'terminal:data',
     RUNNER_EXECUTE: 'runner:execute',
     RUNNER_EXIT: 'runner:exit',
     RUNNER_KILL: 'runner:kill',
+    RUNNER_DATA: 'runner:data',
     GIT_STATUS: 'git:status',
     GIT_BRANCH: 'git:branch',
     GIT_STAGE: 'git:stage',
@@ -33,6 +35,7 @@ export const IpcChannels = {
     MENU_TOGGLE_CHAT: 'menu:toggleChat',
     MENU_COMMAND_PALETTE: 'menu:commandPalette',
     MENU_WELCOME: 'menu:welcome',
+    API_REQUEST: 'api:request',
 } as const;
 
 export interface FileEntry {
@@ -62,6 +65,22 @@ export interface ChatMessage {
     role: 'user' | 'assistant' | 'system';
     content: string;
     timestamp: number;
+}
+
+export interface ApiRequestOptions {
+    method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'HEAD';
+    url: string;
+    headers?: Record<string, string>;
+    body?: string;
+}
+
+export interface ApiResponse {
+    status: number;
+    statusText: string;
+    headers: Record<string, string>;
+    body: string;
+    timeMs: number;
+    sizeBytes: number;
 }
 
 export interface SearchMatch {
@@ -111,6 +130,7 @@ export interface ElectronAPI {
     gitCommit: (cwd: string, message: string) => Promise<IpcResult<void>>;
     gitPush: (cwd: string) => Promise<IpcResult<void>>;
     gitPull: (cwd: string) => Promise<IpcResult<void>>;
+    apiRequest: (options: ApiRequestOptions) => Promise<IpcResult<ApiResponse>>;
     onAbout: (callback: (data: any) => void) => () => void;
     onMenuOpenFolder: (callback: () => void) => () => void;
     onMenuSave: (callback: () => void) => () => void;

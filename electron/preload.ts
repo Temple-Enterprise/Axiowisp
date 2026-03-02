@@ -25,6 +25,8 @@ const electronAPI: ElectronAPI = {
     gitPush: (cwd: string) => ipcRenderer.invoke(IpcChannels.GIT_PUSH, cwd),
     gitPull: (cwd: string) => ipcRenderer.invoke(IpcChannels.GIT_PULL, cwd),
 
+    apiRequest: (options) => ipcRenderer.invoke(IpcChannels.API_REQUEST, options),
+
     createTerminal: (cwd?: string) => ipcRenderer.invoke(IpcChannels.TERMINAL_CREATE, cwd),
     writeTerminal: (id: number, data: string) =>
         ipcRenderer.send(IpcChannels.TERMINAL_WRITE, id, data),

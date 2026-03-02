@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-export type Activity = 'explorer' | 'search' | 'run' | 'git';
+export type Activity = 'explorer' | 'search' | 'run' | 'git' | 'api';
 
 interface UiState {
     sidebarVisible: boolean;

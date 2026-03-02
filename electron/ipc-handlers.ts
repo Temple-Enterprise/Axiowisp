@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { spawn, ChildProcess } from 'child_process';
 import * as pty from 'node-pty';
-import { IpcChannels, FileEntry, IpcResult } from '../shared/types';
+import { IpcChannels, FileEntry, IpcResult, ApiRequestOptions, ApiResponse } from '../shared/types';
 
 const IGNORE_PATTERNS = new Set([
     'node_modules', '.git', '.next', '.vite', 'dist', 'dist-electron',
@@ -355,6 +355,48 @@ export function registerIpcHandlers(): void {
                 return { success: false, error: err.message };
             }
         },
+    );
+
+    ipcMain.handle(
+        IpcChannels.API_REQUEST,
+        async (_event, options: ApiRequestOptions): Promise<IpcResult<ApiResponse>> => {
+            try {
+                const startTime = process.hrtime.bigint();
+
+                const fetchOptions: RequestInit = {
+                    method: options.method,
+                    headers: options.headers,
+                    body: (options.method === 'GET' || options.method === 'HEAD') ? undefined : options.body,
+                };
+
+                const response = await fetch(options.url, fetchOptions);
+                const bodyText = await response.text();
+
+                const endTime = process.hrtime.bigint();
+                const timeMs = Number(endTime - startTime) / 1000000;
+
+                const responseHeaders: Record<string, string> = {};
+                response.headers.forEach((value, key) => {
+                    responseHeaders[key] = value;
+                });
+
+                const sizeBytes = Buffer.byteLength(bodyText, 'utf8');
+
+                return {
+                    success: true,
+                    data: {
+                        status: response.status,
+                        statusText: response.statusText,
+                        headers: responseHeaders,
+                        body: bodyText,
+                        timeMs: Math.round(timeMs),
+                        sizeBytes,
+                    }
+                };
+            } catch (err: any) {
+                return { success: false, error: err.message ?? String(err) };
+            }
+        }
     );
 }
 

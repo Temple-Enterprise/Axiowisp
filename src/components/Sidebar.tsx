@@ -2,6 +2,7 @@ import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react'
 import { FileTree } from './FileTree';
 import { RunPanel } from './RunPanel';
 import { GitPanel } from './GitPanel';
+import { ApiClient } from './ApiClient';
 import { useWorkspaceStore } from '../stores/workspace-store';
 import { useTabsStore } from '../stores/tabs-store';
 import { useUiStore } from '../stores/ui-store';
@@ -337,6 +338,15 @@ export const Sidebar: React.FC = () => {
                         <span className="sidebar__section-title">RUN & DEBUG</span>
                     </div>
                     <RunPanel />
+                </>
+            )}
+
+            {activeActivity === 'api' && (
+                <>
+                    <div className="sidebar__section-header">
+                        <span className="sidebar__section-title">API CLIENT</span>
+                    </div>
+                    <ApiClient />
                 </>
             )}
         </div>
