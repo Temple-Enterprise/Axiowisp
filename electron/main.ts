@@ -150,12 +150,9 @@ function registerProtocols(): void {
     const { pathToFileURL } = require('url');
     protocol.handle('axiowisp', (request: Request) => {
         try {
-            const urlStr = request.url;
-            // E.g. axiowisp://local/C:/Users/phili/...
-            const prefix = 'axiowisp://local/';
-            if (urlStr.startsWith(prefix)) {
-                let filePath = urlStr.slice(prefix.length);
-                filePath = decodeURIComponent(filePath);
+            const urlObj = new URL(request.url);
+            const filePath = urlObj.searchParams.get('path');
+            if (filePath) {
                 return net.fetch(pathToFileURL(filePath).toString());
             }
         } catch (err) {
