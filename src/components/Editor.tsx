@@ -109,28 +109,13 @@ export const Editor: React.FC = () => {
 
     // Live preview state
     const [previewOpen, setPreviewOpen] = useState(false);
-    const [previewBlobUrl, setPreviewBlobUrl] = useState('');
-    const prevBlobRef = useRef('');
 
     const activeTab = tabs.find((t) => t.id === activeTabId);
 
     // Reset preview when tab changes
     useEffect(() => { setPreviewOpen(false); }, [activeTabId]);
 
-    // Manage blob URL for preview
-    useEffect(() => {
-        if (!previewOpen || activeTab?.language !== 'html') {
-            if (prevBlobRef.current) { URL.revokeObjectURL(prevBlobRef.current); prevBlobRef.current = ''; setPreviewBlobUrl(''); }
-            return;
-        }
-        if (prevBlobRef.current) URL.revokeObjectURL(prevBlobRef.current);
-        const blob = new Blob([activeTab?.content ?? ''], { type: 'text/html' });
-        const url = URL.createObjectURL(blob);
-        prevBlobRef.current = url;
-        setPreviewBlobUrl(url);
-    }, [previewOpen, activeTab?.content, activeTab?.language]);
 
-    useEffect(() => { return () => { if (prevBlobRef.current) URL.revokeObjectURL(prevBlobRef.current); }; }, []);
 
     useEffect(() => {
         if (!activeTab || !editorRef.current) return;
@@ -283,8 +268,7 @@ export const Editor: React.FC = () => {
                     {previewOpen && (
                         <div className="editor__preview-pane">
                             <iframe
-                                key={previewBlobUrl}
-                                src={previewBlobUrl}
+                                srcDoc={activeTab.content}
                                 className="editor__preview-frame"
                                 title="HTML Preview"
                                 sandbox="allow-scripts allow-same-origin"
