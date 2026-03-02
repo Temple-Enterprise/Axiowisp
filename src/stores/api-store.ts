@@ -173,7 +173,7 @@ export const useApiStore = create<ApiState>((set) => ({
 export function substituteEnvVars(text: string, vars: EnvVar[]): string {
     let result = text;
     for (const { key, value } of vars) {
-        if (key.trim()) result = result.replaceAll(`{{${key}}}`, value);
+        if (key.trim()) result = result.split(`{{${key}}}`).join(value);
     }
     return result;
 }
