@@ -60,7 +60,8 @@ export interface Tab {
     content: string;
     isDirty: boolean;
     language: string;
-    originalContent?: string; // for diff tabs (language starts with 'diff:')
+    isPinned?: boolean;
+    originalContent?: string;
 }
 
 export interface ChatMessage {

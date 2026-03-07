@@ -13,6 +13,8 @@ interface UiState {
     bottomPanelTab: 'terminal' | 'output' | 'problems';
     activeActivity: Activity;
     pendingCloseTabId: string | null;
+    zenMode: boolean;
+    notificationsPanelOpen: boolean;
     toggleSidebar: () => void;
     toggleBottomPanel: () => void;
     toggleChatPanel: () => void;
@@ -23,6 +25,8 @@ interface UiState {
     toggleSettings: () => void;
     toggleAboutModal: (isOpen: boolean, data?: any) => void;
     setPendingCloseTabId: (tabId: string | null) => void;
+    toggleZenMode: () => void;
+    toggleNotificationsPanel: () => void;
 }
 
 export const useUiStore = create<UiState>((set) => ({
@@ -36,6 +40,8 @@ export const useUiStore = create<UiState>((set) => ({
     bottomPanelTab: 'terminal',
     activeActivity: 'explorer',
     pendingCloseTabId: null,
+    zenMode: false,
+    notificationsPanelOpen: false,
 
     toggleSidebar: () => set((s) => ({ sidebarVisible: !s.sidebarVisible })),
     toggleBottomPanel: () => set((s) => ({ bottomPanelVisible: !s.bottomPanelVisible })),
@@ -47,4 +53,12 @@ export const useUiStore = create<UiState>((set) => ({
     toggleSettings: () => set((s) => ({ settingsOpen: !s.settingsOpen })),
     toggleAboutModal: (isOpen, data) => set({ aboutModalOpen: isOpen, aboutData: data || null }),
     setPendingCloseTabId: (tabId) => set({ pendingCloseTabId: tabId }),
+    toggleZenMode: () => set((s) => ({
+        zenMode: !s.zenMode,
+        sidebarVisible: s.zenMode ? true : false,
+        bottomPanelVisible: false,
+        chatPanelVisible: false,
+    })),
+    toggleNotificationsPanel: () => set((s) => ({ notificationsPanelOpen: !s.notificationsPanelOpen })),
 }));
+

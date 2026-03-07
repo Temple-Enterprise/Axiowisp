@@ -166,3 +166,14 @@
 .tabbar__tab[draggable]:hover {
     cursor: grab;
 }
+
+.tabbar__tab--pinned {
+    border-right: 1px solid var(--border-default);
+    max-width: 120px;
+}
+
+.tabbar__tab-pin {
+    flex-shrink: 0;
+    color: var(--fg-accent, #58a6ff);
+    transform: rotate(45deg);
+}

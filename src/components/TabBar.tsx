@@ -2,7 +2,7 @@ import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useTabsStore } from '../stores/tabs-store';
 import { getFileIcon } from '../utils/file-icons';
 import { useUiStore } from '../stores/ui-store';
-import { X } from 'lucide-react';
+import { X, Pin } from 'lucide-react';
 import './TabBar.css';
 
 export const TabBar: React.FC = () => {
@@ -15,6 +15,8 @@ export const TabBar: React.FC = () => {
     const closeTabsToRight = useTabsStore((s) => s.closeTabsToRight);
     const closeSavedTabs = useTabsStore((s) => s.closeSavedTabs);
     const reorderTabs = useTabsStore((s) => s.reorderTabs);
+    const pinTab = useTabsStore((s) => s.pinTab);
+    const unpinTab = useTabsStore((s) => s.unpinTab);
     const setPendingCloseTabId = useUiStore((s) => s.setPendingCloseTabId);
     const [contextMenu, setContextMenu] = useState<{ x: number; y: number; tabId: string } | null>(null);
     const menuRef = useRef<HTMLDivElement>(null);
@@ -62,10 +64,18 @@ export const TabBar: React.FC = () => {
         dragIndexRef.current = -1;
     }, []);
 
+    const sortedTabs = [...tabs].sort((a, b) => {
+        if (a.isPinned && !b.isPinned) return -1;
+        if (!a.isPinned && b.isPinned) return 1;
+        return 0;
+    });
+
+    const contextTab = contextMenu ? tabs.find((t) => t.id === contextMenu.tabId) : null;
+
     return (
         <div className="tabbar">
             <div className="tabbar__tabs">
-                {tabs.map((tab, index) => {
+                {sortedTabs.map((tab, index) => {
                     const isActive = tab.id === activeTabId;
                     const iconInfo = getFileIcon(tab.fileName, false);
                     const Icon = iconInfo.icon;
@@ -73,7 +83,7 @@ export const TabBar: React.FC = () => {
                     return (
                         <div
                             key={tab.id}
-                            className={`tabbar__tab ${isActive ? 'tabbar__tab--active' : ''}`}
+                            className={`tabbar__tab ${isActive ? 'tabbar__tab--active' : ''} ${tab.isPinned ? 'tabbar__tab--pinned' : ''}`}
                             onClick={() => setActiveTab(tab.id)}
                             onContextMenu={(e) => handleContextMenu(e, tab.id)}
                             draggable
@@ -83,23 +93,26 @@ export const TabBar: React.FC = () => {
                             onDragEnd={handleDragEnd}
                             title={tab.filePath}
                         >
+                            {tab.isPinned && <Pin size={10} className="tabbar__tab-pin" />}
                             <Icon size={14} color={iconInfo.color} className="tabbar__tab-icon" />
                             <span className="tabbar__tab-name">{tab.fileName}</span>
                             {tab.isDirty && <span className="tabbar__tab-dot" />}
-                            <button
-                                className="tabbar__tab-close"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    const t = tabs.find((t) => t.id === tab.id);
-                                    if (t?.isDirty) {
-                                        setPendingCloseTabId(tab.id);
-                                    } else {
-                                        closeTab(tab.id);
-                                    }
-                                }}
-                            >
-                                <X size={12} />
-                            </button>
+                            {!tab.isPinned && (
+                                <button
+                                    className="tabbar__tab-close"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        const t = tabs.find((t) => t.id === tab.id);
+                                        if (t?.isDirty) {
+                                            setPendingCloseTabId(tab.id);
+                                        } else {
+                                            closeTab(tab.id);
+                                        }
+                                    }}
+                                >
+                                    <X size={12} />
+                                </button>
+                            )}
                         </div>
                     );
                 })}
@@ -111,6 +124,22 @@ export const TabBar: React.FC = () => {
                     className="tabbar__context-menu"
                     style={{ left: contextMenu.x, top: contextMenu.y }}
                 >
+                    {contextTab?.isPinned ? (
+                        <button
+                            className="tabbar__context-item"
+                            onClick={() => { unpinTab(contextMenu.tabId); setContextMenu(null); }}
+                        >
+                            Unpin Tab
+                        </button>
+                    ) : (
+                        <button
+                            className="tabbar__context-item"
+                            onClick={() => { pinTab(contextMenu.tabId); setContextMenu(null); }}
+                        >
+                            Pin Tab
+                        </button>
+                    )}
+                    <div className="tabbar__context-separator" />
                     <button
                         className="tabbar__context-item"
                         onClick={() => { closeTab(contextMenu.tabId); setContextMenu(null); }}

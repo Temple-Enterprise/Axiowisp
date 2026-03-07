@@ -16,6 +16,7 @@ import { ConfirmDialog } from './ConfirmDialog';
 import { ReviewPanel } from './ReviewPanel';
 import { DashboardTab } from './DashboardTab';
 import { DiffViewer } from './DiffViewer';
+import { NotificationsPanel } from './NotificationsPanel';
 import { useUiStore } from '../stores/ui-store';
 import { useTabsStore } from '../stores/tabs-store';
 import { useSettingsStore } from '../stores/settings-store';
@@ -45,6 +46,8 @@ export const Layout: React.FC = () => {
     const setBottomPanelHeight = useSettingsStore((s) => s.setBottomPanelHeight);
     const setChatPanelWidth = useSettingsStore((s) => s.setChatPanelWidth);
     const toggleAboutModal = useUiStore((s) => s.toggleAboutModal);
+    const zenMode = useUiStore((s) => s.zenMode);
+    const notificationsPanelOpen = useUiStore((s) => s.notificationsPanelOpen);
 
     const pendingTab = pendingCloseTabId ? tabs.find((t) => t.id === pendingCloseTabId) : null;
 
@@ -139,19 +142,38 @@ export const Layout: React.FC = () => {
         '--dynamic-chat-width': `${chatPanelWidth}px`,
     } as React.CSSProperties;
 
+    const handleDragOver = useCallback((e: React.DragEvent) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'copy';
+    }, []);
+
+    const handleDrop = useCallback((e: React.DragEvent) => {
+        e.preventDefault();
+        const files = e.dataTransfer.files;
+        for (let i = 0; i < files.length; i++) {
+            const path = (files[i] as any).path;
+            if (path) openTab(path);
+        }
+    }, [openTab]);
+
     return (
         <div
             className="layout"
             data-sidebar={sidebarVisible}
             data-bottom={bottomPanelVisible}
             data-chat={chatPanelVisible}
+            data-zen={zenMode}
             style={layoutStyle}
+            onDragOver={handleDragOver}
+            onDrop={handleDrop}
         >
-            <div className="layout__activitybar">
-                <ActivityBar />
-            </div>
+            {!zenMode && (
+                <div className="layout__activitybar">
+                    <ActivityBar />
+                </div>
+            )}
 
-            {sidebarVisible && (
+            {sidebarVisible && !zenMode && (
                 <>
                     <aside className="layout__sidebar">
                         <Sidebar />
@@ -161,10 +183,12 @@ export const Layout: React.FC = () => {
             )}
 
             <div className="layout__main">
-                <div className="layout__tabbar">
-                    <TabBar />
-                </div>
-                {activeTabId && <Breadcrumbs />}
+                {!zenMode && (
+                    <div className="layout__tabbar">
+                        <TabBar />
+                    </div>
+                )}
+                {activeTabId && !zenMode && <Breadcrumbs />}
                 <div className="layout__editor">
                     {activeTabId === 'dashboard' ? (
                         <DashboardTab />
@@ -195,9 +219,11 @@ export const Layout: React.FC = () => {
                 </>
             )}
 
-            <div className="layout__statusbar">
-                <StatusBar />
-            </div>
+            {!zenMode && (
+                <div className="layout__statusbar">
+                    <StatusBar />
+                </div>
+            )}
 
             {commandPaletteOpen && <CommandPalette />}
             {settingsOpen && <SettingsModal />}
@@ -220,6 +246,7 @@ export const Layout: React.FC = () => {
             )}
             <ReviewPanel />
             <ToastContainer />
+            {notificationsPanelOpen && <NotificationsPanel />}
         </div>
     );
 };

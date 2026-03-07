@@ -20,6 +20,9 @@ export interface SettingsState {
     bottomPanelHeight: number;
     chatPanelWidth: number;
     keybindings: Record<string, string>;
+    stickyScroll: boolean;
+    fontFamily: string;
+    emmetEnabled: boolean;
 
     setEditorFontSize: (size: number) => void;
     setWordWrap: (wrap: 'off' | 'on' | 'wordWrapColumn') => void;
@@ -40,6 +43,9 @@ export interface SettingsState {
     setBottomPanelHeight: (height: number) => void;
     setChatPanelWidth: (width: number) => void;
     updateKeybinding: (commandId: string, combo: string) => void;
+    setStickyScroll: (enabled: boolean) => void;
+    setFontFamily: (family: string) => void;
+    setEmmetEnabled: (enabled: boolean) => void;
 }
 
 export const DEFAULT_KEYBINDINGS: Record<string, string> = {
@@ -61,6 +67,12 @@ export const DEFAULT_KEYBINDINGS: Record<string, string> = {
     goToSymbol: 'ctrl+shift+o',
     toggleWordWrap: 'alt+z',
     duplicateLine: 'ctrl+shift+d',
+    zenMode: 'ctrl+k z',
+    toggleBookmark: 'ctrl+f2',
+    nextBookmark: 'f2',
+    previousBookmark: 'shift+f2',
+    bracketJump: 'ctrl+shift+\\',
+    goToDefinition: 'f12',
 };
 
 const STORAGE_KEY = 'axiowisp-settings';
@@ -95,6 +107,9 @@ function saveSettings(state: Partial<SettingsState>) {
             bottomPanelHeight: state.bottomPanelHeight,
             chatPanelWidth: state.chatPanelWidth,
             keybindings: state.keybindings,
+            stickyScroll: state.stickyScroll,
+            fontFamily: state.fontFamily,
+            emmetEnabled: state.emmetEnabled,
         };
         localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
     } catch { }
@@ -122,6 +137,9 @@ export const useSettingsStore = create<SettingsState>((set) => ({
     bottomPanelHeight: saved.bottomPanelHeight ?? 220,
     chatPanelWidth: saved.chatPanelWidth ?? 360,
     keybindings: { ...DEFAULT_KEYBINDINGS, ...(saved.keybindings ?? {}) },
+    stickyScroll: saved.stickyScroll ?? true,
+    fontFamily: saved.fontFamily ?? "'JetBrains Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace",
+    emmetEnabled: saved.emmetEnabled ?? true,
 
     setEditorFontSize: (size) => set((s) => { const n = { ...s, editorFontSize: size }; saveSettings(n); return n; }),
     setWordWrap: (wrap) => set((s) => { const n = { ...s, wordWrap: wrap }; saveSettings(n); return n; }),
@@ -146,4 +164,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
         saveSettings(n);
         return n;
     }),
+    setStickyScroll: (enabled) => set((s) => { const n = { ...s, stickyScroll: enabled }; saveSettings(n); return n; }),
+    setFontFamily: (family) => set((s) => { const n = { ...s, fontFamily: family }; saveSettings(n); return n; }),
+    setEmmetEnabled: (enabled) => set((s) => { const n = { ...s, emmetEnabled: enabled }; saveSettings(n); return n; }),
 }));

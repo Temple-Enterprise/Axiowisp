@@ -52,6 +52,8 @@ interface TabsState {
     activateNextTab: () => void;
     activatePreviousTab: () => void;
     recentFiles: string[];
+    pinTab: (tabId: string) => void;
+    unpinTab: (tabId: string) => void;
     openDashboard: () => void;
     openDiff: (filePath: string, originalContent: string, modifiedContent: string, language: string) => void;
 }
@@ -238,6 +240,18 @@ export const useTabsStore = create<TabsState>((set, get) => ({
         const idx = tabs.findIndex((t) => t.id === activeTabId);
         const prev = (idx - 1 + tabs.length) % tabs.length;
         set({ activeTabId: tabs[prev].id });
+    },
+
+    pinTab: (tabId: string) => {
+        set((state) => ({
+            tabs: state.tabs.map((t) => (t.id === tabId ? { ...t, isPinned: true } : t)),
+        }));
+    },
+
+    unpinTab: (tabId: string) => {
+        set((state) => ({
+            tabs: state.tabs.map((t) => (t.id === tabId ? { ...t, isPinned: false } : t)),
+        }));
     },
 
     refreshTab: async (filePath: string) => {

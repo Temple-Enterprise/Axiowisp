@@ -10,6 +10,21 @@ import './Editor.css';
 
 loader.config({ monaco });
 
+function renderMarkdown(md: string): string {
+    let html = md
+        .replace(/^### (.*$)/gm, '<h3>$1</h3>')
+        .replace(/^## (.*$)/gm, '<h2>$1</h2>')
+        .replace(/^# (.*$)/gm, '<h1>$1</h1>')
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        .replace(/`([^`]+)`/g, '<code>$1</code>')
+        .replace(/^\- (.*$)/gm, '<li>$1</li>')
+        .replace(/^\* (.*$)/gm, '<li>$1</li>')
+        .replace(/\n/g, '<br/>');
+    html = html.replace(/(<li>.*<\/li>)/g, '<ul>$1</ul>');
+    return `<!DOCTYPE html><html><head><style>body{font-family:system-ui,sans-serif;color:#e6edf3;background:#0d1117;padding:20px;line-height:1.6}h1,h2,h3{color:#58a6ff}code{background:#161b22;padding:2px 6px;border-radius:4px;font-family:monospace}pre{background:#161b22;padding:12px;border-radius:6px;overflow-x:auto}ul{padding-left:20px}a{color:#58a6ff}blockquote{border-left:3px solid #30363d;padding-left:12px;color:#8b949e}</style></head><body>${html}</body></html>`;
+}
+
 const AXIOWISP_THEME: monaco.editor.IStandaloneThemeData = {
     base: 'vs-dark',
     inherit: true,
@@ -101,6 +116,8 @@ export const Editor: React.FC = () => {
     const minimapEnabled = useSettingsStore((s) => s.minimapEnabled);
     const tabSize = useSettingsStore((s) => s.tabSize);
     const theme = useSettingsStore((s) => s.theme);
+    const stickyScroll = useSettingsStore((s) => s.stickyScroll);
+    const fontFamily = useSettingsStore((s) => s.fontFamily);
     const setCursorPosition = useEditorStore((s) => s.setCursorPosition);
     const setSelection = useEditorStore((s) => s.setSelection);
     const setEol = useEditorStore((s) => s.setEol);
@@ -227,7 +244,7 @@ export const Editor: React.FC = () => {
             loading={<div className="editor__loading">Loading editor…</div>}
             options={{
                 fontSize: editorFontSize,
-                fontFamily: "'JetBrains Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace",
+                fontFamily: fontFamily,
                 fontLigatures: true,
                 lineHeight: Math.round(editorFontSize * 1.6),
                 letterSpacing: 0.3,
@@ -244,6 +261,7 @@ export const Editor: React.FC = () => {
                 bracketPairColorization: { enabled: true },
                 guides: { bracketPairs: true, indentation: true },
                 suggest: { showIcons: true },
+                stickyScroll: { enabled: stickyScroll },
             }}
         />
     );
@@ -270,6 +288,36 @@ export const Editor: React.FC = () => {
                                 className="editor__preview-frame"
                                 title="HTML Preview"
                                 sandbox="allow-scripts allow-same-origin"
+                            />
+                        </div>
+                    )}
+                </div>
+            </div>
+        );
+    }
+
+    if (activeTab.language === 'markdown') {
+        return (
+            <div className="editor editor--html">
+                <div className="editor__preview-toolbar">
+                    <button
+                        className={`editor__preview-btn${previewOpen ? ' active' : ''}`}
+                        onClick={() => setPreviewOpen(p => !p)}
+                        title={previewOpen ? 'Close Preview' : 'Open Preview'}
+                    >
+                        {previewOpen ? <EyeOff size={13} /> : <Eye size={13} />}
+                        {previewOpen ? 'Close Preview' : 'Preview'}
+                    </button>
+                </div>
+                <div className={`editor__content${previewOpen ? ' editor__content--split' : ''}`}>
+                    <div className="editor__monaco-pane">{monacoEl}</div>
+                    {previewOpen && (
+                        <div className="editor__preview-pane">
+                            <iframe
+                                srcDoc={renderMarkdown(activeTab.content)}
+                                className="editor__preview-frame"
+                                title="Markdown Preview"
+                                sandbox="allow-same-origin"
                             />
                         </div>
                     )}
