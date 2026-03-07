@@ -40,6 +40,7 @@ export const WelcomeTab: React.FC = () => {
                 />
                 <h1 className="welcome__title">Axiowisp</h1>
                 <p className="welcome__subtitle">A modern IDE, reimagined.</p>
+                <span className="welcome__version-badge">v0.3.4</span>
 
                 <div className="welcome__actions">
                     <button className="welcome__action" onClick={openFolder}>

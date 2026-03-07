@@ -144,6 +144,13 @@ export const CommandPalette: React.FC = () => {
                 action: () => { closeCommandPalette(); clearOutput(); },
             },
             {
+                id: 'toggle-scratchpad',
+                label: 'Toggle Scratchpad',
+                description: 'Open the scratchpad notes panel',
+                icon: <FilePlus size={14} />,
+                action: () => { closeCommandPalette(); setActiveActivity('notepad'); },
+            },
+            {
                 id: 'settings',
                 label: 'Settings',
                 description: 'Open editor settings',

@@ -47,7 +47,17 @@
 .tabbar__tab--active {
     background: var(--bg-base);
     color: var(--fg-primary);
-    border-bottom: 2px solid var(--accent);
+}
+
+.tabbar__tab--active::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #388bfd, #8b5cf6);
+    border-radius: 2px 2px 0 0;
 }
 
 .tabbar__tab--active:hover {

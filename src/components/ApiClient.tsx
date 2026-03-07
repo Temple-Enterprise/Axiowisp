@@ -87,10 +87,8 @@ const KvEditor: React.FC<KvEditorProps> = ({
 );
 
 export const ApiClient: React.FC = () => {
-    // ── Mode ──────────────────────────────────────────────
     const [clientMode, setClientMode] = useState<ClientMode>('rest');
 
-    // ── Store ─────────────────────────────────────────────
     const {
         history, pushHistory, clearHistory,
         environments, activeEnvId, setActiveEnv,
@@ -104,7 +102,6 @@ export const ApiClient: React.FC = () => {
     const activeEnv = environments.find(e => e.id === activeEnvId) ?? null;
     const envVars = activeEnv?.vars ?? [];
 
-    // ── REST State ────────────────────────────────────────
     const [method, setMethod] = useState<HttpMethod>('GET');
     const [url, setUrl] = useState('');
     const [requestTab, setRequestTab] = useState<RequestTab>('params');
@@ -118,7 +115,6 @@ export const ApiClient: React.FC = () => {
     const [authKeyName, setAuthKeyName] = useState('X-API-Key');
     const [authKeyValue, setAuthKeyValue] = useState('');
 
-    // ── Response State ────────────────────────────────────
     const [responseTab, setResponseTab] = useState<ResponseTab>('body');
     const [prettyMode, setPrettyMode] = useState(true);
     const [copied, setCopied] = useState(false);
@@ -126,7 +122,6 @@ export const ApiClient: React.FC = () => {
     const [response, setResponse] = useState<ApiResponse | null>(null);
     const [error, setError] = useState<string | null>(null);
 
-    // ── Panel State ───────────────────────────────────────
     const [showHistory, setShowHistory] = useState(false);
     const [showCollections, setShowCollections] = useState(false);
     const [showEnvEditor, setShowEnvEditor] = useState(false);
@@ -134,7 +129,6 @@ export const ApiClient: React.FC = () => {
     const [saveCollectionId, setSaveCollectionId] = useState('');
     const [saveRequestName, setSaveRequestName] = useState('');
 
-    // ── WebSocket State ───────────────────────────────────
     const [wsUrl, setWsUrl] = useState('ws://');
     const [wsStatus, setWsStatus] = useState<'disconnected' | 'connecting' | 'connected'>('disconnected');
     const [wsMessages, setWsMessages] = useState<WsMessage[]>([]);
@@ -142,7 +136,6 @@ export const ApiClient: React.FC = () => {
     const wsRef = useRef<WebSocket | null>(null);
     const wsLogRef = useRef<HTMLDivElement>(null);
 
-    // Cleanup WS when switching mode or unmounting
     useEffect(() => {
         if (clientMode !== 'ws' && wsRef.current) {
             wsRef.current.close();
@@ -155,14 +148,12 @@ export const ApiClient: React.FC = () => {
         return () => { wsRef.current?.close(); };
     }, []);
 
-    // Auto-scroll WS log
     useEffect(() => {
         if (wsLogRef.current) {
             wsLogRef.current.scrollTop = wsLogRef.current.scrollHeight;
         }
     }, [wsMessages]);
 
-    // ── KV Helpers ────────────────────────────────────────
     const makeKv = (): KeyValue => ({ id: crypto.randomUUID(), key: '', value: '', enabled: true });
 
     const handleKvAdd = useCallback((setter: React.Dispatch<React.SetStateAction<KeyValue[]>>) =>
@@ -176,15 +167,14 @@ export const ApiClient: React.FC = () => {
     const handleKvRemove = useCallback((setter: React.Dispatch<React.SetStateAction<KeyValue[]>>, id: string) =>
         setter(prev => prev.filter(h => h.id !== id)), []);
 
-    const paramAdd    = useCallback(() => handleKvAdd(setParams), [handleKvAdd]);
+    const paramAdd = useCallback(() => handleKvAdd(setParams), [handleKvAdd]);
     const paramUpdate = useCallback((id: string, f: 'key' | 'value' | 'enabled', v: string | boolean) => handleKvUpdate(setParams, id, f, v), [handleKvUpdate]);
     const paramRemove = useCallback((id: string) => handleKvRemove(setParams, id), [handleKvRemove]);
 
-    const headerAdd    = useCallback(() => handleKvAdd(setHeaders), [handleKvAdd]);
+    const headerAdd = useCallback(() => handleKvAdd(setHeaders), [handleKvAdd]);
     const headerUpdate = useCallback((id: string, f: 'key' | 'value' | 'enabled', v: string | boolean) => handleKvUpdate(setHeaders, id, f, v), [handleKvUpdate]);
     const headerRemove = useCallback((id: string) => handleKvRemove(setHeaders, id), [handleKvRemove]);
 
-    // ── URL Builder ───────────────────────────────────────
     const buildFinalUrl = (): string => {
         const subUrl = substituteEnvVars(url, envVars);
         const active = params.filter(p => p.enabled && p.key.trim());
@@ -199,7 +189,6 @@ export const ApiClient: React.FC = () => {
         }
     };
 
-    // ── REST Submit ───────────────────────────────────────
     const handleSubmit = async () => {
         if (!url.trim()) return;
         setLoading(true);
@@ -246,7 +235,6 @@ export const ApiClient: React.FC = () => {
         }
     };
 
-    // ── Load Saved Request ────────────────────────────────
     const loadSavedRequest = (req: SavedRequest) => {
         setMethod(req.method as HttpMethod);
         setUrl(req.url);
@@ -262,7 +250,6 @@ export const ApiClient: React.FC = () => {
         setShowCollections(false);
     };
 
-    // ── Save to Collection ────────────────────────────────
     const handleSaveRequest = () => {
         if (!saveRequestName.trim() || !saveCollectionId) return;
         saveRequest(saveCollectionId, {
@@ -274,7 +261,6 @@ export const ApiClient: React.FC = () => {
         setShowSaveDialog(false);
     };
 
-    // ── WebSocket ─────────────────────────────────────────
     const wsConnect = () => {
         if (!wsUrl.trim() || wsRef.current) return;
         setWsStatus('connecting');
@@ -312,7 +298,6 @@ export const ApiClient: React.FC = () => {
         setWsSendInput('');
     };
 
-    // ── Formatting Helpers ────────────────────────────────
     const formatSize = (bytes: number) => {
         if (bytes < 1024) return `${bytes} B`;
         if (bytes < 1048576) return `${(bytes / 1024).toFixed(1)} KB`;
@@ -321,8 +306,8 @@ export const ApiClient: React.FC = () => {
 
     const getStatusClass = (status: number) =>
         status >= 200 && status < 300 ? 'success' :
-        status >= 300 && status < 400 ? 'redirect' :
-        status >= 400 && status < 500 ? 'client-error' : 'server-error';
+            status >= 300 && status < 400 ? 'redirect' :
+                status >= 400 && status < 500 ? 'client-error' : 'server-error';
 
     const prettyJson = useMemo(() => {
         if (!response?.body) return null;
@@ -361,14 +346,13 @@ export const ApiClient: React.FC = () => {
     const formatTs = (ts: number) =>
         new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
-    const activeParamCount  = params.filter(p => p.enabled && p.key.trim()).length;
+    const activeParamCount = params.filter(p => p.enabled && p.key.trim()).length;
     const activeHeaderCount = headers.filter(h => h.enabled && h.key.trim()).length;
     const hasBody = body.trim().length > 0;
     const hasAuth = authType !== 'none';
     const requestTabs: RequestTab[] = ['params', 'headers', ...(method !== 'GET' ? ['body' as RequestTab] : []), 'auth'];
     const totalSaved = collections.reduce((a, c) => a + c.requests.length, 0);
 
-    // ── WebSocket Mode ────────────────────────────────────
     if (clientMode === 'ws') {
         return (
             <div className="api-client">
@@ -454,7 +438,6 @@ export const ApiClient: React.FC = () => {
         );
     }
 
-    // ── REST Mode ─────────────────────────────────────────
     return (
         <div className="api-client">
 
@@ -753,10 +736,10 @@ export const ApiClient: React.FC = () => {
                             onClick={() => setRequestTab(tab)}
                         >
                             {tab.charAt(0).toUpperCase() + tab.slice(1)}
-                            {tab === 'params'  && activeParamCount  > 0 && <span className="api-client__badge">{activeParamCount}</span>}
+                            {tab === 'params' && activeParamCount > 0 && <span className="api-client__badge">{activeParamCount}</span>}
                             {tab === 'headers' && activeHeaderCount > 0 && <span className="api-client__badge">{activeHeaderCount}</span>}
-                            {tab === 'body'    && hasBody                && <span className="api-client__dot" />}
-                            {tab === 'auth'    && hasAuth               && <span className="api-client__dot" />}
+                            {tab === 'body' && hasBody && <span className="api-client__dot" />}
+                            {tab === 'auth' && hasAuth && <span className="api-client__dot" />}
                         </button>
                     ))}
                 </div>
@@ -790,14 +773,14 @@ export const ApiClient: React.FC = () => {
                             )}
                             {authType === 'basic' && (
                                 <>
-                                    <input className="api-client__auth-input" type="text"     placeholder="Username" value={authUser} onChange={e => setAuthUser(e.target.value)} />
+                                    <input className="api-client__auth-input" type="text" placeholder="Username" value={authUser} onChange={e => setAuthUser(e.target.value)} />
                                     <input className="api-client__auth-input" type="password" placeholder="Password" value={authPass} onChange={e => setAuthPass(e.target.value)} />
                                 </>
                             )}
                             {authType === 'api-key' && (
                                 <>
-                                    <input className="api-client__auth-input" type="text" placeholder="Header name (e.g. X-API-Key)" value={authKeyName}  onChange={e => setAuthKeyName(e.target.value)} />
-                                    <input className="api-client__auth-input" type="text" placeholder="Key value"                    value={authKeyValue} onChange={e => setAuthKeyValue(e.target.value)} />
+                                    <input className="api-client__auth-input" type="text" placeholder="Header name (e.g. X-API-Key)" value={authKeyName} onChange={e => setAuthKeyName(e.target.value)} />
+                                    <input className="api-client__auth-input" type="text" placeholder="Key value" value={authKeyValue} onChange={e => setAuthKeyValue(e.target.value)} />
                                 </>
                             )}
                         </div>

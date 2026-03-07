@@ -90,3 +90,26 @@
     color: var(--accent);
     text-decoration: underline;
 }
+
+.statusbar__pulse {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--fg-success);
+    margin-right: 4px;
+    vertical-align: middle;
+    animation: statusPulse 2s ease-in-out infinite;
+}
+
+@keyframes statusPulse {
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgba(63, 185, 80, 0.5);
+    }
+
+    50% {
+        box-shadow: 0 0 0 4px rgba(63, 185, 80, 0);
+    }
+}
