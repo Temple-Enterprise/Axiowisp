@@ -1,6 +1,5 @@
 import { create } from 'zustand';
 
-// ── History ──────────────────────────────────────────────
 export interface HistoryEntry {
     id: string;
     timestamp: number;
@@ -10,7 +9,6 @@ export interface HistoryEntry {
     timeMs: number;
 }
 
-// ── Environment Variables ─────────────────────────────────
 export interface EnvVar { key: string; value: string; }
 export interface Environment {
     id: string;
@@ -18,7 +16,6 @@ export interface Environment {
     vars: EnvVar[];
 }
 
-// ── Collections ───────────────────────────────────────────
 export interface SavedRequest {
     id: string;
     name: string;
@@ -41,7 +38,6 @@ export interface Collection {
     requests: SavedRequest[];
 }
 
-// ── Persistence ───────────────────────────────────────────
 const HISTORY_KEY = 'axiowisp-api-history';
 const ENV_KEY = 'axiowisp-api-envs';
 const COLL_KEY = 'axiowisp-api-collections';
@@ -54,14 +50,11 @@ function saveJson(key: string, val: unknown) {
     try { localStorage.setItem(key, JSON.stringify(val)); } catch { }
 }
 
-// ── Store ─────────────────────────────────────────────────
 interface ApiState {
-    // history
     history: HistoryEntry[];
     pushHistory: (entry: Omit<HistoryEntry, 'id'>) => void;
     clearHistory: () => void;
 
-    // environments
     environments: Environment[];
     activeEnvId: string | null;
     addEnvironment: (name: string) => void;
@@ -71,7 +64,6 @@ interface ApiState {
     addEnvVar: (envId: string) => void;
     removeEnvVar: (envId: string, index: number) => void;
 
-    // collections
     collections: Collection[];
     addCollection: (name: string) => void;
     removeCollection: (id: string) => void;
@@ -169,7 +161,6 @@ export const useApiStore = create<ApiState>((set) => ({
     }),
 }));
 
-// ── Helper ────────────────────────────────────────────────
 export function substituteEnvVars(text: string, vars: EnvVar[]): string {
     let result = text;
     for (const { key, value } of vars) {

@@ -4,6 +4,7 @@ import { RunPanel } from './RunPanel';
 import { GitPanel } from './GitPanel';
 import { ApiClient } from './ApiClient';
 import { SnippetsPanel } from './SnippetsPanel';
+import { NotepadPanel } from './NotepadPanel';
 import { useWorkspaceStore } from '../stores/workspace-store';
 import { useTabsStore } from '../stores/tabs-store';
 import { useUiStore } from '../stores/ui-store';
@@ -357,6 +358,15 @@ export const Sidebar: React.FC = () => {
                         <span className="sidebar__section-title">SNIPPETS</span>
                     </div>
                     <SnippetsPanel />
+                </>
+            )}
+
+            {activeActivity === 'notepad' && (
+                <>
+                    <div className="sidebar__section-header">
+                        <span className="sidebar__section-title">SCRATCHPAD</span>
+                    </div>
+                    <NotepadPanel />
                 </>
             )}
         </div>

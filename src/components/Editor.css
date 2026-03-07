@@ -38,6 +38,7 @@
     box-shadow: var(--shadow-md);
     outline: none;
 }
+
 /* ── Live Preview ─────────────────────────────────────── */
 
 .editor--html {
@@ -84,6 +85,8 @@
 .editor__content {
     flex: 1;
     overflow: hidden;
+    display: flex;
+    flex-direction: row;
 }
 
 .editor__content--split {

@@ -53,6 +53,14 @@ export const DEFAULT_KEYBINDINGS: Record<string, string> = {
     fontSizeUp: 'ctrl+=',
     fontSizeDown: 'ctrl+-',
     formatDocument: 'ctrl+shift+alt+f',
+    closeTab: 'ctrl+w',
+    reopenClosedTab: 'ctrl+shift+t',
+    nextTab: 'ctrl+tab',
+    previousTab: 'ctrl+shift+tab',
+    findReplace: 'ctrl+h',
+    goToSymbol: 'ctrl+shift+o',
+    toggleWordWrap: 'alt+z',
+    duplicateLine: 'ctrl+shift+d',
 };
 
 const STORAGE_KEY = 'axiowisp-settings';

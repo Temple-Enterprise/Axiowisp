@@ -63,7 +63,6 @@ async function gatherStats(rootPath: string): Promise<DashboardData> {
 
             fileSizes.push({ path: filePath.replace(rootPath, '').replace(/\\/g, '/').replace(/^\//, ''), size: lineCount });
 
-            // Count TODOs and FIXMEs
             const upper = content.toUpperCase();
             const todoMatches = upper.match(/TODO/g);
             const fixmeMatches = upper.match(/FIXME/g);

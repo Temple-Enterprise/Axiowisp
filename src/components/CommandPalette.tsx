@@ -3,12 +3,14 @@ import { useUiStore } from '../stores/ui-store';
 import { useWorkspaceStore } from '../stores/workspace-store';
 import { useTabsStore } from '../stores/tabs-store';
 import { useOutputStore } from '../stores/output-store';
+import { useSettingsStore } from '../stores/settings-store';
 import { FileEntry } from '../../shared/types';
 import { getFileIcon } from '../utils/file-icons';
 import {
     Search, FolderOpen, PanelBottom, MessageSquare, PanelLeft,
     Settings, FilePlus, FolderPlus, Save, X as CloseIcon,
     Terminal, AlertTriangle, RefreshCw, Trash2,
+    Map, WrapText, Copy, Hash, Replace, RotateCcw,
 } from 'lucide-react';
 import './CommandPalette.css';
 
@@ -47,9 +49,15 @@ export const CommandPalette: React.FC = () => {
     const openTab = useTabsStore((s) => s.openTab);
     const saveActiveTab = useTabsStore((s) => s.saveActiveTab);
     const closeAllTabs = useTabsStore((s) => s.closeAllTabs);
+    const closeActiveTab = useTabsStore((s) => s.closeActiveTab);
+    const reopenClosedTab = useTabsStore((s) => s.reopenClosedTab);
     const toggleSettings = useUiStore((s) => s.toggleSettings);
     const setActiveActivity = useUiStore((s) => s.setActiveActivity);
     const clearOutput = useOutputStore((s) => s.clearOutput);
+    const minimapEnabled = useSettingsStore((s) => s.minimapEnabled);
+    const setMinimapEnabled = useSettingsStore((s) => s.setMinimapEnabled);
+    const wordWrap = useSettingsStore((s) => s.wordWrap);
+    const setWordWrap = useSettingsStore((s) => s.setWordWrap);
 
     const [query, setQuery] = useState('');
     const [selectedIndex, setSelectedIndex] = useState(0);
@@ -144,6 +152,13 @@ export const CommandPalette: React.FC = () => {
                 action: () => { closeCommandPalette(); clearOutput(); },
             },
             {
+                id: 'toggle-scratchpad',
+                label: 'Toggle Scratchpad',
+                description: 'Open the scratchpad notes panel',
+                icon: <FilePlus size={14} />,
+                action: () => { closeCommandPalette(); setActiveActivity('notepad'); },
+            },
+            {
                 id: 'settings',
                 label: 'Settings',
                 description: 'Open editor settings',
@@ -151,10 +166,78 @@ export const CommandPalette: React.FC = () => {
                 icon: <Settings size={14} />,
                 action: () => { closeCommandPalette(); toggleSettings(); },
             },
+            {
+                id: 'toggle-minimap',
+                label: 'Toggle Minimap',
+                description: minimapEnabled ? 'Hide the code minimap' : 'Show the code minimap',
+                icon: <Map size={14} />,
+                action: () => { closeCommandPalette(); setMinimapEnabled(!minimapEnabled); },
+            },
+            {
+                id: 'toggle-word-wrap',
+                label: 'Toggle Word Wrap',
+                description: wordWrap === 'off' ? 'Enable word wrapping' : 'Disable word wrapping',
+                shortcut: 'Alt+Z',
+                icon: <WrapText size={14} />,
+                action: () => { closeCommandPalette(); setWordWrap(wordWrap === 'off' ? 'on' : 'off'); },
+            },
+            {
+                id: 'duplicate-line',
+                label: 'Duplicate Line',
+                description: 'Duplicate the current line down',
+                shortcut: 'Ctrl+Shift+D',
+                icon: <Copy size={14} />,
+                action: () => {
+                    closeCommandPalette();
+                    const editor = (window as any).__axiowisp_editor;
+                    if (editor) editor.getAction('editor.action.copyLinesDownAction')?.run();
+                },
+            },
+            {
+                id: 'go-to-symbol',
+                label: 'Go to Symbol',
+                description: 'Navigate to a symbol in the current file',
+                shortcut: 'Ctrl+Shift+O',
+                icon: <Hash size={14} />,
+                action: () => {
+                    closeCommandPalette();
+                    const editor = (window as any).__axiowisp_editor;
+                    if (editor) editor.getAction('editor.action.quickOutline')?.run();
+                },
+            },
+            {
+                id: 'find-replace',
+                label: 'Find and Replace',
+                description: 'Find and replace text in the current file',
+                shortcut: 'Ctrl+H',
+                icon: <Replace size={14} />,
+                action: () => {
+                    closeCommandPalette();
+                    const editor = (window as any).__axiowisp_editor;
+                    if (editor) editor.getAction('editor.action.startFindReplaceAction')?.run();
+                },
+            },
+            {
+                id: 'close-active-tab',
+                label: 'Close Tab',
+                description: 'Close the active editor tab',
+                shortcut: 'Ctrl+W',
+                icon: <CloseIcon size={14} />,
+                action: () => { closeCommandPalette(); closeActiveTab(); },
+            },
+            {
+                id: 'reopen-closed-tab',
+                label: 'Reopen Closed Tab',
+                description: 'Reopen the most recently closed tab',
+                shortcut: 'Ctrl+Shift+T',
+                icon: <RotateCcw size={14} />,
+                action: () => { closeCommandPalette(); reopenClosedTab(); },
+            },
         ],
         [closeCommandPalette, openFolder, saveActiveTab, toggleSidebar, toggleBottomPanel,
             toggleChatPanel, toggleSettings, setActiveActivity, setBottomPanelTab,
-            closeAllTabs, refreshTree, clearOutput],
+            closeAllTabs, closeActiveTab, reopenClosedTab, refreshTree, clearOutput,
+            minimapEnabled, setMinimapEnabled, wordWrap, setWordWrap],
     );
 
     const fileItems: PaletteItem[] = useMemo(() => {

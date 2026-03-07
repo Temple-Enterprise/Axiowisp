@@ -24,11 +24,18 @@ function detectLanguage(fileName: string): string {
     return map[ext] ?? 'plaintext';
 }
 
+interface ClosedTabEntry {
+    filePath: string;
+    content: string;
+}
+
 interface TabsState {
     tabs: Tab[];
     activeTabId: string | null;
+    closedTabs: ClosedTabEntry[];
     openTab: (filePath: string) => Promise<void>;
     closeTab: (tabId: string) => void;
+    closeActiveTab: () => void;
     closeAllTabs: () => void;
     closeOtherTabs: (keepTabId: string) => void;
     setActiveTab: (tabId: string) => void;
@@ -41,6 +48,9 @@ interface TabsState {
     closeTabsToRight: (tabId: string) => void;
     closeSavedTabs: () => void;
     reorderTabs: (fromIndex: number, toIndex: number) => void;
+    reopenClosedTab: () => Promise<void>;
+    activateNextTab: () => void;
+    activatePreviousTab: () => void;
     recentFiles: string[];
     openDashboard: () => void;
     openDiff: (filePath: string, originalContent: string, modifiedContent: string, language: string) => void;
@@ -49,6 +59,7 @@ interface TabsState {
 export const useTabsStore = create<TabsState>((set, get) => ({
     tabs: [],
     activeTabId: null,
+    closedTabs: [],
     recentFiles: [] as string[],
 
     openTab: async (filePath: string) => {
@@ -88,6 +99,7 @@ export const useTabsStore = create<TabsState>((set, get) => ({
 
     closeTab: (tabId: string) => {
         set((state) => {
+            const closingTab = state.tabs.find((t) => t.id === tabId);
             const idx = state.tabs.findIndex((t) => t.id === tabId);
             const newTabs = state.tabs.filter((t) => t.id !== tabId);
             let newActive = state.activeTabId;
@@ -100,11 +112,22 @@ export const useTabsStore = create<TabsState>((set, get) => ({
                 }
             }
 
-            return { tabs: newTabs, activeTabId: newActive };
+            const newClosed = [...state.closedTabs];
+            if (closingTab && closingTab.filePath !== 'dashboard' && !closingTab.filePath.startsWith('diff:')) {
+                newClosed.push({ filePath: closingTab.filePath, content: closingTab.content });
+                if (newClosed.length > 20) newClosed.shift();
+            }
+
+            return { tabs: newTabs, activeTabId: newActive, closedTabs: newClosed };
         });
     },
 
-    closeAllTabs: () => set({ tabs: [], activeTabId: null }),
+    closeActiveTab: () => {
+        const { activeTabId, closeTab } = get();
+        if (activeTabId) closeTab(activeTabId);
+    },
+
+    closeAllTabs: () => set({ tabs: [], activeTabId: null, closedTabs: [] }),
 
     closeOtherTabs: (keepTabId: string) =>
         set((state) => ({
@@ -193,6 +216,29 @@ export const useTabsStore = create<TabsState>((set, get) => ({
         });
     },
 
+    reopenClosedTab: async () => {
+        const { closedTabs } = get();
+        if (closedTabs.length === 0) return;
+        const entry = closedTabs[closedTabs.length - 1];
+        set((state) => ({ closedTabs: state.closedTabs.slice(0, -1) }));
+        await get().openTab(entry.filePath);
+    },
+
+    activateNextTab: () => {
+        const { tabs, activeTabId } = get();
+        if (tabs.length <= 1) return;
+        const idx = tabs.findIndex((t) => t.id === activeTabId);
+        const next = (idx + 1) % tabs.length;
+        set({ activeTabId: tabs[next].id });
+    },
+
+    activatePreviousTab: () => {
+        const { tabs, activeTabId } = get();
+        if (tabs.length <= 1) return;
+        const idx = tabs.findIndex((t) => t.id === activeTabId);
+        const prev = (idx - 1 + tabs.length) % tabs.length;
+        set({ activeTabId: tabs[prev].id });
+    },
 
     refreshTab: async (filePath: string) => {
         const { tabs } = get();

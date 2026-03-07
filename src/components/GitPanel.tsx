@@ -38,7 +38,6 @@ async function callAiForCommit(diff: string, provider: string, model: string, ap
         return data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ?? '';
     }
 
-    // OpenAI default
     const res = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },

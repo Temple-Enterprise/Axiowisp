@@ -16,7 +16,6 @@ export const DiffViewer: React.FC = () => {
     const activeTab = tabs.find((t) => t.id === activeTabId);
     if (!activeTab) return null;
 
-    // language is stored as 'diff:typescript', 'diff:python', etc.
     const language = activeTab.language.startsWith('diff:')
         ? activeTab.language.slice(5)
         : 'plaintext';

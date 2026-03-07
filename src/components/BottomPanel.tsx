@@ -158,7 +158,7 @@ export const BottomPanel: React.FC = () => {
             }
             xterm.dispose();
         };
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    }, []);
 
     useEffect(() => {
         if (bottomPanelTab === 'terminal') {
